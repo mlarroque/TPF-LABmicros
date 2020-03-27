@@ -1,9 +1,9 @@
 /*
  * The Clear BSD License
- * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2018 NXP
  * All rights reserved.
- * 
+ *
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided
  *  that the following conditions are met:
@@ -15,7 +15,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of the copyright holder nor the names of its
+ * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -30,65 +30,72 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
-#include "fsl_phy.h"
-/* TODO: insert other include files here. */
+#ifndef _FSL_SWO_H_
+#define _FSL_SWO_H_
+
+#include "fsl_common.h"
+
+/*!
+ * @addtogroup debugconsole
+ * @{
+ */
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
-/* TODO: insert definitions here. */
+/* swo protocol */
+enum _swo_protocol
+{
+    kSWO_ProtocolManchester = 1U, /*!< SWO manchester protocol */
+    kSWO_ProtocolNrz = 2U,        /*!< SWO UART/NRZ protocol */
+};
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+#if defined(__cplusplus)
+extern "C" {
+#endif /* __cplusplus */
 
-/* TODO: insert prototypes here. */
- 
-/*******************************************************************************
- * Variables
- ******************************************************************************/
+/*!
+ * @brief io init function.
+ *
+ * Call this function to init SWO.
+ *
+ * @param port port used to transfer data
+ * @param baudRate SWO clock
+ * @param clkSrcFreq core clock frequency
+ */
+status_t SWO_Init(uint32_t port, uint32_t baudRate, uint32_t clkSrcFreq);
 
-/* TODO: insert variables here. */
+/*!
+ * @brief Deinit IO.
+ *
+ * Call this function to Deinit SWO.
+ *
+ * @param port port to deinit.
+ * @return deinit status
+ */
+void SWO_Deinit(uint32_t port);
 
-/*******************************************************************************
- * Code
- ******************************************************************************/
+/*!
+ * @brief io transfer function.
+ *
+ * Call this function to print log.
+ *
+ * @param port port used to transfer data
+ * @param ch  transfer buffer pointer
+ * @param size transfer size
+ */
+status_t SWO_SendBlocking(uint32_t port, uint8_t *ch, size_t size);
 
-status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
-{
-    /* TODO: insert implementation here. */
-    return kStatus_Fail;
+#if defined(__cplusplus)
 }
+#endif /* __cplusplus */
 
-status_t PHY_Write(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t data)
-{
-    /* TODO: insert implementation here. */
-    return kStatus_Fail;
-}
+/*! @} */
 
-status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *dataPtr)
-{
-    /* TODO: insert implementation here. */
-    return kStatus_Fail;
-}
-
-status_t PHY_EnableLoopback(ENET_Type *base, uint32_t phyAddr, phy_loop_t mode, phy_speed_t speed, bool enable)
-{
-    /* TODO: insert implementation here. */
-    return kStatus_Fail;
-}
-
-status_t PHY_GetLinkStatus(ENET_Type *base, uint32_t phyAddr, bool *status)
-{
-    /* TODO: insert implementation here. */
-    return kStatus_Fail;
-}
-
-status_t PHY_GetLinkSpeedDuplex(ENET_Type *base, uint32_t phyAddr, phy_speed_t *speed, phy_duplex_t *duplex)
-{
-    /* TODO: insert implementation here. */
-    return kStatus_Fail;
-}
+#endif /* _FSL_SWO_H_ */
