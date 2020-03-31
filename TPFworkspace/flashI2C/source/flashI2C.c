@@ -41,8 +41,13 @@
 #include "fsl_debug_console.h"
 /* TODO: insert other include files here. */
 
-/* TODO: insert other definitions and declarations here. */
+#include "flashHal.h"
 
+/* TODO: insert other definitions and declarations here. */
+#define NO_DEBUG 0
+#define STEP1 1
+#define STEP2 2
+#define DEBUG STEP1
 /*
  * @brief   Application entry point.
  */
@@ -59,9 +64,50 @@ int main(void) {
 
     /* Force the counter to be placed into memory. */
     volatile static int i = 0 ;
+
+#if (DEBUG == STEP1)
+    int data[] = {2, 4, 6, 8, 10};  //array size: 5
+    char * dataTag = "prueba1";   //dataTagLen: 7
+    int dataRead[] = {0, 0, 0, 0, 0};  //array size: 5
+    char * dataReadTag = "read1";  //dataReadTagLen: 5
+    int j = 0;
+
+    if(flashINIT(-1) != -1)
+    {
+    	if(flashAlloc(data, sizeof(data[0])*5, dataTag, 7) != -1)
+    	{
+    		if(readFlash(dataRead, sizeof(dataRead[0])*5, dataReadTag, 5) != -1)
+    		{
+    			for(j = 0; j < 5; j++)
+    			{
+    				print("%d \n", dataRead[j]);
+    			}
+
+    		}
+    		else
+    		{
+    			print("READING FLASH ERROR\n");
+    		}
+    	}
+    	else
+    	{
+    		print("WRITING FLASH ERROR\n");
+    	}
+    }
+    else
+    {
+    	print("INITIALIZING FLASH ERROR\n");
+    }
+#endif
     /* Enter an infinite loop, just incrementing a counter. */
     while(1) {
+
         i++ ;
     }
     return 0 ;
+
+    //Hay que probar:
+    //allocar y leer memoria.
+    //allocar y leer mp3.
+    //parseo de mp3. mmmmm esto es de goloso.
 }
