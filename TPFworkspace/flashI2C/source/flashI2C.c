@@ -80,23 +80,23 @@ int main(void) {
     		{
     			for(j = 0; j < 5; j++)
     			{
-    				print("%d \n", dataRead[j]);
+    				printf("%d \n", dataRead[j]);
     			}
 
     		}
     		else
     		{
-    			print("READING FLASH ERROR\n");
+    			printf("READING FLASH ERROR\n");
     		}
     	}
     	else
     	{
-    		print("WRITING FLASH ERROR\n");
+    		printf("WRITING FLASH ERROR\n");
     	}
     }
     else
     {
-    	print("INITIALIZING FLASH ERROR\n");
+    	printf("INITIALIZING FLASH ERROR\n");
     }
 #endif
     /* Enter an infinite loop, just incrementing a counter. */

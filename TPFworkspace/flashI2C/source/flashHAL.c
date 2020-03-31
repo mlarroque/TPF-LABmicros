@@ -5,6 +5,7 @@
  *      Author: G5
  */
 
+#include "flashHAL.h"
 #include "fsl_ftfx_controller.h"
 #include <stdbool.h>
 
@@ -36,6 +37,8 @@ _Bool isMetaDataValid(void);
 
 _Bool dataTagExists(char * dataTag, int dataTagLen, int * indexFound);
 
+void refreshIndex(void);
+
 int flashINIT(int previousInfoFlag)
 {
 
@@ -44,14 +47,14 @@ int flashINIT(int previousInfoFlag)
 
 	if(!isFlashINIT)
 	{
-		config.flashDesc.type = kFTFx_MemTypePflash;
-		config.flashDesc.index = 0;
+		flashConfig.flashDesc.type = kFTFx_MemTypePflash;
+		flashConfig.flashDesc.index = 0;
 		flashStatus = FTFx_API_Init(&flashConfig);   //initialize flash controller and
 													//fill flashConfig according to hardware features
 		//fill metaData
 		if(previousInfoFlag != -1) //there is previous info in flash to take into account
 		{
-			flashStatus = FTFx_CMD_ReadResource(flashConfig, flashConfig.flashDesc.blockBase, (uint8_t *) dataStreams, (uint32_t) (sizeof(dataStreams[0]) * MAX_STREAMS_ALLOWED), kFTFx_ResourceOptionFlashIfr);//readPreviousMetaData (fill isMetaData corrupted = true if there is some reading error)
+			flashStatus = FTFx_CMD_ReadResource(&flashConfig, flashConfig.flashDesc.blockBase, (uint8_t *) dataStreams, (uint32_t) (sizeof(dataStreams[0]) * MAX_STREAMS_ALLOWED), kFTFx_ResourceOptionFlashIfr);//readPreviousMetaData (fill isMetaData corrupted = true if there is some reading error)
 		}
 		else  //reset metaData
 		{
@@ -115,7 +118,7 @@ int readFlash(int * data, int dataLen, char * dataTag, int dataTagLen)
 	int indexFound, ret = 0;
 	if(dataTagExists(dataTag, dataTagLen, &indexFound) && (dataLen > 0) && (dataLen <= dataStreams[indexFound].dataLen))
 	{
-		flashStatus = FTFx_CMD_ReadResource(flashConfig, (uint32_t) dataStreams[indexFound].startAdress, (uint8_t *) data, (uint32_t) dataLen, kFTFx_ResourceOptionFlashIfr);
+		flashStatus = FTFx_CMD_ReadResource(&flashConfig, (uint32_t) dataStreams[indexFound].startAdress, (uint8_t *) data, (uint32_t) dataLen, kFTFx_ResourceOptionFlashIfr);
 
 		if(flashStatus != kStatus_FTFx_Success )
 		{
@@ -151,7 +154,7 @@ _Bool isMetaDataValid(void)
 					== (flashConfig.flashDesc.blockBase + flashConfig.flashDesc.totalSize));
 }
 
-_Bool dataTagExists(char * dataTag, int dataTagLen, int * indexFounded)
+_Bool dataTagExists(char * dataTag, int dataTagLen, int * indexFound)
 {
 	int i = 0, j = 0;
 	bool wordMissmatched = false, tagFound = false;
