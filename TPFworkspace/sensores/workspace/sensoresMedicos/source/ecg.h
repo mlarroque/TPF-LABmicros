@@ -17,16 +17,19 @@
  * 					DEFINICIONES				*
  ************************************************/
 typedef float ecg_sample_t;
+typedef struct {
+   uint16_t fs;
+} ECG_init_t;
 
 /************************************************
  *					FUNCIONES					*
  ************************************************/
 
 //Inicializa los recursos necesarios para el ECG
-void InitializeECG(void);
+void InitializeECG(ECG_init_t*);
 
 //Devuelve el valor del ritmo cardiaco en bpm.
-uint8_t GetHeartBeat(void);
+uint16_t GetHeartBeat(void);
 
 //Devuelve la muestra mas vieja no leida del ECG.
 ecg_sample_t GetEcgSample(void);

@@ -18,10 +18,12 @@
 /****************************************************
  * 					VARIABLES GLOBALES				*
  ****************************************************/
-
+static uint16_t fs;
 static ecg_sample_t ecg_signal[ECG_SIZE]; //buffer circular para el ECG
 static uint16_t start = 0;
 static uint16_t curr = ECG_SIZE-1; //indice a la muestra no leida mas vieja.
+
+
 
 /****************************************************
  * 					FUNCIONES LOCALES				*
@@ -37,8 +39,16 @@ void AddEcgSample(ecg_sample_t sample){
  *					FUNCIONES DEL HEADER			*
  ****************************************************/
 
+void InitializeECG(ECG_init_t* init_data){
+	fs = init_data->fs;
+}
+
 ecg_sample_t GetEcgSample(void){
 	ecg_sample_t sample = ecg_signal[curr];
 	curr = (curr+1)%ECG_SIZE;	//Actulaizo donde esta la ultima muestra no leida
 	return sample;
+}
+
+uint16_t GetHeartBeat(void){
+
 }
