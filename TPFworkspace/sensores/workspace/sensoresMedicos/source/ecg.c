@@ -14,15 +14,13 @@
 /****************************************************
  * 					DEFINICIONES					*
  ****************************************************/
-#define ECG_SIZE 1024
+#define ECG_SIZE 1200
 #define WINDOW_DURATION 0.06
 #define PEAK_LIST_SIZE 50
 
 typedef struct{
 	int area;
 	uint16_t next_node;
-	uint16_t prev_node;
-
 }peak_node_t;
 
 /****************************************************
@@ -54,6 +52,7 @@ bool AddPeak2List(int curr_area){
 	peak_node_t curr_peak = {.area=curr_area, .next_node=0};
 	bool done = false;
 	uint16_t list_index = peaks_list[first_node].next_node;
+	uint16_t prev = first_node;
 	if( list_size >= PEAK_LIST_SIZE ){
 		return false; //Lista llena
 	}
@@ -61,37 +60,42 @@ bool AddPeak2List(int curr_area){
 		if(list_size == 0){
 			first_node = 0;
 			curr_peak.next_node = 0;
-			curr_peak.prev_node = 0;
 		}
 		else{
 			if( curr_area > (peaks_list[first_node].area) ){
-				curr_peak.prev_node = list_size;
 				curr_peak.next_node = first_node;
-				peaks_list[first_node].prev_node = list_size;
 				first_node = list_size;
+				done = true;
 			}
 			else{
 				for(int i=1;(i<list_size)&&(!done);i++){
 					if( curr_area > (peaks_list[list_index].area) ){
-						curr_peak.prev_node = peaks_list[list_index].prev_node;
 						curr_peak.next_node = list_index;
-						peaks_list[list_index].prev_node = list_size;
+						peaks_list[prev].next_node = list_size;
 						done = true;
 					}
+					prev = list_index;
 					list_index = peaks_list[list_index].next_node;
 				}
 			}
 			if(!done){
 				peaks_list[list_index].next_node = list_size;
-				curr_peak.prev_node = list_index;
 				curr_peak.next_node = list_size;
 			}
 			peaks_list[list_size++] = curr_peak;
 		}
 
+		return true;
 	}
 }
 
+int GetListMedian(void){
+	uint16_t median_index = first_node;
+	for(int i=0; i< (list_size/2); i++){
+		median_index = peaks_list[median_index].next_node;
+	}
+	return peaks_list[median_index].area;
+}
 /****************************************************
  *					FUNCIONES DEL HEADER			*
  ****************************************************/
@@ -110,9 +114,15 @@ uint16_t GetHeartBeat(void){
 	//Variables locales
 	bool IsMax = true;	//Indica si la muestra corresponde a un maximo local
 	int current_area = 0; //Area bajo la curva del maximo actual
+	int threshold = 0;
 	int delta = 0;
+	uint16_t duration = ECG_SIZE/fs;
+	uint16_t current_node = 0;
+	uint16_t r_peaks[PEAK_LIST_SIZE];
+	uint16_t r_index = 0;
 	uint16_t window_size = fs * WINDOW_DURATION; //Numero de vecinos a un lado del maximo.
 	bool successful = true;
+	bool finished = false; //Flag para encontrar picos que superan el threshold
 	//Reseteo la lista con picos
 	first_node = 0;
 	list_size = 0;
@@ -134,9 +144,18 @@ uint16_t GetHeartBeat(void){
 			if(!successful){
 				//error
 			}
-			else{
-
-			}
 		}
 	}
+	threshold = GetListMedian() / 2;
+	current_node = first_node;
+	for(int peak_i=0; (peak_i<list_size)&&(!finished); i++){
+		if( peaks_list[current_node].area > threshold){
+			r_peaks[r_index++] = current_node;
+			current_node = peaks_list[current_node].next_node;
+		}
+		else{
+			finished = true;
+		}
+	}
+	return (60*r_index)/duration;
 }
