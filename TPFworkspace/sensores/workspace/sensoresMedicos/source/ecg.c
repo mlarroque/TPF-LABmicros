@@ -16,7 +16,7 @@
  ****************************************************/
 #define ECG_SIZE 1200
 #define WINDOW_DURATION 0.06
-#define PEAK_LIST_SIZE 50
+#define PEAK_LIST_SIZE 100
 
 typedef struct{
 	int area;
@@ -116,7 +116,7 @@ uint16_t GetHeartBeat(void){
 	int current_area = 0; //Area bajo la curva del maximo actual
 	int threshold = 0;
 	int delta = 0;
-	uint16_t duration = ECG_SIZE/fs;
+	float duration = ECG_SIZE/fs;
 	uint16_t current_node = 0;
 	uint16_t r_peaks[PEAK_LIST_SIZE];
 	uint16_t r_index = 0;
