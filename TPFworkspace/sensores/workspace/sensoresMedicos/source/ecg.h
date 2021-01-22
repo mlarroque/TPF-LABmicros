@@ -34,4 +34,7 @@ uint16_t GetHeartBeat(void);
 //Devuelve la muestra mas vieja no leida del ECG.
 ecg_sample_t GetEcgSample(void);
 
+//Recibe nuevo punto del ECG
+void AddEcgSample(ecg_sample_t sample);
+
 #endif /* ECG_H_ */
