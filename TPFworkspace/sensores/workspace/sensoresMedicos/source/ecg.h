@@ -31,6 +31,9 @@ void InitializeECG(ECG_init_t*);
 //Devuelve el valor del ritmo cardiaco en bpm.
 uint16_t GetHeartBeat(void);
 
+//Procesa el ECG y determina el ritmo cardiaco.
+void CalculateHeartBeat(void);
+
 //Devuelve la muestra mas vieja no leida del ECG.
 ecg_sample_t GetEcgSample(void);
 
