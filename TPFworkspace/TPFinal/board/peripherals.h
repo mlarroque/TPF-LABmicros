@@ -22,22 +22,22 @@ extern "C" {
  **********************************************************************************************************************/
 /* Definitions for BOARD_InitPeripherals functional group */
 /* Definition of peripheral ID */
-#define UART0_PERIPHERAL UART0
+#define UART3_PERIPHERAL UART3
 /* Definition of the clock source frequency */
-#define UART0_CLOCK_SOURCE CLOCK_GetFreq(UART0_CLK_SRC)
-/* UART0 interrupt vector ID (number). */
-#define UART0_SERIAL_RX_TX_IRQN UART0_RX_TX_IRQn
-/* UART0 interrupt handler identifier. */
-#define UART0_SERIAL_RX_TX_IRQHANDLER UART0_RX_TX_IRQHandler
-/* UART0 interrupt vector ID (number). */
-#define UART0_SERIAL_ERROR_IRQN UART0_ERR_IRQn
-/* UART0 interrupt handler identifier. */
-#define UART0_SERIAL_ERROR_IRQHANDLER UART0_ERR_IRQHandler
+#define UART3_CLOCK_SOURCE CLOCK_GetFreq(UART3_CLK_SRC)
+/* UART3 interrupt vector ID (number). */
+#define UART3_SERIAL_RX_TX_IRQN UART3_RX_TX_IRQn
+/* UART3 interrupt handler identifier. */
+#define UART3_SERIAL_RX_TX_IRQHANDLER UART3_RX_TX_IRQHandler
+/* UART3 interrupt vector ID (number). */
+#define UART3_SERIAL_ERROR_IRQN UART3_ERR_IRQn
+/* UART3 interrupt handler identifier. */
+#define UART3_SERIAL_ERROR_IRQHANDLER UART3_ERR_IRQHandler
 
 /***********************************************************************************************************************
  * Global variables
  **********************************************************************************************************************/
-extern const uart_config_t UART0_config;
+extern const uart_config_t UART3_config;
 
 /***********************************************************************************************************************
  * Initialization functions

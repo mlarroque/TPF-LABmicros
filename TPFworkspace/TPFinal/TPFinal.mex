@@ -141,6 +141,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="UART3" description="Peripheral UART3 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -160,6 +165,12 @@
                         <pin_feature name="pull_enable" value="disable"/>
                      </pin_features>
                   </pin>
+                  <pin peripheral="UART3" signal="TX" pin_num="91" pin_signal="PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="UART3" signal="RX" pin_num="90" pin_signal="PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b"/>
                </pins>
             </function>
             <function name="BOARD_InitButtonsPins">
@@ -713,7 +724,7 @@
             </function>
          </functions_list>
       </pins>
-      <clocks name="Clocks" version="7.0" enabled="true" update_project_code="true">
+      <clocks name="Clocks" version="7.0" enabled="true" update_project_code="false">
          <generated_project_files>
             <file path="board/clock_config.c" update_enabled="true"/>
             <file path="board/clock_config.h" update_enabled="true"/>
@@ -877,29 +888,29 @@
                <description></description>
                <options/>
                <dependencies>
-                  <dependency resourceType="ClockOutput" resourceId="System_clock" description="System clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="ClockOutput" resourceId="Bus_clock" description="Bus clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="frequency" evaluation="greaterThan">
                         <data type="Frequency" unit="Hz">0</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART0.uart_tx" description="Signal TX of the peripheral UART0 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART3.uart_tx" description="Signal TX of the peripheral UART3 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="equal">
                         <data type="Boolean">true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART0.uart_rx" description="Signal RX of the peripheral UART0 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART3.uart_rx" description="Signal RX of the peripheral UART3 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="equal">
                         <data type="Boolean">true</data>
                      </feature>
                   </dependency>
                </dependencies>
                <instances>
-                  <instance name="UART0" uuid="ddca75bf-ee85-4d86-83db-c7f0a9c3bfb8" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="interrupts" peripheral="UART0" enabled="true" comment="" custom_name_enabled="false">
-                     <config_set name="uartConfig_t" quick_selection="QuickSelection5">
+                  <instance name="UART3" uuid="2d2d3e5c-be51-4743-abef-e5d73d09267c" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="interrupts" peripheral="UART3" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="uartConfig_t" quick_selection="QuickSelection3">
                         <struct name="uartConfig">
                            <setting name="clockSource" value="BusInterfaceClock"/>
                            <setting name="clockSourceFreq" value="GetFreq"/>
-                           <setting name="baudRate_Bps" value="9600"/>
+                           <setting name="baudRate_Bps" value="38400"/>
                            <setting name="parityMode" value="kUART_ParityDisabled"/>
                            <setting name="stopBitCount" value="kUART_OneStopBit"/>
                            <setting name="txFifoWatermark" value="0"/>
@@ -909,19 +920,14 @@
                            <setting name="enableRx" value="true"/>
                         </struct>
                      </config_set>
-                     <config_set name="interruptsCfg" quick_selection="QuickSelection1">
+                     <config_set name="interruptsCfg">
                         <set name="interrupts">
-                           <selected>
-                              <id>kUART_TxDataRegEmptyInterruptEnable</id>
-                              <id>kUART_TransmissionCompleteInterruptEnable</id>
-                              <id>kUART_RxDataRegFullInterruptEnable</id>
-                              <id>kUART_RxOverrunInterruptEnable</id>
-                           </selected>
+                           <selected/>
                         </set>
                         <struct name="interrupt_vectors">
-                           <setting name="enable_rx_tx_irq" value="true"/>
+                           <setting name="enable_rx_tx_irq" value="false"/>
                            <struct name="interrupt_rx_tx">
-                              <setting name="IRQn" value="UART0_RX_TX_IRQn"/>
+                              <setting name="IRQn" value="UART3_RX_TX_IRQn"/>
                               <setting name="enable_interrrupt" value="enabled"/>
                               <setting name="enable_priority" value="false"/>
                               <setting name="priority" value="0"/>
@@ -929,7 +935,7 @@
                            </struct>
                            <setting name="enable_err_irq" value="false"/>
                            <struct name="interrupt_err">
-                              <setting name="IRQn" value="UART0_ERR_IRQn"/>
+                              <setting name="IRQn" value="UART3_ERR_IRQn"/>
                               <setting name="enable_interrrupt" value="enabled"/>
                               <setting name="enable_priority" value="false"/>
                               <setting name="priority" value="0"/>
