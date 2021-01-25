@@ -116,7 +116,7 @@ void AddEcgSample(ecg_sample_t sample){
 	ecg_signal[last_index] = sample;
 	if( !(--counter) ){
 		counter = HEARTBEAT_UPDATE_TIME * fs; //Resetteo el counter
-		//ACA HAY QUE AGREGAR QUE PUSHIE UN EVENTO PARA CALCULAR EL HEARTBEAT
+		CalculateHeartBeat();
 	}
 }
 
