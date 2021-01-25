@@ -906,11 +906,11 @@
                </dependencies>
                <instances>
                   <instance name="UART3" uuid="2d2d3e5c-be51-4743-abef-e5d73d09267c" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="interrupts" peripheral="UART3" enabled="true" comment="" custom_name_enabled="false">
-                     <config_set name="uartConfig_t" quick_selection="QuickSelection3">
+                     <config_set name="uartConfig_t" quick_selection="QuickSelection5">
                         <struct name="uartConfig">
                            <setting name="clockSource" value="BusInterfaceClock"/>
                            <setting name="clockSourceFreq" value="GetFreq"/>
-                           <setting name="baudRate_Bps" value="38400"/>
+                           <setting name="baudRate_Bps" value="9600"/>
                            <setting name="parityMode" value="kUART_ParityDisabled"/>
                            <setting name="stopBitCount" value="kUART_OneStopBit"/>
                            <setting name="txFifoWatermark" value="0"/>
@@ -922,7 +922,10 @@
                      </config_set>
                      <config_set name="interruptsCfg">
                         <set name="interrupts">
-                           <selected/>
+                           <selected>
+                              <id>kUART_TxDataRegEmptyInterruptEnable</id>
+                              <id>kUART_TransmissionCompleteInterruptEnable</id>
+                           </selected>
                         </set>
                         <struct name="interrupt_vectors">
                            <setting name="enable_rx_tx_irq" value="false"/>

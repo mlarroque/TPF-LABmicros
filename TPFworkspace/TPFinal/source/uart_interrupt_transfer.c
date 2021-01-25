@@ -37,7 +37,7 @@
 
 #include "pin_mux.h"
 #include "clock_config.h"
-
+#include "fsl_debug_console.h" //TODO es solo para debug
 #include "uart_interrupt_transfer.h"
 /*******************************************************************************
  * Definitions
@@ -74,6 +74,7 @@ volatile bool rxOnGoing = false;
  * Code
  ******************************************************************************/
 extern void UART3_DriverIRQHandler(void);
+
 
 /* UART user callback */
 void UART_UserCallback(UART_Type *base, uart_handle_t *handle, status_t status, void *userData)

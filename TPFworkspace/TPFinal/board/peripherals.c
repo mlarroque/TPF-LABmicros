@@ -55,7 +55,7 @@ instance:
     - uartConfig:
       - clockSource: 'BusInterfaceClock'
       - clockSourceFreq: 'GetFreq'
-      - baudRate_Bps: '38400'
+      - baudRate_Bps: '9600'
       - parityMode: 'kUART_ParityDisabled'
       - stopBitCount: 'kUART_OneStopBit'
       - txFifoWatermark: '0'
@@ -63,9 +63,9 @@ instance:
       - idleType: 'kUART_IdleTypeStartBit'
       - enableTx: 'true'
       - enableRx: 'true'
-    - quick_selection: 'QuickSelection3'
+    - quick_selection: 'QuickSelection5'
   - interruptsCfg:
-    - interrupts: ''
+    - interrupts: 'kUART_TxDataRegEmptyInterruptEnable kUART_TransmissionCompleteInterruptEnable'
     - interrupt_vectors:
       - enable_rx_tx_irq: 'false'
       - interrupt_rx_tx:
@@ -84,7 +84,7 @@ instance:
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const uart_config_t UART3_config = {
-  .baudRate_Bps = 38400UL,
+  .baudRate_Bps = 9600UL,
   .parityMode = kUART_ParityDisabled,
   .stopBitCount = kUART_OneStopBit,
   .txFifoWatermark = 0U,
@@ -96,7 +96,7 @@ const uart_config_t UART3_config = {
 
 static void UART3_init(void) {
   UART_Init(UART3_PERIPHERAL, &UART3_config, UART3_CLOCK_SOURCE);
-  UART_EnableInterrupts(UART3_PERIPHERAL, 0);
+  UART_EnableInterrupts(UART3_PERIPHERAL, kUART_TxDataRegEmptyInterruptEnable | kUART_TransmissionCompleteInterruptEnable);
 }
 
 /***********************************************************************************************************************

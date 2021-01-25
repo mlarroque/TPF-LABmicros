@@ -25,29 +25,39 @@ typedef void (*uart_isr_t)(UART_Type *base, uart_handle_t *handle);
 
 void sendBTDataTEST(void)
 {
-	UART_WriteByte(UART3_PERIPHERAL, 8);
+	UART_WriteByte(UART3_PERIPHERAL, '8');
 	//uart_main(); //TODO cambiar UART3_PERIPHERAL POR ALGO INVISIBLE TIPO GET INSTANCE
 }
 
 
 
 void UART3_SERIAL_RX_TX_IRQHANDLER(void) {
-  uint32_t intStatus;
-   //Reading all interrupt flags of status registers
-  intStatus = UART_GetStatusFlags(UART3_PERIPHERAL);
-  intStatus &= ~(kUART_RxOverrunFlag | kUART_NoiseErrorFlag | kUART_TxFifoOverflowFlag | kUART_TxFifoEmptyFlag);
-  status_t status = UART_ClearStatusFlags(UART3_PERIPHERAL, intStatus);
+	uint32_t intStatus;
+	//Reading all interrupt flags of status registers
+	intStatus = UART_GetStatusFlags(UART3_PERIPHERAL);
+	intStatus &= ~(kUART_RxOverrunFlag | kUART_NoiseErrorFlag | kUART_TxFifoOverflowFlag | kUART_TxFifoEmptyFlag);
+	status_t status = UART_ClearStatusFlags(UART3_PERIPHERAL, intStatus);
+	uint8_t dummy = UART_ReadByte(UART3_PERIPHERAL);
 
-   //Flags can be cleared by reading the status register and reading/writing data registers.
-    //See the reference manual for details of each flag.
-    //The UART_ClearStatusFlags() function can be also used for clearing of flags in case the content of data regsiter is not used.
-    //For example:
-    //    status_t status;
-    //    intStatus &= ~(kUART_RxOverrunFlag | kUART_NoiseErrorFlag | kUART_FramingErrorFlag | kUART_ParityErrorFlag);
-    //    status = UART_ClearStatusFlags(UART3_PERIPHERAL, intStatus);
+	//Flags can be cleared by reading the status register and reading/writing data registers.
+	//See the reference manual for details of each flag.
+	//The UART_ClearStatusFlags() function can be also used for clearing of flags in case the content of data regsiter is not used.
+	//For example:
+	//    status_t status;
+	//    intStatus &= ~(kUART_RxOverrunFlag | kUART_NoiseErrorFlag | kUART_FramingErrorFlag | kUART_ParityErrorFlag);
+	//    status = UART_ClearStatusFlags(UART3_PERIPHERAL, intStatus);
 
+	if (kUART_TxDataRegEmptyFlag & UART_GetStatusFlags(UART3_PERIPHERAL))
+	{
+		UART_WriteByte(UART3_PERIPHERAL, 'j');
+		PRINTF("UART3_SERIAL_RX_TX_IRQHANDLER\n");
+	}
 
-  PRINTF("UART3_SERIAL_RX_TX_IRQHANDLER\n");
-
+	if (kUART_TransmissionCompleteFlag & UART_GetStatusFlags(UART3_PERIPHERAL))
+	{
+		PRINTF("transmission complete\n");
+	}
 
 }
+
+
