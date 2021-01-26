@@ -40,6 +40,7 @@
 #include "MK64F12.h"
 #include "fsl_debug_console.h"
 /* TODO: insert other include files here. */
+#include "bluetooth_com.h"
 
 /* TODO: insert other definitions and declarations here. */
 
@@ -66,7 +67,7 @@ int main(void) {
         i++ ;
         /* 'Dummy' NOP to allow source level single stepping of
             tight while() loop */
-        __asm volatile ("nop");
+        sendBTDataTEST();
     }
     return 0 ;
 }

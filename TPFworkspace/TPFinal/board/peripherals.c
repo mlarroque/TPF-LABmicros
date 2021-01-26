@@ -38,18 +38,18 @@ component:
  * BOARD_InitPeripherals functional group
  **********************************************************************************************************************/
 /***********************************************************************************************************************
- * UART0 initialization code
+ * UART3 initialization code
  **********************************************************************************************************************/
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 instance:
-- name: 'UART0'
+- name: 'UART3'
 - type: 'uart'
 - mode: 'interrupts'
 - custom_name_enabled: 'false'
 - type_id: 'uart_88ab1eca0cddb7ee407685775de016d5'
 - functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'UART0'
+- peripheral: 'UART3'
 - config_sets:
   - uartConfig_t:
     - uartConfig:
@@ -65,26 +65,25 @@ instance:
       - enableRx: 'true'
     - quick_selection: 'QuickSelection5'
   - interruptsCfg:
-    - interrupts: 'kUART_TxDataRegEmptyInterruptEnable kUART_TransmissionCompleteInterruptEnable kUART_RxDataRegFullInterruptEnable kUART_RxOverrunInterruptEnable'
+    - interrupts: 'kUART_TxDataRegEmptyInterruptEnable kUART_TransmissionCompleteInterruptEnable'
     - interrupt_vectors:
-      - enable_rx_tx_irq: 'true'
+      - enable_rx_tx_irq: 'false'
       - interrupt_rx_tx:
-        - IRQn: 'UART0_RX_TX_IRQn'
+        - IRQn: 'UART3_RX_TX_IRQn'
         - enable_interrrupt: 'enabled'
         - enable_priority: 'false'
         - priority: '0'
         - enable_custom_name: 'false'
       - enable_err_irq: 'false'
       - interrupt_err:
-        - IRQn: 'UART0_ERR_IRQn'
+        - IRQn: 'UART3_ERR_IRQn'
         - enable_interrrupt: 'enabled'
         - enable_priority: 'false'
         - priority: '0'
         - enable_custom_name: 'false'
-    - quick_selection: 'QuickSelection1'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
-const uart_config_t UART0_config = {
+const uart_config_t UART3_config = {
   .baudRate_Bps = 9600UL,
   .parityMode = kUART_ParityDisabled,
   .stopBitCount = kUART_OneStopBit,
@@ -95,11 +94,9 @@ const uart_config_t UART0_config = {
   .enableRx = true
 };
 
-static void UART0_init(void) {
-  UART_Init(UART0_PERIPHERAL, &UART0_config, UART0_CLOCK_SOURCE);
-  UART_EnableInterrupts(UART0_PERIPHERAL, kUART_TxDataRegEmptyInterruptEnable | kUART_TransmissionCompleteInterruptEnable | kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-  /* Enable interrupt UART0_RX_TX_IRQn request in the NVIC. */
-  EnableIRQ(UART0_SERIAL_RX_TX_IRQN);
+static void UART3_init(void) {
+  UART_Init(UART3_PERIPHERAL, &UART3_config, UART3_CLOCK_SOURCE);
+  UART_EnableInterrupts(UART3_PERIPHERAL, kUART_TxDataRegEmptyInterruptEnable | kUART_TransmissionCompleteInterruptEnable);
 }
 
 /***********************************************************************************************************************
@@ -108,7 +105,7 @@ static void UART0_init(void) {
 void BOARD_InitPeripherals(void)
 {
   /* Initialize components */
-  UART0_init();
+  UART3_init();
 }
 
 /***********************************************************************************************************************

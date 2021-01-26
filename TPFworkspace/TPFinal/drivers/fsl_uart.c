@@ -30,7 +30,6 @@ enum
 
 /* Typedef for interrupt handler. */
 typedef void (*uart_isr_t)(UART_Type *base, uart_handle_t *handle);
-
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
