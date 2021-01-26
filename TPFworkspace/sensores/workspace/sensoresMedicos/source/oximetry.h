@@ -16,30 +16,40 @@
 /********************************************************
  * 						DEFINICIONES					*
  ********************************************************/
-typedef uint16_t ppg_sample_t;
+typedef int32_t ppg_sample_t;
+typedef struct {
+   uint16_t fs;
+} oxi_init_t;
+
+typedef struct {
+	int32_t red_sample;
+	int32_t ir_sample;
+} pleth_sample_t;
 /********************************************************
  * 						FUNCIONES						*
  ********************************************************/
 
 //Inicializa recursos necesarios para obtener el Sp02 y
 //las PPG del led Ir y rojo.
-void InitializeOximetry(void);
+void InitializeOximetry(oxi_init_t*);
 
-//Devuelve la ultima muestra sin leer del PPG correspondiente
-//al led Ir.
-ppg_sample_t GetIrPlethSample(void);
+//Devuelve la ultima muestra sin leer del PPG.
+//si no hay muestras disponibles devuelve -1 en cada muestra.
+pleth_sample_t GetPlethSample(void);
+
+//Devuelve cuantas muestras quedan por leer
+uin16_t GetUnreadNum(void);
 
 //Devuelve la ultima muestra sin leer del PPG correspondiente
 //al led rojo.
-ppg_sample_t GetRedPlethSample(void);
+int32_t GetRedPlethSample(void);
+
+uin16_t GetRedUnreadNum(void);
 
 //Devuelve el valor de SpO2 como numero en el rango 0-100.
-float GetSpO2(void);
+int32_t GetSpO2(void);
 
-//Almacena nueva muestra del led rojo
-void AddRedSample(ppg_sample_t);
-
-//Almacena nueva muestra del led infrarojo
-void AddIrSample(ppg_sample_t);
+//Almacena nuevas muestras de ambos leds.
+void AddInputSamples(ppg_sample_t red_sample, ppg_sample_t ir_sample);
 
 #endif /* OXIMETRY_H_ */
