@@ -39,12 +39,14 @@
 #include "clock_config.h"
 #include "MK64F12.h"
 #include "fsl_debug_console.h"
-#include "flashHal.h"
+
+
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
-#define DEBUG_FLASH_1 1
+#define DEBUG_FLASH_1 0
 #define DEBUG_FLASH_2 0
+#define DEBUG_AUDIO_PLAYER_1 1
 #define DEBUG_SAI_1 0
 /*
  * @brief   Application entry point.
@@ -69,7 +71,8 @@ int main(void) {
     /*start debugging*/
 
 #if DEBUG_FLASH_1
-    char data[] = {2, 4, 6, 8};  //array size: 5
+#include "flashHal.h"
+    char data[] = {2, 4, 6, 8};  //array size: 4
     int dataTag = 1;
     char * p2dataRead = 0;
     int dataReadLen;
@@ -107,6 +110,7 @@ int main(void) {
         printf("INITIALIZING FLASH ERROR\n");
      }
 #elif DEBUG_FLASH_2
+#include "flashHal.h"
     int dataTag = 1;
     char * p2dataRead = 0;
     int dataReadLen;
@@ -132,7 +136,37 @@ int main(void) {
     else{
     	printf("INITIALIZING FLASH ERROR\n");
     }
+#elif DEBUG_AUDIO_PLAYER_1
+#include "audioPlayer.h"
+    char data[] = {2, 4, 6, 8, 10};  //array size: 5
+    int k = 0;
 
+    audioData_t audioData;
+    audioResult_t result;
+
+    audioData.p2audioData = data;
+    audioData.audioDataLen = sizeof(data[0]) * 5;
+    audioData.audioFormat = AUDIO_MP3;
+    audioData.audioTag = ALERTA_0;
+
+    audioData_t readData;
+    readData.audioFormat = AUDIO_I2S_STEREO_DECODED;
+    readData.audioTag = ALERTA_0;
+
+    result = save_record(&audioData);
+    result = read_record(&readData);
+
+    if ((result == AUDIO_SUCCES)  && (readData.p2audioData != 0)){
+
+    	PRINTF("%p\n", readData.p2audioData);
+    	for (k = 0; k < 5; k++){
+    		PRINTF("%d \n", readData.p2audioData[k]);
+    	}
+
+    }
+    else{
+    	PRINTF("ERROR IN AUDIO PLAYER\n");
+    }
 
 #elif DEBUG_SAI_1
 

@@ -35,7 +35,18 @@ audioResult_t save_record(audioData_t * audioData){
 
 
 audioResult_t read_record(audioData_t * audioData){
+	audioResult_t result = AUDIO_ERROR;
 
+	if( (flashINIT()  != -1)){
+
+		audioData->p2audioData = readFlash(&(audioData->audioDataLen), audioData->audioTag);
+		if (audioData->p2audioData != 0){
+
+			result = AUDIO_SUCCES;
+		}
+	}
+
+	return result;
 }
 
 
