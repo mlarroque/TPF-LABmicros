@@ -42,6 +42,7 @@ struct userData
     size_t dataSize; /*!< The byte count to be transfer. */
 };
 
+
 void *userData;
 /*******************************************************************************
  * Code
@@ -69,7 +70,7 @@ void userCallback(UART_Type *base, uart_handle_t *handle, status_t status, void 
     }
 }
 */
-void copyTXmsg(const char * msg, uint8_t cant);
+void copyTXmsg(const uint8_t * msg, uint8_t cant);
 
 
 
@@ -79,8 +80,10 @@ uint8_t BTisTxMsgComplete(){
 	return ret;
 }
 
-uint8_t uartWriteMsg(const char* msg, uint8_t cant)
+uint8_t uartWriteMsg()	//(const char* msg, uint8_t cant)
 {
+	uint8_t* msg = g_tipString;
+	uint8_t cant = sizeof(g_tipString)/sizeof(g_tipString[0]);
 //	int i = 0;
 	uint8_t cantTX = 0;
 	_Bool uartWasSleeping = false;
@@ -116,9 +119,10 @@ uint8_t uartWriteMsg(const char* msg, uint8_t cant)
 		cantTX = 0;
 	}
 	return cantTX;
+
 }
 
-void UARTX_RX_TX_IRQHandler(uint8_t id){
+void UARTX_RX_TX_IRQHandler(){
 	//tengo que ver que me llamo a la interrupción
 	//para esto, leo el status
 
@@ -126,7 +130,7 @@ void UARTX_RX_TX_IRQHandler(uint8_t id){
 
 	if(UART->S1 & kUART_TxDataRegEmptyFlag){ //se termino una transmisión
 		if(true){ //si queda algo por transmitir
-			UART_WriteByte(UART, TXbuffers); //transmito otro char del buffer
+			UART_WriteByte(UART, TXbuffers[outMarkersTXbuffer]); //transmito otro char del buffer
 			if(outMarkersTXbuffer < TX_BUFFER_LEN -1){ //actualizo el outMarker
 				outMarkersTXbuffer++;
 			}
@@ -150,7 +154,7 @@ void UARTX_RX_TX_IRQHandler(uint8_t id){
 }
 
 
-void copyTXmsg(const char * msg, uint8_t cant)
+void copyTXmsg(const uint8_t * msg, uint8_t cant)
 {
 	uint8_t i = 0;
 	for(i = 0; i < cant; i++)
@@ -166,6 +170,10 @@ void copyTXmsg(const char * msg, uint8_t cant)
 		}
 		lengthTXbuffer++;
 	}
+}
+
+void UART3_SERIAL_RX_TX_IRQHANDLER(void){
+	UARTX_RX_TX_IRQHandler();
 }
 
 /* UART3_RX_TX_IRQn interrupt handler

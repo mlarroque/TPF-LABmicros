@@ -923,7 +923,7 @@
                            </selected>
                         </set>
                         <struct name="interrupt_vectors">
-                           <setting name="enable_rx_tx_irq" value="false"/>
+                           <setting name="enable_rx_tx_irq" value="true"/>
                            <struct name="interrupt_rx_tx">
                               <setting name="IRQn" value="UART3_RX_TX_IRQn"/>
                               <setting name="enable_interrrupt" value="enabled"/>
