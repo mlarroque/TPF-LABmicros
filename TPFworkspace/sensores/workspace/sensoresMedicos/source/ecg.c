@@ -33,6 +33,7 @@ uint16_t heartbeat = 0;
 static ecg_sample_t ecg_signal[ECG_SIZE]; //buffer circular para el ECG
 static uint16_t start = 0;
 static uint16_t curr = ECG_SIZE-1; //indice a la muestra no leida mas vieja.
+static uint16_t unread_samples = 0; //Cantidad de muestras sin leer en el buffer
 
 //Variables para calculo del ritmo cardiaco
 static peak_node_t peaks_list[PEAK_LIST_SIZE];
@@ -104,14 +105,19 @@ void InitializeECG(ECG_init_t* init_data){
 	InitializeHardware();
 }
 
-ecg_sample_t GetEcgSample(void){
-	ecg_sample_t sample = ecg_signal[curr];
-	curr = (curr+1)%ECG_SIZE;	//Actualizo donde esta la ultima muestra no leida
+int32_t GetEcgSample(void){
+	int32_t sample = -1;
+	if(unread_samples){
+		sample = (int32_t) ecg_signal[curr];
+		curr = (curr+1)%ECG_SIZE;	//Actualizo donde esta la ultima muestra no leida
+		unread_samples--;
+	}
 	return sample;
 }
 
 void AddEcgSample(ecg_sample_t sample){
 	start++;
+	unread_samples++;
 	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
 	ecg_signal[last_index] = sample;
 	if( !(--counter) ){
