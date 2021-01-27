@@ -63,10 +63,10 @@ int main(void) {
     /* Force the counter to be placed into memory. */
     volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
+    sendBTPackage();
     while(1) {
         i++ ;
-//        sendBTData();
-        uartWriteMsg();
+        //sendBTPackage();
     }
     return 0 ;
 }
