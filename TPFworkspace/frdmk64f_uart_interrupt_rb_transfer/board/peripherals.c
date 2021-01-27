@@ -14,7 +14,7 @@ processor_version: 8.0.1
 board: FRDM-K64F
 functionalGroups:
 - name: BOARD_InitPeripherals
-  UUID: 5bdeae1b-4043-4c66-a3cf-7cd13d3a0512
+  UUID: 9e0136a4-8833-47ad-a788-bf3fbca7c17c
   called_from_default_init: true
   selectedCore: core0
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
@@ -22,7 +22,7 @@ functionalGroups:
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 component:
 - type: 'system'
-- type_id: 'system'
+- type_id: 'system_54b53072540eeeb8f8e9343e71f28176'
 - global_system_definitions:
   - user_definitions: ''
   - user_includes: ''
@@ -45,7 +45,7 @@ component:
 instance:
 - name: 'UART3'
 - type: 'uart'
-- mode: 'interrupts'
+- mode: 'transfer'
 - custom_name_enabled: 'false'
 - type_id: 'uart_88ab1eca0cddb7ee407685775de016d5'
 - functional_group: 'BOARD_InitPeripherals'
@@ -55,47 +55,53 @@ instance:
     - uartConfig:
       - clockSource: 'BusInterfaceClock'
       - clockSourceFreq: 'GetFreq'
-      - baudRate_Bps: '9600'
+      - baudRate_Bps: '115200'
       - parityMode: 'kUART_ParityDisabled'
       - stopBitCount: 'kUART_OneStopBit'
       - txFifoWatermark: '0'
       - rxFifoWatermark: '1'
       - idleType: 'kUART_IdleTypeStartBit'
       - enableTx: 'true'
-      - enableRx: 'false'
-  - interruptsCfg:
-    - interrupts: 'kUART_TxDataRegEmptyInterruptEnable kUART_TransmissionCompleteInterruptEnable'
-    - interrupt_vectors:
-      - enable_rx_tx_irq: 'false'
-      - interrupt_rx_tx:
-        - IRQn: 'UART3_RX_TX_IRQn'
-        - enable_interrrupt: 'enabled'
-        - enable_priority: 'false'
-        - priority: '0'
-        - enable_custom_name: 'false'
-      - enable_err_irq: 'false'
-      - interrupt_err:
-        - IRQn: 'UART3_ERR_IRQn'
-        - enable_interrrupt: 'enabled'
-        - enable_priority: 'false'
-        - priority: '0'
-        - enable_custom_name: 'false'
+      - enableRx: 'true'
+    - quick_selection: 'QuickSelection1'
+  - transferCfg:
+    - transfer:
+      - init_rx_transfer: 'true'
+      - rx_transfer:
+        - data_size: '20'
+      - init_tx_transfer: 'true'
+      - tx_transfer:
+        - data_size: '10'
+      - init_callback: 'false'
+      - callback_fcn: ''
+      - user_data: ''
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const uart_config_t UART3_config = {
-  .baudRate_Bps = 9600UL,
+  .baudRate_Bps = 115200UL,
   .parityMode = kUART_ParityDisabled,
   .stopBitCount = kUART_OneStopBit,
   .txFifoWatermark = 0U,
   .rxFifoWatermark = 1U,
   .idleType = kUART_IdleTypeStartBit,
   .enableTx = true,
-  .enableRx = false
+  .enableRx = true
+};
+uart_handle_t UART3_handle;
+uint8_t UART3_rxBuffer[UART3_RX_BUFFER_SIZE];
+const uart_transfer_t UART3_rxTransfer = {
+  .data = UART3_rxBuffer,
+  .dataSize = UART3_RX_BUFFER_SIZE
+};
+uint8_t UART3_txBuffer[UART3_TX_BUFFER_SIZE];
+const uart_transfer_t UART3_txTransfer = {
+  .data = UART3_txBuffer,
+  .dataSize = UART3_TX_BUFFER_SIZE
 };
 
 static void UART3_init(void) {
   UART_Init(UART3_PERIPHERAL, &UART3_config, UART3_CLOCK_SOURCE);
-  UART_EnableInterrupts(UART3_PERIPHERAL, kUART_TxDataRegEmptyInterruptEnable | kUART_TransmissionCompleteInterruptEnable);
+  UART_TransferCreateHandle(UART3_PERIPHERAL, &UART3_handle, NULL, NULL);
 }
 
 /***********************************************************************************************************************

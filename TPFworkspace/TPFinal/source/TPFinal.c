@@ -67,7 +67,7 @@ int main(void) {
         i++ ;
         /* 'Dummy' NOP to allow source level single stepping of
             tight while() loop */
-        sendBTDataTEST();
+        sendBTData();
     }
     return 0 ;
 }

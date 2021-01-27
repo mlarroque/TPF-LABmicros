@@ -898,15 +898,10 @@
                         <data type="Boolean">true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART3.uart_rx" description="Signal RX of the peripheral UART3 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
-                     <feature name="routed" evaluation="equal">
-                        <data type="Boolean">true</data>
-                     </feature>
-                  </dependency>
                </dependencies>
                <instances>
                   <instance name="UART3" uuid="2d2d3e5c-be51-4743-abef-e5d73d09267c" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="interrupts" peripheral="UART3" enabled="true" comment="" custom_name_enabled="false">
-                     <config_set name="uartConfig_t" quick_selection="QuickSelection5">
+                     <config_set name="uartConfig_t">
                         <struct name="uartConfig">
                            <setting name="clockSource" value="BusInterfaceClock"/>
                            <setting name="clockSourceFreq" value="GetFreq"/>
@@ -917,7 +912,7 @@
                            <setting name="rxFifoWatermark" value="1"/>
                            <setting name="idleType" value="kUART_IdleTypeStartBit"/>
                            <setting name="enableTx" value="true"/>
-                           <setting name="enableRx" value="true"/>
+                           <setting name="enableRx" value="false"/>
                         </struct>
                      </config_set>
                      <config_set name="interruptsCfg">

@@ -11,7 +11,7 @@
 
 
 
-void sendBTDataTEST(void);
+void sendBTData(void);
 
 
 #endif /* BLUETOOTH_COM_H_ */
