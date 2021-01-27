@@ -24,9 +24,9 @@ typedef struct{
 }audioData_t;
 
 /*@brief init_audio_player:
- *initialize peripherals..
+ *initialize audio player tools..
+ */
 void init_audio_player(void);
-*/
 
 /*@brief save_record:
  * This function save an audio record in a non-volatile,

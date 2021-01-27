@@ -103,14 +103,10 @@ const edma_config_t DMA_config = {
   /* Channel audio_transport global variables */
 edma_handle_t DMA_audio_transport_Handle;
 edma_tcd_t * DMA_audio_transport_TCD_pool_ptr;
-
-void callback_dma_config(edma_handle_t* a , void* b, bool c, uint32_t d)
-{
+void * p2userdata= 0;
+extern void callback_dma_config(edma_handle_t* a, void* b, bool c, uint32_t d){
 
 }
-
-void * p2userdata = 0;
-
 static void DMA_init(void) {
 
   /* Channel audio_transport initialization */
@@ -213,12 +209,12 @@ static void I2S0_init(void) {
 void BOARD_InitPeripherals(void)
 {
   /* Global initialization */
-  DMAMUX_Init(DMA_DMAMUX_BASEADDR);
-  EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
+  //DMAMUX_Init(DMA_DMAMUX_BASEADDR);
+  //EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
 
   /* Initialize components */
-  DMA_init();
-  I2S0_init();
+  //DMA_init();
+  //I2S0_init();
 }
 
 /***********************************************************************************************************************
@@ -226,5 +222,5 @@ void BOARD_InitPeripherals(void)
  **********************************************************************************************************************/
 void BOARD_InitBootPeripherals(void)
 {
-  //BOARD_InitPeripherals();
+  BOARD_InitPeripherals();
 }

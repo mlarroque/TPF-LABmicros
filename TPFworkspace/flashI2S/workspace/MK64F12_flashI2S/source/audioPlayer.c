@@ -6,14 +6,21 @@
  */
 
 #include "audioPlayer.h"
+#include "mp3dec.h"
 #include "flashHal.h"
 #include "fsl_edma.h"
 #include "fsl_sai.h"
-/*
-void init_audio_player(void){
 
+HMP3Decoder p2mp3decoder;
+
+void init_audio_player(void){
+	p2mp3decoder = MP3InitDecoder();
 }
-*/
+
+void free_audio_player(void){
+	MP3FreeDecoder(p2mp3decoder);
+}
+
 
 
 audioResult_t save_record(audioData_t * audioData){
@@ -51,6 +58,18 @@ audioResult_t read_record(audioData_t * audioData){
 
 
 void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat){
+	unsigned char **inbuf;
+	int *bytesLeft;
+	short *outbuf;
+	int useSize;
+	int a = MP3Decode(p2mp3decoder, inbuf, bytesLeft, outbuf, useSize);
+
+	//1)Turn on a decoding flag...
+
+	//2)Start decoding the first chunk (think in a CHUNK_WORDS_LEN and in WORD_LEN),
+	//accesing to the encoded record and calling MP3decode.
+
+	//3)Trigger first dma request and enable major loop dma link.
 
 }
 
