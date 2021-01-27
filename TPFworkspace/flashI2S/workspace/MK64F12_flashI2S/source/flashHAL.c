@@ -9,8 +9,7 @@
 #include "fsl_ftfx_flash.h"
 #include <stdbool.h>
 
-#define MAX_STREAMS_ALLOWED 3
-#define STREAM_LEN 4096 * 2
+
 
 char stream[STREAM_LEN];
 
@@ -20,16 +19,13 @@ uint32_t pflashSectorSize = 0;
 
 typedef struct
 {
-	char * tag;
-	int tagLen;
+	int indexTag;
 	int dataLen;   //length in bytes
 	volatile uint8_t * startAdress;
 	_Bool isDataEmpty;
 }metaData_t;
 
 metaData_t dataStreams[MAX_STREAMS_ALLOWED];
-
-int streamIndex2program = 0;
 
 
 static flash_config_t flashConfig;
@@ -52,7 +48,7 @@ int flashINIT(void)
 {
 
 	int ret = 0;
-
+	int i = 0;
 
 	if(!isFlashINIT)
 	{
@@ -67,6 +63,8 @@ int flashINIT(void)
 		FLASH_GetProperty(&flashConfig, kFLASH_PropertyPflash0TotalSize, &pflashTotalSize);
 		FLASH_GetProperty(&flashConfig, kFLASH_PropertyPflash0SectorSize, &pflashSectorSize);
 
+		/*allow to alloc flash with config*/
+
 		flashConfig.ftfxConfig[0].ifrDesc.resRange.dflashIfrStart = pflashTotalSize - (MAX_STREAMS_ALLOWED* STREAM_LEN);
 		flashConfig.ftfxConfig[0].ifrDesc.resRange.pflashSwapIfrStart = pflashTotalSize - (MAX_STREAMS_ALLOWED* STREAM_LEN);
 		flashConfig.ftfxConfig[0].ifrDesc.resRange.ifrMemSize = MAX_STREAMS_ALLOWED*STREAM_LEN;
@@ -75,35 +73,34 @@ int flashINIT(void)
 	{
 		ret = -1;   //error detected
 	}
-	else
+	else   //if all ok:1) Fill the metadata streams start address. 2) Turn on flag isFlashInit.
 	{
 		dataStreams[0].startAdress= (volatile uint8_t *)(pflashBlockBase + (pflashTotalSize - (MAX_STREAMS_ALLOWED * STREAM_LEN) ));
+		for (i = 1; i < MAX_STREAMS_ALLOWED; i++){
+			dataStreams[1].startAdress = (volatile uint8_t *)(dataStreams[i - 1].startAdress + STREAM_LEN);
+		}
+
 		isFlashINIT = true;
 	}
 	return ret;
 }
 
 
-int flashAlloc(int * data, int dataLen, char * dataTag, int dataTagLen)
+int flashAlloc(int * data, int dataLen, int tagIndex)
 {
 	int ret = 0;
 
-	if(isFlashINIT && (streamIndex2program < MAX_STREAMS_ALLOWED) && (dataLen > 0))
+	if(isFlashINIT && (tagIndex < MAX_STREAMS_ALLOWED) && (dataLen > 0))
 	{
 		prepareStream((char *)data, dataLen);
-		flashStatus = FLASH_Erase(&flashConfig, (uint32_t) dataStreams[streamIndex2program].startAdress, STREAM_LEN, kFTFx_ApiEraseKey);
-		flashStatus = FLASH_Program( &flashConfig, (uint32_t) dataStreams[streamIndex2program].startAdress, (uint8_t *) stream, STREAM_LEN);
+		flashStatus = FLASH_Erase(&flashConfig, (uint32_t) dataStreams[tagIndex].startAdress, STREAM_LEN, kFTFx_ApiEraseKey);
+		flashStatus = FLASH_Program( &flashConfig, (uint32_t) dataStreams[tagIndex].startAdress, (uint8_t *) stream, STREAM_LEN);
 
 		//refresh metaData
-		dataStreams[streamIndex2program].isDataEmpty = false;
-		dataStreams[streamIndex2program].dataLen = dataLen;
-		dataStreams[streamIndex2program].tagLen = (dataTagLen <= MAX_TAG_LEN)? dataTagLen : MAX_TAG_LEN;
-		dataStreams[streamIndex2program].tag = dataTag;
-		if(streamIndex2program < MAX_STREAMS_ALLOWED - 1)
-		{
-			streamIndex2program += 1;
-			dataStreams[streamIndex2program].startAdress = (volatile uint8_t *)(dataStreams[streamIndex2program - 1].startAdress + STREAM_LEN);
-		}
+		dataStreams[tagIndex].isDataEmpty = false;
+		dataStreams[tagIndex].dataLen = dataLen;
+		dataStreams[tagIndex].indexTag = tagIndex;
+
 
 		if(flashStatus != kStatus_FTFx_Success )
 		{
@@ -118,14 +115,14 @@ int flashAlloc(int * data, int dataLen, char * dataTag, int dataTagLen)
 }
 
 
-char *  readFlash(int * dataLen, char * dataTag, int dataTagLen)
+char *  readFlash(int * dataLen, int dataTag)
 {
 	int indexFound;
 
-	if(dataTagExists(dataTag, dataTagLen, &indexFound))
+	if(dataTag < MAX_STREAMS_ALLOWED)
 	{
 		dataLen[0] = STREAM_LEN;
-		memcpy(stream, dataStreams[indexFound].startAdress, STREAM_LEN);
+		memcpy(stream, dataStreams[dataTag].startAdress, STREAM_LEN);
 		return (volatile char *)stream;
 		//return (volatile char *)(dataStreams[indexFound].startAdress);
 
@@ -167,18 +164,18 @@ char *  readFlash(int * dataLen, char * dataTag, int dataTagLen)
 }*/
 
 _Bool dataTagExists(char * dataTag, int dataTagLen, int * indexFound)
-{
+{/*
 	int i = 0, j = 0;
 	_Bool wordMissmatched = false, tagFound = false;
 	if((dataTagLen > 0) && (dataTag != 0))
 	{
 		for(i = 0; (i < MAX_STREAMS_ALLOWED) && (!tagFound); i++)
 		{
-			if(!dataStreams[i].isDataEmpty && (dataStreams[i].tagLen == dataTagLen))
+			if(!dataStreams[i].isDataEmpty)
 			{
 				for(j = 0; (j < dataTagLen) && (j < MAX_TAG_LEN) && (!wordMissmatched); j++)
 				{
-					if ((dataStreams[i].tag)[j] != dataTag[j])
+					if ((dataStreams[i].dataTag)[j] != dataTag[j])
 					{
 						wordMissmatched = true; //wordMissmatched because of the difference between chars in dataTag
 					}
@@ -196,7 +193,7 @@ _Bool dataTagExists(char * dataTag, int dataTagLen, int * indexFound)
 		}
 	}
 
-	return tagFound;
+	return tagFound;*/
 }
 
 void prepareStream(char * p2data, int dataLen)

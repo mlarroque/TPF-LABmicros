@@ -44,6 +44,7 @@
 
 /* TODO: insert other definitions and declarations here. */
 #define DEBUG_FLASH_1 1
+#define DEBUG_FLASH_2 0
 #define DEBUG_SAI_1 0
 /*
  * @brief   Application entry point.
@@ -69,7 +70,7 @@ int main(void) {
 
 #if DEBUG_FLASH_1
     char data[] = {2, 4, 6, 8};  //array size: 5
-    char * dataTag = "prueba1";   //dataTagLen: 7
+    int dataTag = 1;
     char * p2dataRead = 0;
     int dataReadLen;
     int j = 0;
@@ -77,10 +78,10 @@ int main(void) {
     if(flashINIT() != -1)
     {
     	PRINTF("flash init succesfuly\n");
-        if(flashAlloc((int *)data, sizeof(data[0])*4, dataTag, 7) != -1)
+        if(flashAlloc((int *)data, sizeof(data[0])*4, dataTag) != -1)
         {
         	PRINTF("flash alloc succesfuly\n");
-        	p2dataRead = readFlash(&dataReadLen, dataTag, 7);
+        	p2dataRead = readFlash(&dataReadLen, dataTag);
         	if( p2dataRead != 0 )
         	{
         		PRINTF("%p\n", p2dataRead);
@@ -105,6 +106,33 @@ int main(void) {
      {
         printf("INITIALIZING FLASH ERROR\n");
      }
+#elif DEBUG_FLASH_2
+    int dataTag = 1;
+    char * p2dataRead = 0;
+    int dataReadLen;
+    int j = 0;
+    if(flashINIT() != -1)
+    {
+        PRINTF("flash init succesfuly\n");
+        p2dataRead = readFlash(&dataReadLen, dataTag);
+        if( p2dataRead != 0 )
+        {
+        	PRINTF("%p\n", p2dataRead);
+            PRINTF("flash read succesfuly\n");
+            for(j = 0; j < 5; j++){
+                printf("%d \n", p2dataRead[j]);
+            }
+
+         }
+         else
+         {
+              PRINTF("READING FLASH ERROR\n");
+         }
+     }
+    else{
+    	printf("INITIALIZING FLASH ERROR\n");
+    }
+
 
 #elif DEBUG_SAI_1
 

@@ -8,6 +8,8 @@
 #ifndef FLASHHAL_H_
 #define FLASHHAL_H_
 
+#define MAX_STREAMS_ALLOWED 3
+#define STREAM_LEN 4096 * 2
 #define MAX_TAG_LEN 9
 /*@brief Initialize program flash sector according to hardware features
  *
@@ -33,7 +35,7 @@ int flashINIT(void);
  * 					dataTagLen It's replaced for the maximum value.
  * @retval #-1 if error. != -1 if success.
  */
-int flashAlloc(int * data, int  dataLen, char * dataTag, int dataTagLen);
+int flashAlloc(int * data, int  dataLen, int dataTag);
 
 
 
@@ -51,7 +53,7 @@ int flashAlloc(int * data, int  dataLen, char * dataTag, int dataTagLen);
  * 					dataTagLen is replaced for the maximum value.
  * @retval # 0 if error. Else, the pointer to data read is returned.
  */
-char * readFlash(int * dataLen, char * dataTag, int dataTagLen);
+char * readFlash(int * dataLen, int dataTag);
 
 
 

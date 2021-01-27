@@ -62,7 +62,7 @@ audioResult_t read_record(audioData_t * audioData);
  *
  * @retval  none.
  */
-void start_playing(audioTag_t tag, audioInputFormat_t audioInputFormat, audioOutputFormat_t audioOutputFormat);
+void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat);
 
 /*@brief get_player_status:
  * This function verify if there is something pending to play.

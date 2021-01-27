@@ -104,6 +104,13 @@ const edma_config_t DMA_config = {
 edma_handle_t DMA_audio_transport_Handle;
 edma_tcd_t * DMA_audio_transport_TCD_pool_ptr;
 
+void callback_dma_config(edma_handle_t* a , void* b, bool c, uint32_t d)
+{
+
+}
+
+void * p2userdata = 0;
+
 static void DMA_init(void) {
 
   /* Channel audio_transport initialization */
@@ -219,5 +226,5 @@ void BOARD_InitPeripherals(void)
  **********************************************************************************************************************/
 void BOARD_InitBootPeripherals(void)
 {
-  BOARD_InitPeripherals();
+  //BOARD_InitPeripherals();
 }
