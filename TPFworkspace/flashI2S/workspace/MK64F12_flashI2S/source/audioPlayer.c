@@ -11,17 +11,24 @@
 #include "fsl_edma.h"
 #include "fsl_sai.h"
 
+#define WORD_LEN 4   //4bytes
+#define N_CHUNKS 64
+#define CHUNK_WORD_LEN ((STREAM_LEN/WORD_LEN)/N_CHUNKS)
+
+short audio_pp_buffer[CHUNK_WORD_LEN * WORD_LEN * 2];  //PING PONG BUFFER
+
+int audioStatus;
+
 HMP3Decoder p2mp3decoder;
 
 void init_audio_player(void){
 	p2mp3decoder = MP3InitDecoder();
+	audioStatus = AUDIO_IDLE;
 }
 
 void free_audio_player(void){
 	MP3FreeDecoder(p2mp3decoder);
 }
-
-
 
 audioResult_t save_record(audioData_t * audioData){
 	audioResult_t result = AUDIO_ERROR;
@@ -38,9 +45,6 @@ audioResult_t save_record(audioData_t * audioData){
 	return result;
 }
 
-
-
-
 audioResult_t read_record(audioData_t * audioData){
 	audioResult_t result = AUDIO_ERROR;
 
@@ -56,20 +60,31 @@ audioResult_t read_record(audioData_t * audioData){
 	return result;
 }
 
-
 void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat){
-	unsigned char **inbuf;
-	int *bytesLeft;
-	short *outbuf;
-	int useSize;
-	int a = MP3Decode(p2mp3decoder, inbuf, bytesLeft, outbuf, useSize);
 
-	//1)Turn on a decoding flag...
+	int errorCode = 0; //0 MEANS NO ERROR CODE...
 
-	//2)Start decoding the first chunk (think in a CHUNK_WORDS_LEN and in WORD_LEN),
-	//accesing to the encoded record and calling MP3decode.
+	int mp3dataLen = 0;
+	char * p2mp3record = 0;
 
-	//3)Trigger first dma request and enable major loop dma link.
+	int bytesLeft;
+	int useSize = 0; //MODE XXX
+
+	if( (audioInputFormat == AUDIO_MP3) && (audioOutputFormat == AUDIO_I2S_STEREO_DECODED) ){
+
+		audioStatus = AUDIO_PROCESSING;   //Turn on flag
+
+		p2mp3record = readFlash(&mp3dataLen, tag); //obtain mp3 pointer
+
+		erroCode = MP3Decode(p2mp3decoder, p2mp3record, &bytesLeft, audio_pp_buffer, useSize); //decode the first chunk
+																		//saving at starting point of ping pong buffer.
+
+		//enable software and hardware DMA request with link in major loop (ping pong buffer)
+		//software trigger to start transfer.
+		//disable software requests???
+
+	}
+
 
 }
 
