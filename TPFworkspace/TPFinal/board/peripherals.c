@@ -62,12 +62,11 @@ instance:
       - rxFifoWatermark: '1'
       - idleType: 'kUART_IdleTypeStartBit'
       - enableTx: 'true'
-      - enableRx: 'true'
-    - quick_selection: 'QuickSelection5'
+      - enableRx: 'false'
   - interruptsCfg:
     - interrupts: 'kUART_TxDataRegEmptyInterruptEnable kUART_TransmissionCompleteInterruptEnable'
     - interrupt_vectors:
-      - enable_rx_tx_irq: 'false'
+      - enable_rx_tx_irq: 'true'
       - interrupt_rx_tx:
         - IRQn: 'UART3_RX_TX_IRQn'
         - enable_interrrupt: 'enabled'
@@ -91,12 +90,14 @@ const uart_config_t UART3_config = {
   .rxFifoWatermark = 1U,
   .idleType = kUART_IdleTypeStartBit,
   .enableTx = true,
-  .enableRx = true
+  .enableRx = false
 };
 
 static void UART3_init(void) {
   UART_Init(UART3_PERIPHERAL, &UART3_config, UART3_CLOCK_SOURCE);
   UART_EnableInterrupts(UART3_PERIPHERAL, kUART_TxDataRegEmptyInterruptEnable | kUART_TransmissionCompleteInterruptEnable);
+  /* Enable interrupt UART3_RX_TX_IRQn request in the NVIC. */
+  EnableIRQ(UART3_SERIAL_RX_TX_IRQN);
 }
 
 /***********************************************************************************************************************

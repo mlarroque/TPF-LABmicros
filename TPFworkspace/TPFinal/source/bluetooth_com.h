@@ -8,10 +8,11 @@
 #ifndef BLUETOOTH_COM_H_
 #define BLUETOOTH_COM_H_
 
+#include "fsl_common.h"
 
 
-
-void sendBTDataTEST(void);
+uint8_t uartWriteMsg();
+void sendBTData(void);
 
 
 #endif /* BLUETOOTH_COM_H_ */
