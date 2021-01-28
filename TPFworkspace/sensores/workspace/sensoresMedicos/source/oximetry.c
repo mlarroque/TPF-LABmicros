@@ -22,20 +22,20 @@
 /********************************************************
  * 					VARIABLES GLOBALES					*
  ********************************************************/
-uint16_t fs;
-int32_t Sp02 = 0;
-ppg_sample_t RedInput[BUFFER_SIZE];	//Buffer circular que guarda inputs del led rojo.
-ppg_sample_t IrInput[BUFFER_SIZE];	//Buffer circular que guarda inputs del led ir.
+static uint16_t fs;
+static int32_t Sp02 = 0;
+static ppg_sample_t RedInput[BUFFER_SIZE];	//Buffer circular que guarda inputs del led rojo.
+static ppg_sample_t IrInput[BUFFER_SIZE];	//Buffer circular que guarda inputs del led ir.
 
-uint16_t start = 0; //Indice donde se encuentra la muestra mas vieja.
-uint16_t curr = 0; //Indice con la muestra mas vieja sin leer del pleth
-uint16_t unread_samples = 0;
+static uint16_t start = 0; //Indice donde se encuentra la muestra mas vieja.
+static uint16_t curr = 0; //Indice con la muestra mas vieja sin leer del pleth
+static uint16_t unread_samples = 0;
 
-ppg_sample_t RedPleth[BUFFER_SIZE];
-ppg_sample_t IrPleth[BUFFER_SIZE];
+static ppg_sample_t RedPleth[BUFFER_SIZE];
+static ppg_sample_t IrPleth[BUFFER_SIZE];
 
 
-uint16_t counter=BUFFER_SIZE; //Muestras restantes para calcular nuevo SpO2
+static uint16_t counter=BUFFER_SIZE; //Muestras restantes para calcular nuevo SpO2
 
 /********************************************************
  * 					FUNCIONES LOCALES					*
