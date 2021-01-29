@@ -8,7 +8,7 @@
 
 #include "SysTick.h"
 //#include "core_cm4.h"
-#include "system_MK64F12.h"
+#include "MK64F12.h"
 
 #include <stdint.h>
 
