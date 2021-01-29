@@ -8,7 +8,7 @@
 #ifndef UART_CMPLX_DRV_H_
 #define UART_CMPLX_DRV_H_
 
-#include "fsl_common.h"
+#include <stdint.h>
 
 uint8_t uartWriteMsg();
 

@@ -8,14 +8,14 @@
 #include "bluetooth_com.h"
 #include "uart_cmplx_drv.h"
 
+uint8_t packet[] = "Hola soy un test\n";
 
 /*!
  * @brief Main function
  */
-void sendBTPackage(void)	//BLOQUEANTE!!
+void sendBTPackage(void)
 {
-
-	uartWriteMsg();
+	uartWriteMsg(packet);
 	/*if(modo=bloqueante){
 		UART_EnableTx(UART, true);
 		static uint32_t jv=0;

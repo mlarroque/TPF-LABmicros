@@ -62,11 +62,14 @@ int main(void) {
 
     /* Force the counter to be placed into memory. */
     volatile static int i = 0 ;
+    volatile static int unique = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
-    sendBTPackage();
+
     while(1) {
         i++ ;
-        //sendBTPackage();
+        unique++;
+        if(unique == 3 || unique == 500000)
+        	sendBTPackage();
     }
     return 0 ;
 }
