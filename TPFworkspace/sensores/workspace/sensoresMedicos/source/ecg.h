@@ -37,7 +37,7 @@ void CalculateHeartBeat(void);
 //Devuelve la muestra mas vieja no leida del ECG.
 int32_t GetEcgSample(void);
 
-//Recibe nuevo punto del ECG
-void AddEcgSample(ecg_sample_t sample);
+//Devuelve cuantas muestras quedan por leer
+uint16_t GetEcgUnreadNum(void);
 
 #endif /* ECG_H_ */

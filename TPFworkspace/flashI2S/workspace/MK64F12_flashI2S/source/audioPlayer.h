@@ -15,6 +15,7 @@ typedef enum {ALERTA_0, ALERTA_1} audioTag_t;
 typedef enum {AUDIO_SUCCES, AUDIO_ERROR} audioResult_t;
 typedef enum {AUDIO_PENDING, AUDIO_NOT_PENDING, AUDIO_SENDING} playerStatus_t;
 typedef enum {AUDIO_MP3, AUDIO_I2S_STEREO_DECODED} audioFormat_t;
+typedef enum {AUDIO_IDLE, AUDIO_PROCESSING} audioStatus_t;
 
 typedef struct{
 	char * p2audioData;
@@ -73,17 +74,6 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
  */
 playerStatus_t get_player_status(void);
 
-
-/*@brief continue_playing:
- * This function continue the process of playing a record. If some audio is pending, this function
- * will change the status to sending audio, but not necessary will send all the audio pending.
- *
- *@param none.
- *
- * @retval  none.
- */
-void continue_playing(void);
-
 /*@brief stop_playing:
  * This function force a break in audio playing.
  *
@@ -92,6 +82,6 @@ void continue_playing(void);
  * @retval  audioResult to indicate success or error.
  */
 
-audioResult_t stop_playing(void);
+void stop_playing(void);
 
 #endif /* AUDIOPLAYER_H_ */

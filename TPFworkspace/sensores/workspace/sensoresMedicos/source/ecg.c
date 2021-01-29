@@ -17,7 +17,6 @@
  ****************************************************/
 #define ECG_SIZE 1200
 #define WINDOW_DURATION 0.06 //Ventana de 60 milisegundos alrededor de un lado del pico
-#define HEARTBEAT_UPDATE_TIME 1 //Cada cuantos segundos se actualiza el ritmo cardiaco
 #define PEAK_LIST_SIZE 100
 
 typedef struct{
@@ -29,7 +28,7 @@ typedef struct{
  * 					VARIABLES GLOBALES				*
  ****************************************************/
 static uint16_t fs;
-uint16_t heartbeat = 0;
+static uint16_t heartbeat = 0;
 static ecg_sample_t ecg_signal[ECG_SIZE]; //buffer circular para el ECG
 static uint16_t start = 0;
 static uint16_t curr = ECG_SIZE-1; //indice a la muestra no leida mas vieja.
@@ -39,13 +38,18 @@ static uint16_t unread_samples = 0; //Cantidad de muestras sin leer en el buffer
 static peak_node_t peaks_list[PEAK_LIST_SIZE];
 static uint8_t first_node = 0;
 static uint8_t list_size = 0;
-static uint16_t counter = 0; //Cuenta cuantas muestras faltan para actualizar el ritmo  cardiaco
 
 
 
 /****************************************************
  * 					FUNCIONES LOCALES				*
  ****************************************************/
+void ECG_sample_callback(void){
+	start++;
+	unread_samples++;
+	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
+	ecg_signal[last_index] = sample;
+}
 
 bool AddPeak2List(int curr_area){
 	peak_node_t curr_peak = {.area=curr_area, .next_node=0};
@@ -101,8 +105,8 @@ int GetListMedian(void){
 
 void InitializeECG(ECG_init_t* init_data){
 	fs = init_data->fs;
-	counter = HEARTBEAT_UPDATE_TIME * fs;
-	InitializeHardware();
+	heart_init_t init_data = {fs, ECG_sample_callback};
+	InitializeHardware(&init_data);
 }
 
 int32_t GetEcgSample(void){
@@ -115,15 +119,8 @@ int32_t GetEcgSample(void){
 	return sample;
 }
 
-void AddEcgSample(ecg_sample_t sample){
-	start++;
-	unread_samples++;
-	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
-	ecg_signal[last_index] = sample;
-	if( !(--counter) ){
-		counter = HEARTBEAT_UPDATE_TIME * fs; //Resetteo el counter
-		CalculateHeartBeat();
-	}
+uint16_t GetEcgUnreadNum(void){
+	return unread_samples;
 }
 
 uint16_t GetHeartBeat(void){
