@@ -11,6 +11,7 @@
  **********************************************************************************************************************/
 #include "fsl_common.h"
 #include "fsl_adc16.h"
+#include "fsl_i2c.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -26,6 +27,13 @@ extern "C" {
 #define ADC0_IRQN ADC0_IRQn
 /* ADC0 interrupt handler identifier. */
 #define ADC0_IRQHANDLER ADC0_IRQHandler
+/* BOARD_InitPeripherals defines for I2C0 */
+/* Definition of peripheral ID */
+#define I2C0_PERIPHERAL I2C0
+/* Definition of the clock source */
+#define I2C0_CLOCK_SOURCE I2C0_CLK_SRC
+/* Definition of the clock source frequency */
+#define I2C0_CLK_FREQ CLOCK_GetFreq(I2C0_CLOCK_SOURCE)
 
 /***********************************************************************************************************************
  * Global variables
@@ -33,6 +41,7 @@ extern "C" {
 extern const adc16_config_t ADC0_config;
 extern const adc16_channel_mux_mode_t ADC0_muxMode;
 extern const adc16_hardware_average_mode_t ADC0_hardwareAverageMode;
+extern const i2c_master_config_t I2C0_config;
 
 /***********************************************************************************************************************
  * Initialization functions

@@ -13,4 +13,6 @@
  ********************************************************/
 uint8_t WriteByte(uint8_t address, uint8_t reg, uint8_t byte);
 
+uint8_t ReadByte(uint8_t address, uint8_t reg);
+
 #endif /* I2C_H_ */
