@@ -17,8 +17,8 @@
 /********************************************************
  * 						FUNCIONES						*
  ********************************************************/
-bool WriteByte(uint8_t address, uint8_t reg, uint8_t byte);
+bool WriteByte(uint8_t address, uint8_t reg, uint8_t* tx_buffer, uint8_t n_bytes);
 
-bool ReadByte(uint8_t address, uint8_t reg, uint8_t * r_buff);
+bool ReadByte(uint8_t address, uint8_t reg, uint8_t * r_buff, uint8_t n_bytes);
 
 #endif /* I2C_H_ */

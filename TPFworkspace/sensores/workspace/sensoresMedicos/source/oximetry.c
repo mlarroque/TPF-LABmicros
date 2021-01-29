@@ -20,6 +20,7 @@
 #define BUFFER_SIZE 500
 #define UPDATE_SPO2_TIME 1 //Cada cuantos segundos se actualiza el valor del SP02
 #define SAMPLE_BATCH_SIZE 20 //se agregan de a 20 muestras a la vez en el buffer
+#define MAX_NUM_SAMPLES	32 //Maximo numero de muestras a leer seguidas
 
 /********************************************************
  * 					VARIABLES GLOBALES					*
@@ -40,7 +41,12 @@ static int32_t IrPleth[BUFFER_SIZE];
  * 					FUNCIONES LOCALES					*
  ********************************************************/
 void OxSampleCallback(void){
-
+	uint8_t n_samples = GetNumOfSamples();
+	max_sample_t led_samples[MAX_NUM_SAMPLES];
+	for(int i=0; i<n_samples; i++){
+		led_samples[i] = GetLedSamples();
+	}
+	//Pushear evento
 }
 
 /********************************************************

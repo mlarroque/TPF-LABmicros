@@ -103,26 +103,26 @@ typedef enum{
  ********************************************************/
 void SetMode(mode_t mode){
 	uint8_t reg = mode;
-	WriteByte(MAX30102_ADDRESS, MODE_CONFIG, reg);
+	WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
 
 	reg = 0;
-	WriteByte(MAX30102_ADDRESS, FIFO_READ, reg);//Clear FIFO pointers
-	WriteByte(MAX30102_ADDRESS, FIFO_WRITE, reg);
+	WriteByte(MAX30102_ADDRESS, FIFO_READ, &reg, 1);//Clear FIFO pointers
+	WriteByte(MAX30102_ADDRESS, FIFO_WRITE, &reg, 1);
 }
 void LedInit(led_current_t red_current, led_current_t ir_current){
 	uint8_t reg = red_current;
-	WriteByte(MAX30102_ADDRESS, LED1_PA, reg);
+	WriteByte(MAX30102_ADDRESS, LED1_PA, &reg, 1);
 	reg = ir_current;
-	WriteByte(MAX30102_ADDRESS, LED2_PA, reg);
+	WriteByte(MAX30102_ADDRESS, LED2_PA, &reg, 1);
 }
 void SetSp02(adc_range_t range, adc_res_t res, sample_rate_t sr){
 	uint8_t reg = (res) | (sr << SPO2_SR_SHIFT) | (range << SPO2_ADC_RGE);
-	WriteByte(MAX30102_ADDRESS, SP02_CONFIG, reg);
+	WriteByte(MAX30102_ADDRESS, SP02_CONFIG, &reg, 1);
 
 }
 void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
 	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) ;
-	WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, reg);
+	WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
@@ -143,14 +143,22 @@ void InitializeOxHardware(max_init_t* init_data){
 uint8_t GetNumOfSamples(void){
 	uint8_t write_val;
 	uint8_t read_val;
-	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val);
-	ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val);
+	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val, 1);
+	ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val, 1);
 	return (uint8_t) ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
 }
 
 max_sample_t GetLedSamples(void){
 	max_sample_t sample;
-	uint32_t red_aux;
-	uint32_t ir_aux;
+	uint32_t ir_aux=0;
+	uint32_t red_aux=0;
+	uint8_t fifo_bytes[BYTES_PER_SAMPLE];
+
+	ReadByte(MAX30102_ADDRESS, FIFO_DATA, fifo_bytes, BYTES_PER_SAMPLE );
+	red_aux = ( ((uint32_t)fifo_bytes[0])<<16 ) | ( ((uint32_t)fifo_bytes[1])<<8 ) | (uint32_t)fifo_bytes[2];
+	ir_aux = ( ((uint32_t)fifo_bytes[3])<<16 ) | ( ((uint32_t)fifo_bytes[4])<<8 ) | (uint32_t)fifo_bytes[5];
+	sample.red_sample = (uint16_t) red_aux;
+	sample.ir_sample = (uint16_t) ir_aux;
+	return sample;
 
 }
