@@ -10,6 +10,7 @@
  ********************************************************/
 #include "oximetry.h"
 #include "spo2Algorithm.h"
+#include "max30102.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -18,6 +19,7 @@
  ********************************************************/
 #define BUFFER_SIZE 500
 #define UPDATE_SPO2_TIME 1 //Cada cuantos segundos se actualiza el valor del SP02
+#define SAMPLE_BATCH_SIZE 20 //se agregan de a 20 muestras a la vez en el buffer
 
 /********************************************************
  * 					VARIABLES GLOBALES					*
@@ -31,15 +33,26 @@ static uint16_t start = 0; //Indice donde se encuentra la muestra mas vieja.
 static uint16_t curr = 0; //Indice con la muestra mas vieja sin leer del pleth
 static uint16_t unread_samples = 0;
 
-static ppg_sample_t RedPleth[BUFFER_SIZE];
-static ppg_sample_t IrPleth[BUFFER_SIZE];
-
-
-static uint16_t counter=BUFFER_SIZE; //Muestras restantes para calcular nuevo SpO2
+static int32_t RedPleth[BUFFER_SIZE];
+static int32_t IrPleth[BUFFER_SIZE];
 
 /********************************************************
  * 					FUNCIONES LOCALES					*
  ********************************************************/
+void OxSampleCallback(void){
+
+}
+
+/********************************************************
+ * 					FUNCIONES DEL HEADER				*
+ ********************************************************/
+void InitializeOximetry(oxi_init_t* init_data){
+	fs = init_data->fs;
+	unsigned long int timeout = (SAMPLE_BATCH_SIZE*1000)/fs;
+	max_init_t hard_init = {OxSampleCallback,timeout};
+	InitializeOxHardware(&hard_init);
+}
+
 void CalculateSpO2(void){
 	int32_t result = 0;
 	int8_t valid = 0;
@@ -48,22 +61,14 @@ void CalculateSpO2(void){
 	if(valid){
 		Sp02 = result;
 	}
-}
-
-/********************************************************
- * 					FUNCIONES DEL HEADER				*
- ********************************************************/
-void InitializeOximetry(oxi_init_t* init_data){
-	fs = init_data->fs;
-	counter = fs * UPDATE_SPO2_TIME;
-	InitializeHardware(fs);
+	unread_samples +=fs * UPDATE_SPO2_TIME; //REVISAR!!!!!!!
 }
 
 pleth_sample_t GetPlethSample(void){
 	pleth_sample_t sample = {-1,-1};
 	if(unread_samples){
-		sample.ir_sample = (int32_t) IrPleth[curr];
-		sample.red_sample = (int32_t) RedPleth[curr];
+		sample.ir_sample =	 IrPleth[curr];
+		sample.red_sample =  RedPleth[curr];
 		curr = (curr+1)%BUFFER_SIZE;
 		unread_samples--;
 	}
@@ -80,10 +85,5 @@ void AddInputSamples(ppg_sample_t red_sample, ppg_sample_t ir_sample){
 	RedInput[(start+BUFFER_SIZE-1)%BUFFER_SIZE] = red_sample;
 	IrInput[(start+BUFFER_SIZE-1)%BUFFER_SIZE] = ir_sample;
 
-	if( !(--counter) ){
-		counter = fs * UPDATE_SPO2_TIME;	//Resetteo contador
-		CalculateSpO2();
-		unread_samples +=fs * UPDATE_SPO2_TIME; //REVISAR!!!!!!!
-	}
 }
 

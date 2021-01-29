@@ -25,7 +25,7 @@ typedef struct {
  * 						FUNCIONES						*
  ********************************************************/
 //Inicializa la adquisicion de muestras del sensor.
-void InitializeHardware(heart_init_t*);
+void InitializeEcgHardware(heart_init_t*);
 
 uint16_t GetSensorSample(void);
 

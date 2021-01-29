@@ -29,7 +29,7 @@ typedef struct{
  * 						FUNCIONES							*
  ************************************************************/
 
-void InitializeHardware(max_init_t*);
+void InitializeOxHardware(max_init_t*);
 
 //Devuelve el numero de muestras sin leer almacenadas
 uint8_t GetNumOfSamples(void);

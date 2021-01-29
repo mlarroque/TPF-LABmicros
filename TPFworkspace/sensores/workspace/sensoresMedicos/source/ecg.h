@@ -16,7 +16,7 @@
 /************************************************
  * 					DEFINICIONES				*
  ************************************************/
-typedef float ecg_sample_t;
+typedef uint16_t ecg_sample_t;
 typedef struct {
    uint16_t fs;
 } ECG_init_t;
@@ -39,5 +39,8 @@ int32_t GetEcgSample(void);
 
 //Devuelve cuantas muestras quedan por leer
 uint16_t GetEcgUnreadNum(void);
+
+//Recibe nuevo punto del ECG
+void AddEcgSample(ecg_sample_t sample);
 
 #endif /* ECG_H_ */

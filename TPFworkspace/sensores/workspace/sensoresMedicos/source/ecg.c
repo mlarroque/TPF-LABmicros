@@ -45,10 +45,8 @@ static uint8_t list_size = 0;
  * 					FUNCIONES LOCALES				*
  ****************************************************/
 void ECG_sample_callback(void){
-	start++;
-	unread_samples++;
-	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
-	ecg_signal[last_index] = sample;
+	uint16_t sample = GetSensorSample();
+	//Aca tendria que pushear el evento
 }
 
 bool AddPeak2List(int curr_area){
@@ -105,8 +103,8 @@ int GetListMedian(void){
 
 void InitializeECG(ECG_init_t* init_data){
 	fs = init_data->fs;
-	heart_init_t init_data = {fs, ECG_sample_callback};
-	InitializeHardware(&init_data);
+	heart_init_t hardware_init = {fs, ECG_sample_callback};
+	InitializeEcgHardware(&hardware_init);
 }
 
 int32_t GetEcgSample(void){
@@ -127,14 +125,19 @@ uint16_t GetHeartBeat(void){
 	return heartbeat;
 }
 
+void AddEcgSample(ecg_sample_t sample){
+	start++;
+	unread_samples++;
+	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
+	ecg_signal[last_index] = sample;
+}
+
 void CalculateHeartBeat(void){
 	//Variables locales
 	bool IsMax = true;	//Indica si la muestra corresponde a un maximo local
 	int current_area = 0; //Area bajo la curva del maximo actual
 	int threshold = 0;
 	int delta = 0;
-	int start_index = (start+window_size)%ECG_SIZE;
-	int end_index =  (start_index + ECG_SIZE - window_size)%ECG_SIZE;
 	float duration = ECG_SIZE/fs;
 	uint16_t current_node = 0;
 	uint16_t r_peaks[PEAK_LIST_SIZE];
@@ -145,6 +148,7 @@ void CalculateHeartBeat(void){
 	//Reseteo la lista con picos
 	first_node = 0;
 	list_size = 0;
+	int start_index = (start+window_size)%ECG_SIZE;
 	for(int i=0; i<(ECG_SIZE-2*window_size);i++){
 		IsMax = true;
 		current_area = 0;
@@ -167,7 +171,7 @@ void CalculateHeartBeat(void){
 	}
 	threshold = GetListMedian() / 2;
 	current_node = first_node;
-	for(int peak_i=0; (peak_i<list_size)&&(!finished); i++){
+	for(int i=0; (i<list_size)&&(!finished); i++){
 		if( peaks_list[current_node].area > threshold){
 			r_peaks[r_index++] = current_node;
 			current_node = peaks_list[current_node].next_node;

@@ -9,6 +9,7 @@
 /************************************************
  * 				HEADERS UTILIZADOS				*
  ************************************************/
+#include "heartware.h"
 #include "fsl_adc16.h"
 #include "MK64F12.h"
 
@@ -16,7 +17,7 @@
  * 				FUNCIONES DEL HEADER			*
  ************************************************/
 
-void InitializeHardware(heart_init_t* init_data){
+void InitializeEcgHardware(heart_init_t* init_data){
 	unsigned long int timeout = 1000 / (init_data->fs);
 	SetTimer(HEART_SAMPLER,timeout, init_data->func);
 }

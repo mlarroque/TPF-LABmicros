@@ -40,7 +40,7 @@
 #define SP02_CONFIG	0X0A
 //Leds
 #define LED1_PA		0X0C
-#define LED2_PA2	0X0D
+#define LED2_PA		0X0D
 #define MULTI_LED1	0X11
 #define MULTI_LED2	0X12
 
@@ -102,8 +102,8 @@ typedef enum{
  * 					FUNCIONES LOCALES					*
  ********************************************************/
 void SetMode(mode_t mode){
-	uin8_t reg = mode;
-	WriteByte(MAX30102_W_ADDRESS, MODE_CONFIG, reg);
+	uint8_t reg = mode;
+	WriteByte(MAX30102_ADDRESS, MODE_CONFIG, reg);
 
 	reg = 0;
 	WriteByte(MAX30102_ADDRESS, FIFO_READ, reg);//Clear FIFO pointers
@@ -135,7 +135,7 @@ void ConfigureMax30102(void){
 /********************************************************
  * 					FUNCIONES DEL HEADER
  ********************************************************/
-void InitializeHardware(max_init_t* init_data){
+void InitializeOxHardware(max_init_t* init_data){
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
 }
@@ -143,7 +143,7 @@ void InitializeHardware(max_init_t* init_data){
 uint8_t GetNumOfSamples(void){
 	uint8_t write_val;
 	uint8_t read_val;
-	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &wrtie_val);
+	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val);
 	ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val);
 	return (uint8_t) ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
 }

@@ -16,7 +16,7 @@
 /********************************************************
  * 						DEFINICIONES					*
  ********************************************************/
-typedef int32_t ppg_sample_t;
+typedef uint32_t ppg_sample_t;
 typedef struct {
    uint16_t fs;
 } oxi_init_t;
@@ -33,18 +33,21 @@ typedef struct {
 //las PPG del led Ir y rojo.
 void InitializeOximetry(oxi_init_t*);
 
+//Actualiza el valor de oxigeno en sangre
+void CalculateSpO2(void);
+
 //Devuelve la ultima muestra sin leer del PPG.
 //si no hay muestras disponibles devuelve -1 en cada muestra.
 pleth_sample_t GetPlethSample(void);
 
 //Devuelve cuantas muestras quedan por leer
-uin16_t GetUnreadNum(void);
+uint16_t GetUnreadNum(void);
 
 //Devuelve la ultima muestra sin leer del PPG correspondiente
 //al led rojo.
 int32_t GetRedPlethSample(void);
 
-uin16_t GetRedUnreadNum(void);
+uint16_t GetRedUnreadNum(void);
 
 //Devuelve el valor de SpO2 como numero en el rango 0-100.
 int32_t GetSpO2(void);
