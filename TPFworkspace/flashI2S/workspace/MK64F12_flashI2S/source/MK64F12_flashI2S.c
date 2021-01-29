@@ -44,9 +44,10 @@
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
-#define DEBUG_FLASH_1 0
-#define DEBUG_FLASH_2 0
-#define DEBUG_AUDIO_PLAYER_1 1
+#define DEBUG_FLASH_1 0  //debug flashHal write and read
+#define DEBUG_FLASH_2 0  //debug read data that had been written in DEBUG_FLASH_1
+#define DEBUG_AUDIO_PLAYER_1 0  //debug save and read record
+#define DEBUG_AUDIO_PLAYER_2 1  //debug decoding some piece of record
 #define DEBUG_SAI_1 0
 /*
  * @brief   Application entry point.
@@ -167,6 +168,21 @@ int main(void) {
     else{
     	PRINTF("ERROR IN AUDIO PLAYER\n");
     }
+#elif DEBUG_AUDIO_PLAYER_2
+#include "audioPlayer.h"
+    char data[] = {2, 4, 6, 8, 10};  //array size: 5
+    int k = 0;
+
+    audioData_t audioData;
+    audioResult_t result;
+
+    audioData.p2audioData = data;
+    audioData.audioDataLen = sizeof(data[0]) * 5;
+    audioData.audioFormat = AUDIO_MP3;
+    audioData.audioTag = ALERTA_0;
+
+    result = save_record(&audioData);
+    start_playing(audioData.audioTag, audioData.audioFormat, AUDIO_I2S_STEREO_DECODED);
 
 #elif DEBUG_SAI_1
 
