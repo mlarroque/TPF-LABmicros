@@ -19,8 +19,7 @@
  ********************************************************/
 #define TIMER_TIME 160 //Tiempo en milisegundos para llamar al callback
 
-#define MAX30102_W_ADDRESS 0XAE
-#define MAX30102_R_ADDRESS 0XAF
+#define MAX30102_ADDRESS 0X57
 #define FIFO_DEPTH 32
 #define BYTES_PER_SAMPLE 6
 	//Direcciones de los registros
@@ -107,25 +106,23 @@ void SetMode(mode_t mode){
 	WriteByte(MAX30102_W_ADDRESS, MODE_CONFIG, reg);
 
 	reg = 0;
-	WriteByte(MAX30102_W_ADDRESS, FIFO_READ, reg);//Clear FIFO pointers
-	WriteByte(MAX30102_W_ADDRESS, FIFO_WRITE, reg);
+	WriteByte(MAX30102_ADDRESS, FIFO_READ, reg);//Clear FIFO pointers
+	WriteByte(MAX30102_ADDRESS, FIFO_WRITE, reg);
 }
 void LedInit(led_current_t red_current, led_current_t ir_current){
 	uint8_t reg = red_current;
-	WriteByte(MAX30102_W_ADDRESS, LED1_PA, reg);
+	WriteByte(MAX30102_ADDRESS, LED1_PA, reg);
 	reg = ir_current;
-	WriteByte(MAX30102_W_ADDRESS, LED2_PA, reg);
-
-	return regmap_write(data->regmap, MAX30102_REG_IR_LED_CONFIG, reg);
+	WriteByte(MAX30102_ADDRESS, LED2_PA, reg);
 }
 void SetSp02(adc_range_t range, adc_res_t res, sample_rate_t sr){
 	uint8_t reg = (res) | (sr << SPO2_SR_SHIFT) | (range << SPO2_ADC_RGE);
-	WriteByte(MAX30102_W_ADDRESS, SP02_CONFIG, reg);
+	WriteByte(MAX30102_ADDRESS, SP02_CONFIG, reg);
 
 }
 void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
 	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) ;
-	WriteByte(MAX30102_W_ADDRESS, FIFO_CONFIG, reg);
+	WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, reg);
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
@@ -144,8 +141,10 @@ void InitializeHardware(max_init_t* init_data){
 }
 
 uint8_t GetNumOfSamples(void){
-	uint8_t write_val = ReadByte(MAX30102_R_ADDRESS, FIFO_WRITE);
-	uint8_t read_val = ReadByte(MAX30102_R_ADDRESS, FIFO_READ);
+	uint8_t write_val;
+	uint8_t read_val;
+	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &wrtie_val);
+	ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val);
 	return (uint8_t) ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
 }
 

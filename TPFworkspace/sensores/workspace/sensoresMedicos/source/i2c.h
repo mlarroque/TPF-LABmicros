@@ -9,10 +9,16 @@
 #define I2C_H_
 
 /********************************************************
+ * 					HEADERS UTILIZADOS					*
+ ********************************************************/
+#include <stdint.h>
+#include <stdbool.h>
+
+/********************************************************
  * 						FUNCIONES						*
  ********************************************************/
-uint8_t WriteByte(uint8_t address, uint8_t reg, uint8_t byte);
+bool WriteByte(uint8_t address, uint8_t reg, uint8_t byte);
 
-uint8_t ReadByte(uint8_t address, uint8_t reg);
+bool ReadByte(uint8_t address, uint8_t reg, uint8_t * r_buff);
 
 #endif /* I2C_H_ */
