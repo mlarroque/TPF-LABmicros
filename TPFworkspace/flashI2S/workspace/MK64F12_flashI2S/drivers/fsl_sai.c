@@ -2874,16 +2874,16 @@ void I2S0_DriverIRQHandler(void)
 
 void I2S0_Tx_DriverIRQHandler(void)
 {
-    //assert(s_saiHandle[0][0] != NULL);
-    //s_saiTxIsr(I2S0, s_saiHandle[0][0]);
-    //SDK_ISR_EXIT_BARRIER;
+    assert(s_saiHandle[0][0] != NULL);
+    s_saiTxIsr(I2S0, s_saiHandle[0][0]);
+    SDK_ISR_EXIT_BARRIER;
 }
 
 void I2S0_Rx_DriverIRQHandler(void)
 {
-    //assert(s_saiHandle[0][1] != NULL);
-    //s_saiRxIsr(I2S0, s_saiHandle[0][1]);
-    //SDK_ISR_EXIT_BARRIER;
+    assert(s_saiHandle[0][1] != NULL);
+    s_saiRxIsr(I2S0, s_saiHandle[0][1]);
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif /* I2S0*/
 

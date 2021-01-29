@@ -171,7 +171,6 @@ int main(void) {
 #elif DEBUG_AUDIO_PLAYER_2
 #include "audioPlayer.h"
     char data[] = {2, 4, 6, 8, 10};  //array size: 5
-    int k = 0;
 
     audioData_t audioData;
     audioResult_t result;

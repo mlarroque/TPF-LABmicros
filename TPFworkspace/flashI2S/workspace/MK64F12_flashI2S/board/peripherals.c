@@ -47,86 +47,39 @@ instance:
 - type: 'edma'
 - mode: 'basic'
 - custom_name_enabled: 'false'
-- type_id: 'edma_a23fca76a894e1bcdf9d01a687505ff9'
+- type_id: 'edma_6d0dd4e17e2f179c7d42d98767129ede'
 - functional_group: 'BOARD_InitPeripherals'
 - peripheral: 'DMA'
 - config_sets:
   - fsl_edma:
     - common_settings:
-      - enableContinuousLinkMode: 'true'
+      - enableContinuousLinkMode: 'false'
       - enableHaltOnError: 'true'
-      - enableRoundRobinArbitration: 'true'
+      - enableRoundRobinArbitration: 'false'
       - enableDebugMode: 'true'
     - dma_table:
       - 0: []
-    - edma_channels:
-      - 0:
-        - edma_channel:
-          - channel_prefix_id: 'audio_transport'
-          - eDMAn: '0'
-          - eDMA_source: 'kDmaRequestMux0I2S0Tx'
-          - enableTriggerPIT: 'false'
-          - enable_custom_name: 'false'
-        - init_callback: 'true'
-        - callback_function: 'callback_dma_config'
-        - callback_user_data: 'p2userdata'
-        - init_preemption: 'false'
-        - preemption:
-          - enableChannelPreemption: 'false'
-          - enablePreemptAbility: 'false'
-          - channelPriority: '0'
-        - init_channel_link: 'true'
-        - channel_link: 'kEDMA_MajorLink'
-        - linkedChannel: '0'
-        - init_bandwidth: 'false'
-        - bandwidth: 'kEDMA_BandwidthStallNone'
-        - init_interrupts: 'true'
-        - channel_enabled_interrupts: 'kEDMA_MajorInterruptEnable'
-        - interrupt_channel:
-          - IRQn: 'DMA0_IRQn'
-          - enable_interrrupt: 'enabled'
-          - enable_priority: 'false'
-          - priority: '0'
-          - enable_custom_name: 'false'
-        - tcd_pool_enable: 'true'
-        - tcd_settings:
-          - tcd_size: '2'
+    - edma_channels: []
+    - errInterruptConfig:
+      - enableErrInterrupt: 'false'
+      - errorInterrupt:
+        - IRQn: 'DMA_Error_IRQn'
+        - enable_interrrupt: 'enabled'
+        - enable_priority: 'false'
+        - priority: '0'
+        - enable_custom_name: 'false'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const edma_config_t DMA_config = {
-  .enableContinuousLinkMode = true,
+  .enableContinuousLinkMode = false,
   .enableHaltOnError = true,
-  .enableRoundRobinArbitration = true,
+  .enableRoundRobinArbitration = false,
   .enableDebugMode = true
 };
 
-  /* Channel audio_transport global variables */
-edma_handle_t DMA_audio_transport_Handle;
-edma_tcd_t * DMA_audio_transport_TCD_pool_ptr;
-void * p2userdata= 0;
-extern void callback_dma_config(edma_handle_t* a, void* b, bool c, uint32_t d){
-
-}
+/* Empty initialization function (commented out)
 static void DMA_init(void) {
-
-  /* Channel audio_transport initialization */
-  /* Set the source kDmaRequestMux0I2S0Tx request in the DMAMUX */
-  DMAMUX_SetSource(DMA_DMAMUX_BASEADDR, DMA_AUDIO_TRANSPORT_DMA_CHANNEL, DMA_AUDIO_TRANSPORT_DMA_REQUEST);
-  /* Enable the channel 0 in the DMAMUX */
-  DMAMUX_EnableChannel(DMA_DMAMUX_BASEADDR, DMA_AUDIO_TRANSPORT_DMA_CHANNEL);
-  /* Create the eDMA DMA_audio_transport_Handle handle */
-  EDMA_CreateHandle(&DMA_audio_transport_Handle, DMA_DMA_BASEADDR, DMA_AUDIO_TRANSPORT_DMA_CHANNEL);
-  EDMA_SetCallback(&DMA_audio_transport_Handle, callback_dma_config, p2userdata);
-  EDMA_SetChannelLink(DMA_DMA_BASEADDR, DMA_AUDIO_TRANSPORT_DMA_CHANNEL, kEDMA_MajorLink, 0);
-  EDMA_EnableChannelInterrupts(DMA_DMA_BASEADDR, DMA_AUDIO_TRANSPORT_DMA_CHANNEL, kEDMA_MajorInterruptEnable);
-  /* Enable interrupt DMA0_IRQn request in the NVIC. */
-  EnableIRQ(DMA_DMA_CH_INT_DONE_0_IRQN);
-  /* Allocate TCD memory pool */
-  DMA_audio_transport_TCD_pool_ptr = (edma_tcd_t *)malloc(sizeof(edma_tcd_t) * (DMA_AUDIO_TRANSPORT_TCD_SIZE + 1));
-  if (DMA_audio_transport_TCD_pool_ptr != NULL) {
-    EDMA_InstallTCDMemory(&DMA_audio_transport_Handle, (edma_tcd_t *)((uint32_t)(DMA_audio_transport_TCD_pool_ptr + 1) & (~0x1FU)), DMA_AUDIO_TRANSPORT_TCD_SIZE);
-  }
-}
+} */
 
 /***********************************************************************************************************************
  * I2S0 initialization code
@@ -136,7 +89,7 @@ static void DMA_init(void) {
 instance:
 - name: 'I2S0'
 - type: 'sai'
-- mode: 'interrupts'
+- mode: 'edma'
 - custom_name_enabled: 'false'
 - type_id: 'sai_e171ee1d4e17db4b5b234f946b59a148'
 - functional_group: 'BOARD_InitPeripherals'
@@ -156,18 +109,28 @@ instance:
           - bitClockSource: 'kSAI_BclkSourceMclkDiv'
         - transfer_format:
           - sampleRate_Hz: 'kSAI_SampleRate8KHz'
-          - bitWidth: 'kSAI_WordWidth8bits'
+          - bitWidth: 'kSAI_WordWidth16bits'
           - stereo: 'kSAI_Stereo'
           - isFrameSyncCompact: 'false'
-          - watermark: '2'
+          - watermark: '3'
           - channelMask: 'kSAI_Channel0Mask'
-        - interrupt_sel: 'kSAI_SyncErrorInterruptEnable kSAI_FIFORequestInterruptEnable'
-        - interrupt:
-          - IRQn: 'I2S0_Tx_IRQn'
-          - enable_interrrupt: 'enabled'
-          - enable_priority: 'false'
-          - priority: '0'
-          - enable_custom_name: 'false'
+        - edma_group:
+          - enable_edma_channel: 'true'
+          - edma_channel:
+            - eDMAn: '0'
+            - eDMA_source: 'kDmaRequestMux0I2S0Tx'
+            - enableTriggerPIT: 'false'
+            - init_channel_priority: 'false'
+            - edma_channel_Preemption:
+              - enableChannelPreemption: 'false'
+              - enablePreemptAbility: 'false'
+              - channelPriority: '0'
+            - enable_custom_name: 'false'
+          - sai_edma_handle:
+            - enable_custom_name: 'false'
+            - init_callback: 'false'
+            - callback_fcn: ''
+            - user_data: ''
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 /* I2S0 Tx configuration */
@@ -183,24 +146,30 @@ const sai_config_t I2S0_tx_config = {
 /* I2S0 Tx  transfer format */
 sai_transfer_format_t I2S0_tx_format = {
   .sampleRate_Hz = kSAI_SampleRate8KHz,
-  .bitWidth = kSAI_WordWidth8bits,
+  .bitWidth = kSAI_WordWidth16bits,
   .stereo = kSAI_Stereo,
   .masterClockHz = 6144000UL,
-  .watermark = 2U,
+  .watermark = 3U,
   .channel = 0U,
   .protocol = kSAI_BusI2S,
   .isFrameSyncCompact = false
 };
+edma_handle_t I2S0_TX_Handle;
+sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;
 
 static void I2S0_init(void) {
+  /* Set the source kDmaRequestMux0I2S0Tx request in the DMAMUX */
+  DMAMUX_SetSource(I2S0_TX_DMAMUX_BASEADDR, I2S0_TX_DMA_CHANNEL, I2S0_TX_DMA_REQUEST);
+  /* Enable the channel 0 in the DMAMUX */
+  DMAMUX_EnableChannel(I2S0_TX_DMAMUX_BASEADDR, I2S0_TX_DMA_CHANNEL);
+  /* Create the eDMA I2S0_TX_Handle handle */
+  EDMA_CreateHandle(&I2S0_TX_Handle, I2S0_TX_DMA_BASEADDR, I2S0_TX_DMA_CHANNEL);
   /* Initialize SAI Tx sub-module functionality */
   SAI_TxInit(I2S0_PERIPHERAL, &I2S0_tx_config);
+  /* Create the SAI Tx eDMA handle */
+  SAI_TransferTxCreateHandleEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, NULL, NULL, &I2S0_TX_Handle);
   /* Initialize SAI Tx transfer format */
-  SAI_TxSetFormat(I2S0_PERIPHERAL, &I2S0_tx_format, I2S0_TX_MCLK_SOURCE_CLOCK_HZ, I2S0_TX_BCLK_SOURCE_CLOCK_HZ);
-  /* Enable selected Tx interrupts */
-  SAI_TxEnableInterrupts(I2S0_PERIPHERAL, (kSAI_SyncErrorInterruptEnable | kSAI_FIFORequestInterruptEnable));
-  /* Enable interrupt I2S0_Tx_IRQn request in the NVIC. */
-  EnableIRQ(I2S0_SERIAL_TX_IRQN);
+  SAI_TransferTxSetFormatEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &I2S0_tx_format, I2S0_TX_MCLK_SOURCE_CLOCK_HZ, I2S0_TX_BCLK_SOURCE_CLOCK_HZ);
 }
 
 /***********************************************************************************************************************
@@ -209,12 +178,11 @@ static void I2S0_init(void) {
 void BOARD_InitPeripherals(void)
 {
   /* Global initialization */
-  //DMAMUX_Init(DMA_DMAMUX_BASEADDR);
-  //EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
+  DMAMUX_Init(DMA_DMAMUX_BASEADDR);
+  EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
 
   /* Initialize components */
-  //DMA_init();
-  //I2S0_init();
+  I2S0_init();
 }
 
 /***********************************************************************************************************************

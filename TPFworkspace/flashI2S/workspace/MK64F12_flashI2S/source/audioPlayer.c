@@ -8,8 +8,8 @@
 #include "audioPlayer.h"
 #include "mp3dec.h"
 #include "flashHal.h"
-#include "fsl_edma.h"
-#include "fsl_sai.h"
+//#include "fsl_edma.h"
+#include "fsl_sai_edma.h"
 #include "timer.h"
 
 #define WORD_LEN 4   //4bytes
@@ -33,6 +33,8 @@ int mp3dataLen = STREAM_LEN;
 unsigned char * p2mp3record = 0;
 
 HMP3Decoder p2mp3decoder;
+
+I2S_Type * p2i2s = 0;
 /****************************************/
 /*@brief continue_playing:
  * This function continue the process of playing a record. If some audio is pending, this function
@@ -54,7 +56,8 @@ int decode_chunk_mp3(short * audio_pp_pointer);
  */
 void continue_playing(void);
 
-void init_audio_player(void){
+void init_audio_player(void * p2i2s_){
+	p2i2s = (I2S_Type *) p2i2s_;
 	p2mp3decoder = MP3InitDecoder();
 	audioStatus = AUDIO_IDLE;
 	InitializeTimers();
@@ -108,6 +111,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 		bytesLeft = STREAM_LEN;  //It´s important to initialize this global variable.
 
 		if (decode_chunk_mp3(audio_pp_buffer) != -1){
+			//status_t SAI_TransferSendEDMA(p2i2s, sai_edma_handle_t *handle, sai_transfer_t *xfer);
 			//enable DMArequest (FIFO I2S triggers DMA)
 			//assure that first DMA transfer can start at this point!
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);

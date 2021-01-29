@@ -27,7 +27,7 @@ typedef struct{
 /*@brief init_audio_player:
  *initialize audio player tools..
  */
-void init_audio_player(void);
+void init_audio_player(void * p2i2s_);
 
 /*@brief save_record:
  * This function save an audio record in a non-volatile,
