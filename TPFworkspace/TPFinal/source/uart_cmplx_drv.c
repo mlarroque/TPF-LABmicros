@@ -8,45 +8,32 @@
 
 #include "fsl_uart.h"
 #include "peripherals.h"
-#include "fsl_debug_console.h" //TODO es solo para debug
+#include "fsl_debug_console.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /* UART instance and clock */
 #define UART UART3_PERIPHERAL
-#define TX_BUFFER_LEN 200
+#define TX_BUFFER_LEN 500
 #define TX_MESSAGE_MAX_LEN 8
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
-/* UART user callback */
-//void UART_UserCallback(UART_Type *base, uart_handle_t *handle, status_t status, void *userData);
-void userCallback(UART_Type *base, uart_handle_t *handle, status_t status, void *userData);
 
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
-
 _Bool TXCompleteFlag = false;
-
-uint8_t g_tipString[] = "hola soy un test\n";
 
 static uint8_t TXbuffers[TX_BUFFER_LEN];
 static uint8_t lengthTXbuffer = 0;
 static uint8_t outMarkersTXbuffer = 0;
 static uint8_t inMarkersTXbuffer= 0;
 
-struct userData
-{
-    uint8_t *data;   /*!< The buffer of data to be transfer.*/
-    size_t dataSize; /*!< The byte count to be transfer. */
-};
 
-
-void *userData;
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -54,40 +41,20 @@ void UART3_SERIAL_RX_TX_IRQHANDLER(void);
 
 
 
-/*
-void userCallback(UART_Type *base, uart_handle_t *handle, status_t status, void *userData)
-{
-    userData = userData;
-    PRINTF("va benne\n");
-    if (kStatus_UART_TxIdle == status)
-    {
-        txBufferFull = false;
-        txOnGoing    = false;
 
-    }
-
-    if (kStatus_UART_RxIdle == status)
-    {
-        rxBufferEmpty = false;
-        rxOnGoing     = false;
-    }
-}
-*/
 void copyTXmsg(const uint8_t * msg, uint8_t cant);
-
 
 
 uint8_t BTisTxMsgComplete(){
 	uint8_t ret = 0;
-	ret = UART->C2 & kUART_TransmissionCompleteInterruptEnable;
+	ret = UART->C2 & kUART_TransmissionCompleteFlag;
 	return ret;
 }
 
-uint8_t uartWriteMsg()	//(const char* msg, uint8_t cant)
+uint8_t uartWriteMsg(uint8_t *msg)	//(const char* msg, uint8_t cant)
 {
 	TXCompleteFlag = false;
-	uint8_t* msg = g_tipString;
-	uint8_t cant = sizeof(g_tipString)/sizeof(g_tipString[0]);
+	uint8_t cant = strlen(msg);
 //	int i = 0;
 	uint8_t cantTX = 0;
 	_Bool uartWasSleeping = false;
@@ -117,13 +84,13 @@ uint8_t uartWriteMsg()	//(const char* msg, uint8_t cant)
 		{
 			UART->C2 |= UART_C2_TE_MASK;
 			UART->C2 |= UART_C2_TIE_MASK; //habilito la interrupcion para el fin de transmisión
+			UART->C2 |= UART_C2_TCIE_MASK;	//habilito interrupcion de transmission complete
 
 		}
 	}
 	else{
 		cantTX = 0;
 	}
-	//EnableIRQ(UART3_SERIAL_RX_TX_IRQN);
 	return cantTX;
 }
 
@@ -131,32 +98,32 @@ void UARTX_RX_TX_IRQHandler(){
 	//tengo que ver que me llamo a la interrupción
 	//para esto, leo el status
 
-	uint8_t i = 0;
-
 	if(UART->S1 & kUART_TxDataRegEmptyFlag){ //se termino una transmisión
 		if(lengthTXbuffer > 0){ //si queda algo por transmitir
-		  if(TXbuffers[outMarkersTXbuffer] != '\0') //TODO: borrar esto, parsearlo en la app
 			UART_WriteByte(UART, TXbuffers[outMarkersTXbuffer]); //transmito otro char del buffer
 			uint8_t dummy_read = UART->S1;
-			if(outMarkersTXbuffer < TX_BUFFER_LEN -1){ //actualizo el outMarker
+			if(outMarkersTXbuffer < TX_BUFFER_LEN -1) //actualizo el outMarker
 				outMarkersTXbuffer++;
-			}
-			else{
+			else
 				outMarkersTXbuffer = 0;
-			}
+
 			lengthTXbuffer--; //actualizo el len ya que termino un mensaje
-			i++;
-
-		}
-		else if(UART->S1 & kUART_TransmissionCompleteFlag){
-			TXCompleteFlag = true;
-
-		}
-		else{ //si no queda nada por transmitir deshabilito transmisión
-			UART_EnableTx(UART, false);
-			UART->C2 = UART->C2 & (~UART_C2_TIE_MASK);
 		}
 	}
+	if(UART->S1 & kUART_TransmissionCompleteFlag){	//si no queda nada por transmitir deshabilito transmisión
+		if(lengthTXbuffer == 0){
+			UART->C2 = UART->C2 & (~UART_C2_TCIE_MASK);
+			UART->C2 = UART->C2 & (~UART_C2_TIE_MASK);
+			UART_EnableTx(UART, false);
+			TXCompleteFlag = true;
+//			PRINTF("transmission complete\n");
+		}
+	}
+//		else{ //si no queda nada por transmitir deshabilito transmisión
+
+//			TXCompleteFlag = true;
+//			PRINTF("transmission complete: %x\n", BTisTxMsgComplete());
+//		}
 }
 
 

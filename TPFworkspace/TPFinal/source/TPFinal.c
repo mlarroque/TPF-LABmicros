@@ -68,7 +68,7 @@ int main(void) {
     while(1) {
         i++ ;
         unique++;
-        if(unique == 3 || unique == 5)
+        if(unique == 3 || unique == 500000)
         	sendBTPackage();
     }
     return 0 ;
