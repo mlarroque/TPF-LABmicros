@@ -22,7 +22,7 @@ extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;*/
 //#include "fsl_edma.h"
 #include "fsl_sai_edma.h"
 #include "timer.h"
-
+#define MAIN_CALLBACK_SAI 1
 
 #define WORD_LEN 4   //4bytes
 #define N_CHUNKS 64
@@ -202,8 +202,8 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 	return ret;
 }
 
-
-/*void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+#if !MAIN_CALLBACK_SAI
+void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	if(audioStatus != AUDIO_IDLE){
 		xfer.data = audio_pp_buffer + ppBufferRead;
 		xfer.dataSize = mp3FrameInfo.outputSamps / 2;
@@ -214,4 +214,5 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 		stop_playing();
 	}
 }
-*/
+#endif
+
