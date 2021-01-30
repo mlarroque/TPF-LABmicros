@@ -47,8 +47,10 @@
 #define DEBUG_FLASH_1 0  //debug flashHal write and read
 #define DEBUG_FLASH_2 0  //debug read data that had been written in DEBUG_FLASH_1
 #define DEBUG_AUDIO_PLAYER_1 0  //debug save and read record
-#define DEBUG_AUDIO_PLAYER_2 1  //debug decoding some piece of record
-#define DEBUG_SAI_1 0
+#define DEBUG_AUDIO_PLAYER_2 0  //debug decoding some piece of record
+#define DEBUG_SAI_1 1   //debug i2s and dma
+
+int timerCounter;
 /*
  * @brief   Application entry point.
  */
@@ -169,23 +171,37 @@ int main(void) {
     	PRINTF("ERROR IN AUDIO PLAYER\n");
     }
 #elif DEBUG_AUDIO_PLAYER_2
+#include "timer.h"
 #include "audioPlayer.h"
-    char data[] = {2, 4, 6, 8, 10};  //array size: 5
+#include "mp3data.h"
+    timerCounter = 0;
+    InitializeTimers();
 
     audioData_t audioData;
     audioResult_t result;
 
-    audioData.p2audioData = data;
-    audioData.audioDataLen = sizeof(data[0]) * 5;
+    audioData.p2audioData = mp3data;
+    audioData.audioDataLen = sizeof(mp3data[0]) * 5;
     audioData.audioFormat = AUDIO_MP3;
     audioData.audioTag = ALERTA_0;
 
     result = save_record(&audioData);
+    SetTimer(DEBUG_TIMER, 1, debug_timer_callback);   //1ms de timeout
     start_playing(audioData.audioTag, audioData.audioFormat, AUDIO_I2S_STEREO_DECODED);
+    DisableTimer(DEBUG_TIMER);
+    printf("decoding spends less than %d ms\n", timerCounter);
 
 #elif DEBUG_SAI_1
+#include "fsl_sai_edma.h"
+#include "decodedTestData.h"
+    sai_transfer_t xfer;
+    short decodedTestData[] = {0,0,0,0,0,0,0};
+	xfer.data = (char *) decodedTestData;
+	xfer.dataSize = sizeof(decodedTestData);
+	SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &xfer);
 
-#endif /*DEBUG_FLASH_1, DEBUG_SAI_1*/
+
+#endif /*DEBUG*/
 
     /* Enter an infinite loop, just incrementing a counter. */
     while(1) {
@@ -195,4 +211,16 @@ int main(void) {
         __asm volatile ("nop");
     }
     return 0 ;
+}
+
+#if DEBUG_SAI_1
+void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+	printf("SAI CALLBACK CALLED!!!\n");
+}
+#endif
+
+
+
+void debug_timer_callback(void){
+	timerCounter++;
 }

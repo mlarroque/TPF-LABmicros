@@ -52,7 +52,6 @@ MP3FrameInfo mp3FrameInfo;
 
 sai_transfer_t xfer;
 
-
 /****************************************/
 /*@brief continue_playing:
  * This function continue the process of playing a record. If some audio is pending, this function
@@ -61,10 +60,12 @@ sai_transfer_t xfer;
  *@param none.
  *
  * @retval  none
-
-int decode_chunk_mp3(short * audio_pp_pointer);
-
-/*@brief continue_playing:
+ *
+ *
+ *
+ *
+ *@brief continue_playing:
+ *
  * This function continue the process of playing a record. If some audio is pending, this function
  * will change the status to sending audio, but not necessary will send all the audio pending.
  *
@@ -202,7 +203,7 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 }
 
 
-void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+/*void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	if(audioStatus != AUDIO_IDLE){
 		xfer.data = audio_pp_buffer + ppBufferRead;
 		xfer.dataSize = mp3FrameInfo.outputSamps / 2;
@@ -213,3 +214,4 @@ void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, statu
 		stop_playing();
 	}
 }
+*/
