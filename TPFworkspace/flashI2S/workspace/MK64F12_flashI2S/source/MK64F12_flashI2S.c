@@ -195,7 +195,7 @@ int main(void) {
 #include "fsl_sai_edma.h"
 #include "decodedTestData.h"
     sai_transfer_t xfer;
-    short decodedTestData[] = {0,0,0,0,0,0,0};
+    short decodedTestData[] = {0,0,0,0,0,0,0, 0, 0, 0};
 	xfer.data = (char *) decodedTestData;
 	xfer.dataSize = sizeof(decodedTestData);
 	SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &xfer);
