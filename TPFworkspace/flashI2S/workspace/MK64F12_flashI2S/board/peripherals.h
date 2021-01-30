@@ -53,6 +53,12 @@ extern edma_handle_t I2S0_TX_Handle;
 extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;
 
 /***********************************************************************************************************************
+ * Callback functions
+ **********************************************************************************************************************/
+/* SAI transfer Tx callback function for the I2S0 component (init. function BOARD_InitPeripherals)*/
+extern void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 

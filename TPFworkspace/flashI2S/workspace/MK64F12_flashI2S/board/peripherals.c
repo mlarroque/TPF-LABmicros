@@ -56,7 +56,7 @@ instance:
       - enableContinuousLinkMode: 'false'
       - enableHaltOnError: 'true'
       - enableRoundRobinArbitration: 'false'
-      - enableDebugMode: 'true'
+      - enableDebugMode: 'false'
     - dma_table:
       - 0: []
     - edma_channels: []
@@ -74,7 +74,7 @@ const edma_config_t DMA_config = {
   .enableContinuousLinkMode = false,
   .enableHaltOnError = true,
   .enableRoundRobinArbitration = false,
-  .enableDebugMode = true
+  .enableDebugMode = false
 };
 
 /* Empty initialization function (commented out)
@@ -128,8 +128,8 @@ instance:
             - enable_custom_name: 'false'
           - sai_edma_handle:
             - enable_custom_name: 'false'
-            - init_callback: 'false'
-            - callback_fcn: ''
+            - init_callback: 'true'
+            - callback_fcn: 'finish_TX_DMA_SAI_callback'
             - user_data: ''
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
@@ -167,7 +167,7 @@ static void I2S0_init(void) {
   /* Initialize SAI Tx sub-module functionality */
   SAI_TxInit(I2S0_PERIPHERAL, &I2S0_tx_config);
   /* Create the SAI Tx eDMA handle */
-  SAI_TransferTxCreateHandleEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, NULL, NULL, &I2S0_TX_Handle);
+  SAI_TransferTxCreateHandleEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, finish_TX_DMA_SAI_callback, NULL, &I2S0_TX_Handle);
   /* Initialize SAI Tx transfer format */
   SAI_TransferTxSetFormatEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &I2S0_tx_format, I2S0_TX_MCLK_SOURCE_CLOCK_HZ, I2S0_TX_BCLK_SOURCE_CLOCK_HZ);
 }

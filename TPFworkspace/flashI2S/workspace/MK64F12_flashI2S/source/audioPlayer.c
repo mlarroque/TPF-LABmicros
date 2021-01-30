@@ -5,12 +5,24 @@
  *      Author: Matias
  */
 
+#include "peripherals.h"
+/***********************************************************************************************************************
+ * Global variables
+ **********************************************************************************************************************/
+/*extern const edma_config_t DMA_config;
+extern const sai_config_t I2S0_tx_config;
+extern sai_transfer_format_t I2S0_tx_format;
+extern edma_handle_t I2S0_TX_Handle;
+extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;*/
+
+
 #include "audioPlayer.h"
 #include "mp3dec.h"
 #include "flashHal.h"
 //#include "fsl_edma.h"
 #include "fsl_sai_edma.h"
 #include "timer.h"
+
 
 #define WORD_LEN 4   //4bytes
 #define N_CHUNKS 64
@@ -23,8 +35,10 @@
 short audio_pp_buffer[PP_BUFFER_LEN];  //PING PONG BUFFER
 
 int ppBufferWrite = 0;
+int ppBufferRead = 0;
 
 int audioStatus;
+
 
 int bytesLeft;
 
@@ -33,8 +47,12 @@ int mp3dataLen = STREAM_LEN;
 unsigned char * p2mp3record = 0;
 
 HMP3Decoder p2mp3decoder;
+MP3FrameInfo mp3FrameInfo;
 
-I2S_Type * p2i2s = 0;
+
+sai_transfer_t xfer;
+
+
 /****************************************/
 /*@brief continue_playing:
  * This function continue the process of playing a record. If some audio is pending, this function
@@ -54,14 +72,15 @@ int decode_chunk_mp3(short * audio_pp_pointer);
  *
  * @retval  none.
  */
+
+int decode_chunk_mp3(short * audio_pp_pointer);
 void continue_playing(void);
 
-void init_audio_player(void * p2i2s_){
-	p2i2s = (I2S_Type *) p2i2s_;
+void init_audio_player(void){
+
 	p2mp3decoder = MP3InitDecoder();
 	audioStatus = AUDIO_IDLE;
 	InitializeTimers();
-	SetTimer(AUDIO_PLAYER_TIMER,50, continue_playing);
 }
 
 void free_audio_player(void){
@@ -102,21 +121,24 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 
 	p2mp3record = 0;
 
-	if( (audioInputFormat == AUDIO_MP3) && (audioOutputFormat == AUDIO_I2S_STEREO_DECODED) ){
-
-		audioStatus = AUDIO_PROCESSING;   //Turn on flag
+	if( (audioInputFormat == AUDIO_MP3) && (audioOutputFormat == AUDIO_I2S_STEREO_DECODED) && (audioStatus ==AUDIO_IDLE)){
 
 		p2mp3record = (unsigned char *) readFlash(&mp3dataLen, tag); //obtain mp3 pointer
 
 		bytesLeft = STREAM_LEN;  //It´s important to initialize this global variable.
 
+
 		if (decode_chunk_mp3(audio_pp_buffer) != -1){
-			//status_t SAI_TransferSendEDMA(p2i2s, sai_edma_handle_t *handle, sai_transfer_t *xfer);
+			xfer.data = audio_pp_buffer;
+			xfer.dataSize = mp3FrameInfo.outputSamps / 2;
+			SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &xfer);
+			audioStatus = AUDIO_PROCESSING;  //Turn on flag
 			//enable DMArequest (FIFO I2S triggers DMA)
 			//assure that first DMA transfer can start at this point!
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);
 
-			EnableTimer(AUDIO_PLAYER_TIMER);
+			SetTimer(AUDIO_PLAYER_TIMER,20, continue_playing);
+
 		}
 		else{
 			stop_playing();
@@ -134,9 +156,11 @@ playerStatus_t get_player_status(void){
 
 
 void continue_playing(void){
-
+	DisableTimer(AUDIO_PLAYER_TIMER);
 	if ((audioStatus == AUDIO_PROCESSING) && (p2mp3record != 0) && (decode_chunk_mp3(audio_pp_buffer + ppBufferWrite) == 0)){
 		//trigger next DMA?? no debería hacer falta...
+
+		ppBufferRead = ppBufferWrite;
 		if (ppBufferWrite == 0){  //se acomoda la proxima posición a escribir en el ping pong buffer...
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);
 		}
@@ -145,7 +169,7 @@ void continue_playing(void){
 		}
 	}
 	else{
-		stop_playing();
+		audioStatus = AUDIO_IDLE;
 	}
 }
 
@@ -170,7 +194,22 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 	//the decoding starts with the sync word and the result is save in a ping pong buffer..
 	//who use this function have to suit the pointer to buffer having into acount ping pong buffer logic..
 	if ( (offset != -1) && (MP3Decode(p2mp3decoder, &p2mp3record, &bytesLeft, audio_pp_pointer, USE_SIZE_HELIX) == 0) ){
+		MP3GetLastFrameInfo(p2mp3decoder, &mp3FrameInfo);
+
 		ret = 0;
 	}
 	return ret;
+}
+
+
+void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+	if(audioStatus != AUDIO_IDLE){
+		xfer.data = audio_pp_buffer + ppBufferRead;
+		xfer.dataSize = mp3FrameInfo.outputSamps / 2;
+		SAI_TransferSendEDMA(base, handle, &xfer);
+		SetTimer(AUDIO_PLAYER_TIMER,20, continue_playing);
+	}
+	else{
+		stop_playing();
+	}
 }

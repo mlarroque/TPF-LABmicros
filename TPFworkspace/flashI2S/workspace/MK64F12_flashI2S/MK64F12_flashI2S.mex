@@ -985,8 +985,8 @@
                                  </struct>
                                  <struct name="sai_edma_handle">
                                     <setting name="enable_custom_name" value="false"/>
-                                    <setting name="init_callback" value="false"/>
-                                    <setting name="callback_fcn" value=""/>
+                                    <setting name="init_callback" value="true"/>
+                                    <setting name="callback_fcn" value="finish_TX_DMA_SAI_callback"/>
                                     <setting name="user_data" value=""/>
                                  </struct>
                               </struct>
@@ -1000,7 +1000,7 @@
                            <setting name="enableContinuousLinkMode" value="false"/>
                            <setting name="enableHaltOnError" value="true"/>
                            <setting name="enableRoundRobinArbitration" value="false"/>
-                           <setting name="enableDebugMode" value="true"/>
+                           <setting name="enableDebugMode" value="false"/>
                         </struct>
                         <array name="dma_table">
                            <struct name="0"/>
