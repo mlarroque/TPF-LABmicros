@@ -13,10 +13,13 @@
 #include "i2c.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "fsl_debug_console.h"
 
 /********************************************************
  * 						DEFINCIONES						*
  ********************************************************/
+#define DEBUG
+
 #define TIMER_TIME 160 //Tiempo en milisegundos para llamar al callback
 
 #define MAX30102_ADDRESS 0X57
@@ -103,30 +106,50 @@ typedef enum{
  ********************************************************/
 void SetMode(mode_t mode){
 	uint8_t reg = mode;
-	WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
-
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
+	}
 	reg = 0;
-	WriteByte(MAX30102_ADDRESS, FIFO_READ, &reg, 1);//Clear FIFO pointers
-	WriteByte(MAX30102_ADDRESS, FIFO_WRITE, &reg, 1);
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_READ, &reg, 1);//Clear FIFO pointers
+	}
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_WRITE, &reg, 1);
+	}
 }
 void LedInit(led_current_t red_current, led_current_t ir_current){
 	uint8_t reg = red_current;
-	WriteByte(MAX30102_ADDRESS, LED1_PA, &reg, 1);
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, LED1_PA, &reg, 1);
+	}
 	reg = ir_current;
-	WriteByte(MAX30102_ADDRESS, LED2_PA, &reg, 1);
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, LED2_PA, &reg, 1);
+	}
 }
 void SetSp02(adc_range_t range, adc_res_t res, sample_rate_t sr){
 	uint8_t reg = (res) | (sr << SPO2_SR_SHIFT) | (range << SPO2_ADC_RGE);
-	WriteByte(MAX30102_ADDRESS, SP02_CONFIG, &reg, 1);
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, SP02_CONFIG, &reg, 1);
+	}
 
 }
 void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
 	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) ;
-	WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
+	}
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
-	LedInit(i4, i4); //Setteo corriente de ambos leds
+	LedInit(i20, i20); //Setteo corriente de ambos leds
 	SetSp02(i2048, SIXTEEN_BITS, fs_200Hz);
 	SetFIFO(EMPTY_0, NO_AVERAGE);
 
@@ -138,6 +161,10 @@ void ConfigureMax30102(void){
 void InitializeOxHardware(max_init_t* init_data){
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
+#ifdef DEBUG
+	PrintRegister(LED1_PA);
+	PrintRegister(LED2_PA);
+#endif
 }
 
 uint8_t GetNumOfSamples(void){
@@ -161,4 +188,10 @@ max_sample_t GetLedSamples(void){
 	sample.ir_sample = (uint16_t) ir_aux;
 	return sample;
 
+}
+
+void PrintRegister(uint8_t reg){
+	uint8_t recieved = 0;
+	ReadByte(MAX30102_ADDRESS, reg, &recieved, 1 );
+	PRINTF("%d \n", recieved);
 }

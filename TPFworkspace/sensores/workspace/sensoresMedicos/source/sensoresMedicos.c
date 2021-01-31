@@ -39,6 +39,11 @@
 #include "clock_config.h"
 #include "MK64F12.h"
 #include "fsl_debug_console.h"
+#include "event_prueba.h"
+#include "ecg.h"
+#include "ox_event.h"
+#include "oximetry.h"
+#include "timer.h"
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -58,15 +63,31 @@ int main(void) {
 #endif
 
     PRINTF("Hello World\n");
+    //ECG_init_t init_data = {200};
+    oxi_init_t ox_init_data = {0};
+    InitializeTimers();
+    //InitializeECG(&init_data);
+    InitializeOximetry(&ox_init_data);
+
 
     /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
+//volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
+    int32_t counter = 200;
+    ox_event_t sample;
     while(1) {
-        i++ ;
-        /* 'Dummy' NOP to allow source level single stepping of
-            tight while() loop */
-        __asm volatile ("nop");
+        //i++ ;
+        if(IsOxEvent()){
+        	sample = PopOxEvent();
+        	AddInputSamples(sample.red_sample, sample.ir_sample);
+        	//sample =GetEcgSample();
+        	PRINTF("%d \n", sample.red_sample);
+        	//if(!(--counter)){
+        		//counter = 200;
+        		//CalculateHeartBeat();
+        		//PRINTF("%d \n", GetHeartBeat());
+        	//}
+        }
     }
     return 0 ;
 }

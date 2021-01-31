@@ -14,6 +14,14 @@
 #include "MK64F12.h"
 
 /************************************************
+ * 				VARIABLES LOCALES
+ ************************************************/
+const adc16_channel_config_t current_config = {
+  .channelNumber = kADC16_ChannelMuxA,
+  .enableInterruptOnConversionCompleted = false,
+  .enableDifferentialConversion = false
+};
+/************************************************
  * 				FUNCIONES DEL HEADER			*
  ************************************************/
 
@@ -23,5 +31,7 @@ void InitializeEcgHardware(heart_init_t* init_data){
 }
 
 uint16_t GetSensorSample(void){
-	return (uint16_t) ADC16_GetChannelConversionValue(ADC0, kADC16_ChannelMuxA);
+	uint16_t sample = (uint16_t) ADC16_GetChannelConversionValue(ADC0, kADC16_ChannelMuxA);
+	ADC16_SetChannelConfig(ADC0, 0, &current_config);
+	return sample;
 }

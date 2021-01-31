@@ -11,6 +11,7 @@
 #include "oximetry.h"
 #include "spo2Algorithm.h"
 #include "max30102.h"
+#include "ox_event.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -45,6 +46,7 @@ void OxSampleCallback(void){
 	max_sample_t led_samples[MAX_NUM_SAMPLES];
 	for(int i=0; i<n_samples; i++){
 		led_samples[i] = GetLedSamples();
+		PushOxEvent(led_samples[i].red_sample, led_samples[i].ir_sample);
 	}
 	//Pushear evento
 }

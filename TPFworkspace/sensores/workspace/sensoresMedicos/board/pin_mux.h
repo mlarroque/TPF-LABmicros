@@ -25,15 +25,6 @@ extern "C" {
  */
 void BOARD_InitBootPins(void);
 
-/*! @name PORTB2 (number 55), J4[2]
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_ADC0_SE12_PORT PORTB               /*!<@brief PORT peripheral base pointer */
-#define BOARD_ADC0_SE12_PIN 2U                   /*!<@brief PORT pin number */
-#define BOARD_ADC0_SE12_PIN_MASK (1U << 2U)      /*!<@brief PORT pin mask */
-                                                 /* @} */
-
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *
