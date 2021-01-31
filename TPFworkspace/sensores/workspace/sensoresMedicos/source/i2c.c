@@ -25,6 +25,11 @@ bool WriteByte(uint8_t address, uint8_t reg, uint8_t* tx_buffer, uint8_t n_bytes
 	while(ret == kStatus_I2C_Busy){
 		ret = I2C_MasterStart(I2C0, address, kI2C_Write);
 	}
+	/* Wait until data transfer complete. */
+	while (0U == (I2C_MasterGetStatusFlags(I2C0) & kI2C_IntPendingFlag))
+	{
+		__asm__ __volatile__ ("nop");
+	}
 	//Mando direccion del registro
 	ret = I2C_MasterWriteBlocking(I2C0, &send, 1, kI2C_TransferNoStopFlag);
 	if(ret != kStatus_Success){
@@ -45,6 +50,10 @@ bool ReadByte(uint8_t address, uint8_t reg, uint8_t * r_buff, uint8_t n_bytes){
 
 	while(ret == kStatus_I2C_Busy){
 		ret = I2C_MasterStart(I2C0, address, kI2C_Write);
+	}
+	while (0U == (I2C_MasterGetStatusFlags(I2C0) & kI2C_IntPendingFlag))
+	{
+		__asm__ __volatile__ ("nop");
 	}
 	ret = I2C_MasterWriteBlocking(I2C0, &send, 1, kI2C_TransferNoStopFlag); //Mando direccion del registro
 	if( ret!= kStatus_Success){

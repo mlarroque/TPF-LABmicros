@@ -18,7 +18,7 @@
 /********************************************************
  * 						DEFINCIONES						*
  ********************************************************/
-#define DEBUG
+#define MAX_DEBUG
 
 #define TIMER_TIME 160 //Tiempo en milisegundos para llamar al callback
 
@@ -149,7 +149,7 @@ void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
-	LedInit(i20, i20); //Setteo corriente de ambos leds
+	LedInit(i10, i10); //Setteo corriente de ambos leds
 	SetSp02(i2048, SIXTEEN_BITS, fs_200Hz);
 	SetFIFO(EMPTY_0, NO_AVERAGE);
 
@@ -161,7 +161,7 @@ void ConfigureMax30102(void){
 void InitializeOxHardware(max_init_t* init_data){
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
-#ifdef DEBUG
+#ifdef MAX_DEBUG
 	PrintRegister(LED1_PA);
 	PrintRegister(LED2_PA);
 #endif
