@@ -51,6 +51,7 @@
 #define SPO2_SR_SHIFT	2
 #define SPO2_ADC_RGE	5
 
+#define FIFO_ROLLOVER_SHIFT 4
 #define FIFO_AVG_SHIFT	5
 #define RESET_CONTROL_SHIFT	6
 
@@ -183,8 +184,8 @@ void SetSp02(adc_range_t range, adc_res_t res, sample_rate_t sr){
 	}
 
 }
-void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
-	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) ;
+void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg, bool rollover){
+	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) | (rollover<<FIFO_ROLLOVER_SHIFT) ;
 	bool successful = false;
 	while(!successful){
 		successful = WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
@@ -194,7 +195,7 @@ void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
 	LedInit(i10, i10); //Setteo corriente de ambos leds
 	SetSp02(i4096, SIXTEEN_BITS, fs_200Hz);
-	SetFIFO(EMPTY_0, NO_AVERAGE);
+	SetFIFO(EMPTY_0, NO_AVERAGE, true);
 
 }
 
@@ -202,8 +203,6 @@ void ConfigureMax30102(void){
  * 					FUNCIONES DEL HEADER
  ********************************************************/
 void InitializeOxHardware(max_init_t* init_data){
-	GetInterruptStatus();
-	ResetOxHardware();
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
 #ifdef MAX_DEBUG
