@@ -52,6 +52,7 @@
 #define SPO2_ADC_RGE	5
 
 #define FIFO_AVG_SHIFT	5
+#define RESET_CONTROL_SHIFT	6
 
 
 	//Tipos de datos
@@ -104,6 +105,44 @@ typedef enum{
 /********************************************************
  * 					FUNCIONES LOCALES					*
  ********************************************************/
+void ResetOxHardware(void){
+	uint8_t mode_reg = 0XFF;
+	uint8_t reg = 1 << RESET_CONTROL_SHIFT;
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
+	}
+	while( 0 != (mode_reg & reg) ){
+		ReadByte(MAX30102_ADDRESS, MODE_CONFIG, &mode_reg, 1);
+	}
+	//Resetteo todos los registros
+	/*
+	successful = false;
+	reg =0;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, INT_ENABLE1, &reg, 1);
+	}
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, INT_ENABLE2, &reg, 1);
+	}
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
+	}
+	 */
+
+}
+
+uint8_t GetInterruptStatus(void){
+	bool successful = false;
+	uint8_t status = 0;
+	while(!successful){
+		successful = ReadByte(MAX30102_ADDRESS, INT_STATUS1, &status, 1);
+	}
+	return status;
+}
+
 void SetMode(mode_t mode){
 	uint8_t reg = mode;
 	bool successful = false;
@@ -118,6 +157,10 @@ void SetMode(mode_t mode){
 	successful = false;
 	while(!successful){
 		successful = WriteByte(MAX30102_ADDRESS, FIFO_WRITE, &reg, 1);
+	}
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, OVF_COUNT, &reg, 1);
 	}
 }
 void LedInit(led_current_t red_current, led_current_t ir_current){
@@ -159,10 +202,16 @@ void ConfigureMax30102(void){
  * 					FUNCIONES DEL HEADER
  ********************************************************/
 void InitializeOxHardware(max_init_t* init_data){
+	GetInterruptStatus();
+	ResetOxHardware();
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
 #ifdef MAX_DEBUG
-	PrintRegister(LED1_PA);
+	PrintRegister(FIFO_CONFIG);
+	PrintRegister(INT_ENABLE1);
+	PrintRegister(INT_ENABLE2);
+	PrintRegister(INT_STATUS1);
+	PrintRegister(INT_STATUS2);
 	PrintRegister(LED2_PA);
 #endif
 }
@@ -211,5 +260,6 @@ max_sample_t GetLedSamples(void){
 void PrintRegister(uint8_t reg){
 	uint8_t recieved = 0;
 	ReadByte(MAX30102_ADDRESS, reg, &recieved, 1 );
+	PRINTF("Register %d: ", reg);
 	PRINTF("%d \n", recieved);
 }
