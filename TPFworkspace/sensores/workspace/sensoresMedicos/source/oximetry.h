@@ -53,6 +53,6 @@ uint16_t GetRedUnreadNum(void);
 int32_t GetSpO2(void);
 
 //Almacena nuevas muestras de ambos leds.
-void AddInputSamples(ppg_sample_t red_sample, ppg_sample_t ir_sample);
+void AddInputSamples(void);
 
 #endif /* OXIMETRY_H_ */

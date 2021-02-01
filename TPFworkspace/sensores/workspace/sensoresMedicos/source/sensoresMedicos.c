@@ -64,7 +64,7 @@ int main(void) {
 
     PRINTF("Hello World\n");
     //ECG_init_t init_data = {200};
-    oxi_init_t ox_init_data = {0};
+    oxi_init_t ox_init_data = {200};
     InitializeTimers();
     //InitializeECG(&init_data);
     InitializeOximetry(&ox_init_data);
@@ -73,15 +73,13 @@ int main(void) {
     /* Force the counter to be placed into memory. */
 //volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
-    int32_t counter = 200;
-    ox_event_t sample;
+    //int32_t counter = 200;
     while(1) {
         //i++ ;
         if(IsOxEvent()){
-        	sample = PopOxEvent();
-        	AddInputSamples(sample.red_sample, sample.ir_sample);
+        	PopOxEvent();
+        	AddInputSamples();
         	//sample =GetEcgSample();
-        	PRINTF("%d \n", sample.red_sample);
         	//if(!(--counter)){
         		//counter = 200;
         		//CalculateHeartBeat();

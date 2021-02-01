@@ -20,7 +20,7 @@
  ********************************************************/
 //#define MAX_DEBUG
 
-#define TIMER_TIME 160 //Tiempo en milisegundos para llamar al callback
+#define RETRY_READ_TIMES 5 //Veces que reintenta leer la muestra
 
 #define MAX30102_ADDRESS 0X57
 #define FIFO_DEPTH 32
@@ -170,22 +170,40 @@ void InitializeOxHardware(max_init_t* init_data){
 uint8_t GetNumOfSamples(void){
 	uint8_t write_val;
 	uint8_t read_val;
-	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val, 1);
-	ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val, 1);
-	return (uint8_t) ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
+	uint8_t ret = 0;
+	bool successful = false;
+	successful = ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val, 1);
+	if(!successful){
+		ret = 0;
+	}
+	else{
+		successful = ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val, 1);
+		if(!successful){
+			ret = 0;
+		}
+		else{
+			ret = ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
+		}
+	}
+	return ret;
 }
 
 max_sample_t GetLedSamples(void){
-	max_sample_t sample;
+	max_sample_t sample = {0,0};
 	uint32_t ir_aux=0;
 	uint32_t red_aux=0;
 	uint8_t fifo_bytes[BYTES_PER_SAMPLE];
+	bool successful = false;
 
-	ReadByte(MAX30102_ADDRESS, FIFO_DATA, fifo_bytes, BYTES_PER_SAMPLE );
-	red_aux = ( ((uint32_t)fifo_bytes[0])<<16 ) | ( ((uint32_t)fifo_bytes[1])<<8 ) | (uint32_t)fifo_bytes[2];
-	ir_aux = ( ((uint32_t)fifo_bytes[3])<<16 ) | ( ((uint32_t)fifo_bytes[4])<<8 ) | (uint32_t)fifo_bytes[5];
-	sample.red_sample = (uint16_t) red_aux;
-	sample.ir_sample = (uint16_t) ir_aux;
+	for(int i=0; (i<RETRY_READ_TIMES)&&(!successful);i++){
+		successful = ReadByte(MAX30102_ADDRESS, FIFO_DATA, fifo_bytes, BYTES_PER_SAMPLE );
+	}
+	if(successful){
+		red_aux = ( ((uint32_t)fifo_bytes[0])<<16 ) | ( ((uint32_t)fifo_bytes[1])<<8 ) | (uint32_t)fifo_bytes[2];
+		ir_aux = ( ((uint32_t)fifo_bytes[3])<<16 ) | ( ((uint32_t)fifo_bytes[4])<<8 ) | (uint32_t)fifo_bytes[5];
+		sample.red_sample = (uint16_t) red_aux;
+		sample.ir_sample = (uint16_t) ir_aux;
+	}
 	return sample;
 
 }

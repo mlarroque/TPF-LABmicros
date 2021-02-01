@@ -11,13 +11,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct{
-	 uint16_t red_sample;
-	 uint16_t ir_sample;
-}ox_event_t;
 
 bool IsOxEvent(void);
-void PushOxEvent(uint16_t red_sample, uint16_t ir_sample);
-ox_event_t PopOxEvent(void);
+void PushOxEvent(void);
+void PopOxEvent(void);
 
 #endif /* OX_EVENT_H_ */
