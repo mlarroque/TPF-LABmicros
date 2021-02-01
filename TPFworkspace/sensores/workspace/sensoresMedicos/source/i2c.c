@@ -63,6 +63,10 @@ bool ReadByte(uint8_t address, uint8_t reg, uint8_t * r_buff, uint8_t n_bytes){
 	if( ret!= kStatus_Success){
 			valid = false;
 		}
+	while (0U == (I2C_MasterGetStatusFlags(I2C0) & kI2C_IntPendingFlag))
+	{
+		__asm__ __volatile__ ("nop");
+	}
 	ret = I2C_MasterReadBlocking(I2C0, r_buff, n_bytes, kI2C_TransferDefaultFlag);
 	if( ret != kStatus_Success ){
 		valid = false;

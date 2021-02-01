@@ -18,7 +18,7 @@
 /********************************************************
  * 						DEFINCIONES						*
  ********************************************************/
-#define MAX_DEBUG
+//#define MAX_DEBUG
 
 #define TIMER_TIME 160 //Tiempo en milisegundos para llamar al callback
 
@@ -150,7 +150,7 @@ void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
 	LedInit(i10, i10); //Setteo corriente de ambos leds
-	SetSp02(i2048, SIXTEEN_BITS, fs_200Hz);
+	SetSp02(i4096, SIXTEEN_BITS, fs_200Hz);
 	SetFIFO(EMPTY_0, NO_AVERAGE);
 
 }

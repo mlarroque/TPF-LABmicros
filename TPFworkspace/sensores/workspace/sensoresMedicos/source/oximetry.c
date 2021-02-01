@@ -20,7 +20,7 @@
  ********************************************************/
 #define BUFFER_SIZE 500
 #define UPDATE_SPO2_TIME 1 //Cada cuantos segundos se actualiza el valor del SP02
-#define SAMPLE_BATCH_SIZE 20 //se agregan de a 20 muestras a la vez en el buffer
+#define SAMPLE_BATCH_SIZE 5 //se agregan de a 20 muestras a la vez en el buffer
 #define MAX_NUM_SAMPLES	32 //Maximo numero de muestras a leer seguidas
 
 /********************************************************
