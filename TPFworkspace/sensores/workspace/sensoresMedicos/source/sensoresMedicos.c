@@ -74,7 +74,8 @@ int main(void) {
     /* Force the counter to be placed into memory. */
 //volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
-    int32_t counter = fs;
+    int32_t reset_value = 4*fs;
+    int32_t counter = reset_value;
     int32_t sp02 = 0;
     uint8_t new_samples = 0;
     uint16_t unread_ppg_samp = 0;
@@ -89,7 +90,7 @@ int main(void) {
         		CalculateSpO2();
         		sp02 = GetSpO2();
         		//PRINTF("%d \n", sp02);
-        		counter = fs;
+        		counter = reset_value;
         		unread_ppg_samp = GetUnreadNum();
         		for(int i=0; i<unread_ppg_samp;i++){
         			samp = GetPlethSample();
