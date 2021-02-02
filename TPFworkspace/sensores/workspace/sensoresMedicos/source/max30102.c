@@ -116,22 +116,6 @@ void ResetOxHardware(void){
 	while( 0 != (mode_reg & reg) ){
 		ReadByte(MAX30102_ADDRESS, MODE_CONFIG, &mode_reg, 1);
 	}
-	//Resetteo todos los registros
-	/*
-	successful = false;
-	reg =0;
-	while(!successful){
-		successful = WriteByte(MAX30102_ADDRESS, INT_ENABLE1, &reg, 1);
-	}
-	successful = false;
-	while(!successful){
-		successful = WriteByte(MAX30102_ADDRESS, INT_ENABLE2, &reg, 1);
-	}
-	successful = false;
-	while(!successful){
-		successful = WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
-	}
-	 */
 
 }
 
@@ -193,8 +177,8 @@ void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg, bool rollover){
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
-	LedInit(i10, i10); //Setteo corriente de ambos leds
-	SetSp02(i4096, SIXTEEN_BITS, fs_200Hz);
+	LedInit(i4, i4); //Setteo corriente de ambos leds
+	SetSp02(i2048, SIXTEEN_BITS, fs_200Hz);
 	SetFIFO(EMPTY_0, NO_AVERAGE, true);
 
 }
@@ -203,6 +187,7 @@ void ConfigureMax30102(void){
  * 					FUNCIONES DEL HEADER
  ********************************************************/
 void InitializeOxHardware(max_init_t* init_data){
+	GetInterruptStatus();
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
 #ifdef MAX_DEBUG
