@@ -74,18 +74,27 @@ int main(void) {
     /* Force the counter to be placed into memory. */
 //volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
-    uint32_t counter = fs/15;
+    int32_t counter = fs;
     int32_t sp02 = 0;
+    uint8_t new_samples = 0;
+    uint16_t unread_ppg_samp = 0;
+    pleth_sample_t samp;
     while(1) {
         //i++ ;
         if(IsOxEvent()){
         	PopOxEvent();
-        	AddInputSamples();
-        	if(!(--counter)){
+        	new_samples = AddInputSamples();
+        	counter -= new_samples;
+        	if(counter<=0){
         		CalculateSpO2();
         		sp02 = GetSpO2();
-        		PRINTF("%d \n", sp02);
-        		counter = fs/15;
+        		//PRINTF("%d \n", sp02);
+        		counter = fs;
+        		unread_ppg_samp = GetUnreadNum();
+        		for(int i=0; i<unread_ppg_samp;i++){
+        			samp = GetPlethSample();
+        			PRINTF("%d \n", samp.red_sample);
+        		}
         	}
         	//sample =GetEcgSample();
 

@@ -19,7 +19,6 @@
 /********************************************************
  * 						DEFINCIONES						*
  ********************************************************/
-#define UPDATE_SPO2_TIME 1 //Cada cuantos segundos se actualiza el valor del SP02
 #define SAMPLE_BATCH_SIZE 15 //se agregan de a 15 muestras a la vez en el buffer
 #define MAX_NUM_SAMPLES	32 //Maximo numero de muestras a leer seguidas
 
@@ -34,6 +33,7 @@ static ppg_sample_t IrInput[MAX_BUFF_SIZE];	//Buffer circular que guarda inputs 
 static uint16_t start = 0; //Indice donde se encuentra la muestra mas vieja.
 static uint16_t curr = 0; //Indice con la muestra mas vieja sin leer del pleth
 static uint16_t unread_samples = 0;
+static uint16_t raw_samples_rx = 0; //Cantidad de muestras sin procesar almacenadas
 
 static int32_t RedPleth[MAX_BUFF_SIZE];
 static int32_t IrPleth[MAX_BUFF_SIZE];
@@ -60,7 +60,8 @@ void CalculateSpO2(void){
 	if(valid){
 		Sp02 = result;
 	}
-	unread_samples +=fs * UPDATE_SPO2_TIME; //REVISAR!!!!!!!
+	unread_samples +=raw_samples_rx;
+	raw_samples_rx = 0;
 }
 
 pleth_sample_t GetPlethSample(void){
@@ -79,8 +80,12 @@ int32_t GetSpO2(void){
 	return Sp02;
 }
 
-void AddInputSamples(void){
-	int8_t n_samples = GetNumOfSamples();
+uint16_t GetUnreadNum(void){
+	return unread_samples;
+}
+
+uint8_t AddInputSamples(void){
+	uint8_t n_samples = GetNumOfSamples();
 	max_sample_t led_sample = {0,0};
 	if(n_samples>0){
 		for(int i=0; i<n_samples; i++){
@@ -90,7 +95,9 @@ void AddInputSamples(void){
 			IrInput[(start+MAX_BUFF_SIZE-1)%MAX_BUFF_SIZE] = led_sample.ir_sample;
 			//PRINTF("%d \n", led_sample.red_sample);
 		}
+		raw_samples_rx += n_samples;
 	}
+	return n_samples;
 
 }
 
