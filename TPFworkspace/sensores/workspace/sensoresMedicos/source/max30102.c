@@ -13,11 +13,14 @@
 #include "i2c.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "fsl_debug_console.h"
 
 /********************************************************
  * 						DEFINCIONES						*
  ********************************************************/
-#define TIMER_TIME 160 //Tiempo en milisegundos para llamar al callback
+//#define MAX_DEBUG
+
+#define RETRY_READ_TIMES 5 //Veces que reintenta leer la muestra
 
 #define MAX30102_ADDRESS 0X57
 #define FIFO_DEPTH 32
@@ -48,7 +51,9 @@
 #define SPO2_SR_SHIFT	2
 #define SPO2_ADC_RGE	5
 
+#define FIFO_ROLLOVER_SHIFT 4
 #define FIFO_AVG_SHIFT	5
+#define RESET_CONTROL_SHIFT	6
 
 
 	//Tipos de datos
@@ -101,34 +106,80 @@ typedef enum{
 /********************************************************
  * 					FUNCIONES LOCALES					*
  ********************************************************/
+void ResetOxHardware(void){
+	uint8_t mode_reg = 0XFF;
+	uint8_t reg = 1 << RESET_CONTROL_SHIFT;
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
+	}
+	while( 0 != (mode_reg & reg) ){
+		ReadByte(MAX30102_ADDRESS, MODE_CONFIG, &mode_reg, 1);
+	}
+
+}
+
+uint8_t GetInterruptStatus(void){
+	bool successful = false;
+	uint8_t status = 0;
+	while(!successful){
+		successful = ReadByte(MAX30102_ADDRESS, INT_STATUS1, &status, 1);
+	}
+	return status;
+}
+
 void SetMode(mode_t mode){
 	uint8_t reg = mode;
-	WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
-
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, MODE_CONFIG, &reg, 1);
+	}
 	reg = 0;
-	WriteByte(MAX30102_ADDRESS, FIFO_READ, &reg, 1);//Clear FIFO pointers
-	WriteByte(MAX30102_ADDRESS, FIFO_WRITE, &reg, 1);
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_READ, &reg, 1);//Clear FIFO pointers
+	}
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_WRITE, &reg, 1);
+	}
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, OVF_COUNT, &reg, 1);
+	}
 }
 void LedInit(led_current_t red_current, led_current_t ir_current){
 	uint8_t reg = red_current;
-	WriteByte(MAX30102_ADDRESS, LED1_PA, &reg, 1);
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, LED1_PA, &reg, 1);
+	}
 	reg = ir_current;
-	WriteByte(MAX30102_ADDRESS, LED2_PA, &reg, 1);
+	successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, LED2_PA, &reg, 1);
+	}
 }
 void SetSp02(adc_range_t range, adc_res_t res, sample_rate_t sr){
 	uint8_t reg = (res) | (sr << SPO2_SR_SHIFT) | (range << SPO2_ADC_RGE);
-	WriteByte(MAX30102_ADDRESS, SP02_CONFIG, &reg, 1);
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, SP02_CONFIG, &reg, 1);
+	}
 
 }
-void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg){
-	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) ;
-	WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
+void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg, bool rollover){
+	uint8_t reg = n_max | (n_avg<<FIFO_AVG_SHIFT) | (rollover<<FIFO_ROLLOVER_SHIFT) ;
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(MAX30102_ADDRESS, FIFO_CONFIG, &reg, 1);
+	}
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
 	LedInit(i4, i4); //Setteo corriente de ambos leds
 	SetSp02(i2048, SIXTEEN_BITS, fs_200Hz);
-	SetFIFO(EMPTY_0, NO_AVERAGE);
+	SetFIFO(EMPTY_0, NO_AVERAGE, true);
 
 }
 
@@ -136,29 +187,63 @@ void ConfigureMax30102(void){
  * 					FUNCIONES DEL HEADER
  ********************************************************/
 void InitializeOxHardware(max_init_t* init_data){
+	GetInterruptStatus();
 	ConfigureMax30102();
 	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
+#ifdef MAX_DEBUG
+	PrintRegister(FIFO_CONFIG);
+	PrintRegister(INT_ENABLE1);
+	PrintRegister(INT_ENABLE2);
+	PrintRegister(INT_STATUS1);
+	PrintRegister(INT_STATUS2);
+	PrintRegister(LED2_PA);
+#endif
 }
 
 uint8_t GetNumOfSamples(void){
 	uint8_t write_val;
 	uint8_t read_val;
-	ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val, 1);
-	ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val, 1);
-	return (uint8_t) ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
+	uint8_t ret = 0;
+	bool successful = false;
+	successful = ReadByte(MAX30102_ADDRESS, FIFO_WRITE, &write_val, 1);
+	if(!successful){
+		ret = 0;
+	}
+	else{
+		successful = ReadByte(MAX30102_ADDRESS, FIFO_READ, &read_val, 1);
+		if(!successful){
+			ret = 0;
+		}
+		else{
+			ret = ( (FIFO_DEPTH + write_val - read_val)%FIFO_DEPTH );
+		}
+	}
+	return ret;
 }
 
 max_sample_t GetLedSamples(void){
-	max_sample_t sample;
+	max_sample_t sample = {0,0};
 	uint32_t ir_aux=0;
 	uint32_t red_aux=0;
 	uint8_t fifo_bytes[BYTES_PER_SAMPLE];
+	bool successful = false;
 
-	ReadByte(MAX30102_ADDRESS, FIFO_DATA, fifo_bytes, BYTES_PER_SAMPLE );
-	red_aux = ( ((uint32_t)fifo_bytes[0])<<16 ) | ( ((uint32_t)fifo_bytes[1])<<8 ) | (uint32_t)fifo_bytes[2];
-	ir_aux = ( ((uint32_t)fifo_bytes[3])<<16 ) | ( ((uint32_t)fifo_bytes[4])<<8 ) | (uint32_t)fifo_bytes[5];
-	sample.red_sample = (uint16_t) red_aux;
-	sample.ir_sample = (uint16_t) ir_aux;
+	for(int i=0; (i<RETRY_READ_TIMES)&&(!successful);i++){
+		successful = ReadByte(MAX30102_ADDRESS, FIFO_DATA, fifo_bytes, BYTES_PER_SAMPLE );
+	}
+	if(successful){
+		red_aux = ( ((uint32_t)fifo_bytes[0])<<16 ) | ( ((uint32_t)fifo_bytes[1])<<8 ) | (uint32_t)fifo_bytes[2];
+		ir_aux = ( ((uint32_t)fifo_bytes[3])<<16 ) | ( ((uint32_t)fifo_bytes[4])<<8 ) | (uint32_t)fifo_bytes[5];
+		sample.red_sample = (uint16_t) red_aux;
+		sample.ir_sample = (uint16_t) ir_aux;
+	}
 	return sample;
 
+}
+
+void PrintRegister(uint8_t reg){
+	uint8_t recieved = 0;
+	ReadByte(MAX30102_ADDRESS, reg, &recieved, 1 );
+	PRINTF("Register %d: ", reg);
+	PRINTF("%d \n", recieved);
 }

@@ -43,16 +43,11 @@ pleth_sample_t GetPlethSample(void);
 //Devuelve cuantas muestras quedan por leer
 uint16_t GetUnreadNum(void);
 
-//Devuelve la ultima muestra sin leer del PPG correspondiente
-//al led rojo.
-int32_t GetRedPlethSample(void);
-
-uint16_t GetRedUnreadNum(void);
 
 //Devuelve el valor de SpO2 como numero en el rango 0-100.
 int32_t GetSpO2(void);
 
-//Almacena nuevas muestras de ambos leds.
-void AddInputSamples(ppg_sample_t red_sample, ppg_sample_t ir_sample);
+//Almacena nuevas muestras de ambos leds. Devuelve cuantas muestras agrego
+uint8_t AddInputSamples(void);
 
 #endif /* OXIMETRY_H_ */

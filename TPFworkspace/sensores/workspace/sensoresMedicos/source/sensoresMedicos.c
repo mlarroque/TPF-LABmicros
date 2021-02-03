@@ -39,6 +39,11 @@
 #include "clock_config.h"
 #include "MK64F12.h"
 #include "fsl_debug_console.h"
+#include "event_prueba.h"
+#include "ecg.h"
+#include "ox_event.h"
+#include "oximetry.h"
+#include "timer.h"
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -58,15 +63,51 @@ int main(void) {
 #endif
 
     PRINTF("Hello World\n");
+    uint16_t fs = 200;
+    ECG_init_t init_data = {fs};
+    //oxi_init_t ox_init_data = {fs};
+    InitializeTimers();
+    InitializeECG(&init_data);
+    //InitializeOximetry(&ox_init_data);
+
 
     /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
+//volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
+    int32_t reset_value = 1*fs;
+    int32_t counter = reset_value;
+    ecg_sample_t sample = 0;
+    //int32_t sp02 = 0;
+    //uint8_t new_samples = 0;
+    //uint16_t unread_ppg_samp = 0;
+    //pleth_sample_t samp;
     while(1) {
-        i++ ;
-        /* 'Dummy' NOP to allow source level single stepping of
-            tight while() loop */
-        __asm volatile ("nop");
+    	if(IsEvent()){
+			sample =GetEcgSample();
+			AddEcgSample(sample);
+			PRINTF("%d  \n", sample);
+			if(!(--counter)){
+				counter = 200;
+				CalculateHeartBeat();
+				//PRINTF("%d \n", GetHeartBeat());
+			}
+		}
+        //i++ ;
+        //if(IsOxEvent()){
+        	//PopOxEvent();
+        	//new_samples = AddInputSamples();
+        	//counter -= new_samples;
+        	//if(counter<=0){
+        	//	CalculateSpO2();
+        	//	sp02 = GetSpO2();
+        	//	PRINTF("%d \n", sp02);
+        		//counter = reset_value;
+        	//	unread_ppg_samp = GetUnreadNum();
+        	//	for(int i=0; i<unread_ppg_samp;i++){
+        		//	samp = GetPlethSample();
+        			//PRINTF("%d \n", samp.red_sample);
+        		//}
+        	//}
     }
     return 0 ;
 }

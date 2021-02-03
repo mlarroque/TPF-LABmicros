@@ -12,6 +12,7 @@
 #include "heartware.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "event_prueba.h"
 /****************************************************
  * 					DEFINICIONES					*
  ****************************************************/
@@ -46,7 +47,13 @@ static uint8_t list_size = 0;
  ****************************************************/
 void ECG_sample_callback(void){
 	uint16_t sample = GetSensorSample();
-	//Aca tendria que pushear el evento
+	PushEvent(sample);//Aca tendria que pushear el evento
+}
+
+void BanpassSignal(void){
+	for(int i=0; i<ECG_SIZE; i++ ){
+
+	}
 }
 
 bool AddPeak2List(int curr_area){
@@ -83,9 +90,8 @@ bool AddPeak2List(int curr_area){
 				peaks_list[list_index].next_node = list_size;
 				curr_peak.next_node = list_size;
 			}
-			peaks_list[list_size++] = curr_peak;
 		}
-
+		peaks_list[list_size++] = curr_peak;
 		return true;
 	}
 }
@@ -126,7 +132,7 @@ uint16_t GetHeartBeat(void){
 }
 
 void AddEcgSample(ecg_sample_t sample){
-	start++;
+	start = (start +1)%ECG_SIZE;
 	unread_samples++;
 	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
 	ecg_signal[last_index] = sample;
@@ -169,7 +175,7 @@ void CalculateHeartBeat(void){
 			}
 		}
 	}
-	threshold = GetListMedian() / 2;
+	threshold = GetListMedian() /2;
 	current_node = first_node;
 	for(int i=0; (i<list_size)&&(!finished); i++){
 		if( peaks_list[current_node].area > threshold){

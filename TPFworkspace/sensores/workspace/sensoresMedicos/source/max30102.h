@@ -37,6 +37,8 @@ uint8_t GetNumOfSamples(void);
 //Devuelve la muestra mas vieja sin leer.
 max_sample_t GetLedSamples(void);
 
+void PrintRegister(uint8_t reg);
+
 
 
 #endif /* MAX30102_H_ */
