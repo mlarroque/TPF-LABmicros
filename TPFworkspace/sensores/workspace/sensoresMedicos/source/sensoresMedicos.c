@@ -64,47 +64,50 @@ int main(void) {
 
     PRINTF("Hello World\n");
     uint16_t fs = 200;
-    //ECG_init_t init_data = {200};
-    oxi_init_t ox_init_data = {fs};
+    ECG_init_t init_data = {fs};
+    //oxi_init_t ox_init_data = {fs};
     InitializeTimers();
-    //InitializeECG(&init_data);
-    InitializeOximetry(&ox_init_data);
+    InitializeECG(&init_data);
+    //InitializeOximetry(&ox_init_data);
 
 
     /* Force the counter to be placed into memory. */
 //volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
-    int32_t reset_value = 4*fs;
+    int32_t reset_value = 1*fs;
     int32_t counter = reset_value;
-    int32_t sp02 = 0;
-    uint8_t new_samples = 0;
-    uint16_t unread_ppg_samp = 0;
-    pleth_sample_t samp;
+    ecg_sample_t sample = 0;
+    //int32_t sp02 = 0;
+    //uint8_t new_samples = 0;
+    //uint16_t unread_ppg_samp = 0;
+    //pleth_sample_t samp;
     while(1) {
+    	if(IsEvent()){
+			sample =GetEcgSample();
+			AddEcgSample(sample);
+			PRINTF("%d  \n", sample);
+			if(!(--counter)){
+				counter = 200;
+				CalculateHeartBeat();
+				//PRINTF("%d \n", GetHeartBeat());
+			}
+		}
         //i++ ;
-        if(IsOxEvent()){
-        	PopOxEvent();
-        	new_samples = AddInputSamples();
-        	counter -= new_samples;
-        	if(counter<=0){
-        		CalculateSpO2();
-        		sp02 = GetSpO2();
-        		//PRINTF("%d \n", sp02);
-        		counter = reset_value;
-        		unread_ppg_samp = GetUnreadNum();
-        		for(int i=0; i<unread_ppg_samp;i++){
-        			samp = GetPlethSample();
-        			PRINTF("%d \n", samp.red_sample);
-        		}
-        	}
-        	//sample =GetEcgSample();
-
-        	//if(!(--counter)){
-        		//counter = 200;
-        		//CalculateHeartBeat();
-        		//PRINTF("%d \n", GetHeartBeat());
+        //if(IsOxEvent()){
+        	//PopOxEvent();
+        	//new_samples = AddInputSamples();
+        	//counter -= new_samples;
+        	//if(counter<=0){
+        	//	CalculateSpO2();
+        	//	sp02 = GetSpO2();
+        	//	PRINTF("%d \n", sp02);
+        		//counter = reset_value;
+        	//	unread_ppg_samp = GetUnreadNum();
+        	//	for(int i=0; i<unread_ppg_samp;i++){
+        		//	samp = GetPlethSample();
+        			//PRINTF("%d \n", samp.red_sample);
+        		//}
         	//}
-        }
     }
     return 0 ;
 }
