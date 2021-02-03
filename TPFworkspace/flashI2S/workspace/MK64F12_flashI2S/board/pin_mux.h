@@ -25,6 +25,42 @@ extern "C" {
  */
 void BOARD_InitBootPins(void);
 
+/*! @name PORTC1 (number 71), J1[5]
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_data_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_data_PIN 1U                   /*!<@brief PORT pin number */
+#define BOARD_data_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
+                                            /* @} */
+
+/*! @name PORTB18 (number 64), J1[1]
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_bclk_PORT PORTB                /*!<@brief PORT peripheral base pointer */
+#define BOARD_bclk_PIN 18U                   /*!<@brief PORT pin number */
+#define BOARD_bclk_PIN_MASK (1U << 18U)      /*!<@brief PORT pin mask */
+                                             /* @} */
+
+/*! @name PORTC8 (number 80), J1[7]
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_mclk_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_mclk_PIN 8U                   /*!<@brief PORT pin number */
+#define BOARD_mclk_PIN_MASK (1U << 8U)      /*!<@brief PORT pin mask */
+                                            /* @} */
+
+/*! @name PORTC2 (number 72), J1[14]
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_fs_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_fs_PIN 2U                   /*!<@brief PORT pin number */
+#define BOARD_fs_PIN_MASK (1U << 2U)      /*!<@brief PORT pin mask */
+                                          /* @} */
+
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *

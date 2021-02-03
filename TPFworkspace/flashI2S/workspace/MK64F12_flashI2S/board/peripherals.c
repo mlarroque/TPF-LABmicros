@@ -56,7 +56,7 @@ instance:
       - enableContinuousLinkMode: 'false'
       - enableHaltOnError: 'true'
       - enableRoundRobinArbitration: 'false'
-      - enableDebugMode: 'false'
+      - enableDebugMode: 'true'
     - dma_table:
       - 0: []
     - edma_channels: []
@@ -74,7 +74,7 @@ const edma_config_t DMA_config = {
   .enableContinuousLinkMode = false,
   .enableHaltOnError = true,
   .enableRoundRobinArbitration = false,
-  .enableDebugMode = false
+  .enableDebugMode = true
 };
 
 /* Empty initialization function (commented out)
@@ -91,7 +91,7 @@ instance:
 - type: 'sai'
 - mode: 'edma'
 - custom_name_enabled: 'false'
-- type_id: 'sai_e171ee1d4e17db4b5b234f946b59a148'
+- type_id: 'sai_37a0d4b4ecc2db8ea149dbe2026c6550'
 - functional_group: 'BOARD_InitPeripherals'
 - peripheral: 'I2S0'
 - config_sets:
@@ -100,20 +100,75 @@ instance:
       - masterClockSource: 'kSAI_MclkSourceSysclk'
       - masterClockSourceFreq: 'BOARD_BootClockRUN'
       - masterClockFrequency: '6.144 MHz'
+      - init_mclk_config: 'true'
+    - sai_master_clock: []
     - usage: 'playback'
+    - signal_config:
+      - 0:
+        - sourceTx: 'Tx'
+      - 1:
+        - sourceTx: 'Tx'
+    - syncSwapI: []
+    - bclkTxSetting: []
+    - syncTxSetting: []
     - whole:
       - tx_group:
-        - sai_config:
-          - protocol: 'kSAI_BusI2S'
-          - syncMode: 'kSAI_ModeAsync'
-          - bitClockSource: 'kSAI_BclkSourceMclkDiv'
-        - transfer_format:
+        - sai_transceiver:
+          - bitClock:
+            - modeM: 'master'
+            - bitClockSource: 'kSAI_BclkSourceMclkDiv'
+            - bclkPolarityM: 'kSAI_PolarityActiveLow'
+            - bclkInputDelayM: 'false'
+          - frameSync:
+            - modeM: 'master'
+            - frameSyncWidthM: '16'
+            - frameSyncPolarityM: 'kSAI_PolarityActiveLow'
+            - frameSyncEarlyM: 'true'
           - sampleRate_Hz: 'kSAI_SampleRate8KHz'
-          - bitWidth: 'kSAI_WordWidth16bits'
-          - stereo: 'kSAI_Stereo'
-          - isFrameSyncCompact: 'false'
-          - watermark: '3'
           - channelMask: 'kSAI_Channel0Mask'
+          - serialData:
+            - differentFirstWord: 'false'
+            - sameDataWordLengthM: 'kSAI_WordWidth16bits'
+            - dataOrder: 'kSAI_DataMSB'
+            - dataFirstBitShiftedM: '16'
+            - dataWordNumM: '1'
+            - dataMasked_config:
+              - dataMasked_L:
+                - 0: 'false'
+                - 1: 'false'
+                - 2: 'false'
+                - 3: 'false'
+                - 4: 'false'
+                - 5: 'false'
+                - 6: 'false'
+                - 7: 'false'
+                - 8: 'false'
+                - 9: 'false'
+                - 10: 'false'
+                - 11: 'false'
+                - 12: 'false'
+                - 13: 'false'
+                - 14: 'false'
+                - 15: 'false'
+              - dataMasked_H:
+                - 0: 'false'
+                - 1: 'false'
+                - 2: 'false'
+                - 3: 'false'
+                - 4: 'false'
+                - 5: 'false'
+                - 6: 'false'
+                - 7: 'false'
+                - 8: 'false'
+                - 9: 'false'
+                - 10: 'false'
+                - 11: 'false'
+                - 12: 'false'
+                - 13: 'false'
+                - 14: 'false'
+                - 15: 'false'
+          - fifo:
+            - fifoWatermarkM: '4'
         - edma_group:
           - enable_edma_channel: 'true'
           - edma_channel:
@@ -129,30 +184,47 @@ instance:
           - sai_edma_handle:
             - enable_custom_name: 'false'
             - init_callback: 'true'
-            - callback_fcn: 'finish_TX_DMA_SAI_callback'
+            - callback_fcn: 'finish_I2S0_Transmit'
             - user_data: ''
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 /* I2S0 Tx configuration */
-const sai_config_t I2S0_tx_config = {
-  .protocol = kSAI_BusI2S,
+sai_transceiver_t I2S0_Tx_config = {
+  .masterSlave = kSAI_Master,
+  .bitClock = {
+    .bclkSrcSwap = false,
+    .bclkSource = kSAI_BclkSourceMclkDiv,
+    .bclkPolarity = kSAI_PolarityActiveLow,
+    .bclkInputDelay = false
+  },
+  .frameSync = {
+    .frameSyncWidth = 16U,
+    .frameSyncPolarity = kSAI_PolarityActiveLow,
+    .frameSyncEarly = true,
+  },
   .syncMode = kSAI_ModeAsync,
-  .mclkOutputEnable = true,
-  /* MCLK clock source */
-  .mclkSource = kSAI_MclkSourceSysclk,
-  .bclkSource = kSAI_BclkSourceMclkDiv, //kSAI_BclkSourceMclkOption1
-  .masterSlave = kSAI_Master
+  .channelMask = kSAI_Channel0Mask,
+  .startChannel = 0U,
+  .endChannel = 0U,
+  .channelNums = 1U,
+  .serialData = {
+    .dataWord0Length = (uint8_t)kSAI_WordWidth16bits,
+    .dataWordNLength = (uint8_t)kSAI_WordWidth16bits,
+    .dataWordLength = (uint8_t)kSAI_WordWidth16bits,
+    .dataOrder = kSAI_DataMSB,
+    .dataFirstBitShifted = 16U,
+    .dataWordNum = 1U,
+    .dataMaskedWord = 0x0U
+  },
+  .fifo = {
+    .fifoWatermark = 4U,
+  }
 };
-/* I2S0 Tx  transfer format */
-sai_transfer_format_t I2S0_tx_format = {
-  .sampleRate_Hz = kSAI_SampleRate8KHz,
-  .bitWidth = kSAI_WordWidth16bits,
-  .stereo = kSAI_Stereo,
-  .masterClockHz = 6144000UL,
-  .watermark = 3U,
-  .channel = 0U,
-  .protocol = kSAI_BusI2S,
-  .isFrameSyncCompact = false
+sai_master_clock_t I2S0_MCLK_config = {
+  .mclkOutputEnable = true,
+  .mclkSource = kSAI_MclkSourceSysclk,
+  .mclkSourceClkHz = I2S0_MCLK_SOURCE_CLOCK_HZ,
+  .mclkHz = I2S0_USER_MCLK_HZ
 };
 edma_handle_t I2S0_TX_Handle;
 sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;
@@ -164,12 +236,53 @@ static void I2S0_init(void) {
   DMAMUX_EnableChannel(I2S0_TX_DMAMUX_BASEADDR, I2S0_TX_DMA_CHANNEL);
   /* Create the eDMA I2S0_TX_Handle handle */
   EDMA_CreateHandle(&I2S0_TX_Handle, I2S0_TX_DMA_BASEADDR, I2S0_TX_DMA_CHANNEL);
-  /* Initialize SAI Tx sub-module functionality */
-  SAI_TxInit(I2S0_PERIPHERAL, &I2S0_tx_config);
+  /* Initialize SAI clock gate */
+  SAI_Init(I2S0_PERIPHERAL);
   /* Create the SAI Tx eDMA handle */
-  SAI_TransferTxCreateHandleEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, finish_TX_DMA_SAI_callback, NULL, &I2S0_TX_Handle);
-  /* Initialize SAI Tx transfer format */
-  SAI_TransferTxSetFormatEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &I2S0_tx_format, I2S0_TX_MCLK_SOURCE_CLOCK_HZ, I2S0_TX_BCLK_SOURCE_CLOCK_HZ);
+  SAI_TransferTxCreateHandleEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, finish_I2S0_Transmit, NULL, &I2S0_TX_Handle);
+  /* Configures SAI Tx sub-module functionality */
+  SAI_TransferTxSetConfigEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &I2S0_Tx_config);
+  /* Set up SAI Tx bitclock rate by calculation of divider. */
+  SAI_TxSetBitClockRate(I2S0_PERIPHERAL, I2S0_TX_BCLK_SOURCE_CLOCK_HZ, I2S0_TX_SAMPLE_RATE, I2S0_TX_WORD_WIDTH, I2S0_TX_WORDS_PER_FRAME);
+  /* Initialize SAI master clock */
+  SAI_SetMasterClockConfig(I2S0_PERIPHERAL, &I2S0_MCLK_config);
+}
+
+/***********************************************************************************************************************
+ * I2C0 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'I2C0'
+- type: 'i2c'
+- mode: 'I2C_Polling'
+- custom_name_enabled: 'false'
+- type_id: 'i2c_2566d7363e7e9aaedabb432110e372d7'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'I2C0'
+- config_sets:
+  - fsl_i2c:
+    - i2c_mode: 'kI2C_Master'
+    - clockSource: 'BusInterfaceClock'
+    - clockSourceFreq: 'GetFreq'
+    - i2c_master_config:
+      - enableMaster: 'true'
+      - enableStopHold: 'false'
+      - baudRate_Bps: '100000'
+      - glitchFilterWidth: '0'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const i2c_master_config_t I2C0_config = {
+  .enableMaster = true,
+  .enableStopHold = false,
+  .baudRate_Bps = 100000UL,
+  .glitchFilterWidth = 0U
+};
+
+static void I2C0_init(void) {
+  /* Initialization function */
+  I2C_MasterInit(I2C0_PERIPHERAL, &I2C0_config, I2C0_CLK_FREQ);
 }
 
 /***********************************************************************************************************************
@@ -183,6 +296,7 @@ void BOARD_InitPeripherals(void)
 
   /* Initialize components */
   I2S0_init();
+  I2C0_init();
 }
 
 /***********************************************************************************************************************

@@ -1,0 +1,4 @@
+PTC2 -> FRAME SELECT (left or rigth)
+PTB18-> bitclock
+PTC8-> masterclock
+PTC1 -> TXdata

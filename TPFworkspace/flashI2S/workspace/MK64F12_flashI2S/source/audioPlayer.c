@@ -180,6 +180,7 @@ void stop_playing(void){
 	p2mp3record = 0;
 	ppBufferWrite = 0;
 	DisableTimer(AUDIO_PLAYER_TIMER);
+	SAI_TransferTerminateSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle);
 	//desabilitar DMA REQUEST
 
 }
@@ -194,21 +195,27 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 	//if there is something to decode and the decoding is ok...
 	//the decoding starts with the sync word and the result is save in a ping pong buffer..
 	//who use this function have to suit the pointer to buffer having into acount ping pong buffer logic..
-	if ( (offset != -1) && (MP3Decode(p2mp3decoder, &p2mp3record, &bytesLeft, audio_pp_pointer, USE_SIZE_HELIX) == 0) ){
-		MP3GetLastFrameInfo(p2mp3decoder, &mp3FrameInfo);
+	int result_decoding = MP3Decode(p2mp3decoder, &p2mp3record, &bytesLeft, audio_pp_pointer, USE_SIZE_HELIX);
+	if ( (offset != -1) && ( result_decoding == 0) ){
 
+		MP3GetLastFrameInfo(p2mp3decoder, &mp3FrameInfo);
 		ret = 0;
 	}
+
 	return ret;
 }
-
+int debug_counter = 0;
 #if !MAIN_CALLBACK_SAI
-void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+void finish_I2S0_Transmit(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	if(audioStatus != AUDIO_IDLE){
 		xfer.data = audio_pp_buffer + ppBufferRead;
 		xfer.dataSize = mp3FrameInfo.outputSamps / 2;
 		SAI_TransferSendEDMA(base, handle, &xfer);
 		SetTimer(AUDIO_PLAYER_TIMER,20, continue_playing);
+		debug_counter++;
+		if (debug_counter > 3){
+			debug_counter = 0;
+		}
 	}
 	else{
 		stop_playing();

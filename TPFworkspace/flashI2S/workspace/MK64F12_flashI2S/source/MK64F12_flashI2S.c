@@ -49,6 +49,7 @@
 #define DEBUG_AUDIO_PLAYER_1 0  //debug save and read record
 #define DEBUG_AUDIO_PLAYER_2 0  //debug decoding some piece of record
 #define DEBUG_SAI_1 1   //debug i2s and dma
+#define DEBUG_SAI_2 0
 
 int timerCounter;
 /*
@@ -193,13 +194,40 @@ int main(void) {
 
 #elif DEBUG_SAI_1
 #include "fsl_sai_edma.h"
-#include "decodedTestData.h"
-    sai_transfer_t xfer;
-    short decodedTestData[] = {0,0,0,0,0,0,0, 0, 0, 0};
-	xfer.data = (char *) decodedTestData;
-	xfer.dataSize = sizeof(decodedTestData);
-	SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &xfer);
+#include "GrabacionEmergencia_wavarray.h"
+#include "UDA.h"
 
+    sai_transfer_t xfer;
+    if (init_UDA() == 0){
+    	xfer.data =  GrabacionEmergencia_wavarray;
+    	//uint8_t correction = BUFF_LEN_WAV % 8;
+    	xfer.dataSize = BUFF_LEN_WAV;
+    	SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &xfer);
+    }
+    else{
+    	PRINTF("UDA initializing error\n");
+    }
+
+
+#elif DEBUG_SAI_2
+
+#include "audioPlayer.h"
+#include "GrabacionEmergencia_array.h"
+	audioData_t audioData;
+	audioData.audioTag = ALERTA_0;
+	audioData.p2audioData = GrabacionEmergencia_array;
+	audioData.audioDataLen = BUFF_LEN;
+	audioData.audioFormat = AUDIO_MP3;
+
+	init_audio_player();
+
+	audioResult_t result = save_record(&audioData);
+	if (result == AUDIO_SUCCES){
+		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+	}
+	else{
+		PRINTF("ERROR SAVING RECORD\n");
+	}
 
 #endif /*DEBUG*/
 
@@ -214,9 +242,14 @@ int main(void) {
 }
 
 #if DEBUG_SAI_1
-void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+void finish_I2S0_Transmit(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	printf("SAI CALLBACK CALLED!!!\n");
+	SAI_TransferTerminateSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle);
+	printf("%d\n", handle->dmaHandle->flags);
+	printf("%d\n", handle->state);
 }
+
+
 #endif
 
 

@@ -15,6 +15,7 @@
 #include "fsl_sai.h"
 #include "fsl_sai_edma.h"
 #include "fsl_clock.h"
+#include "fsl_i2c.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -30,10 +31,18 @@ extern "C" {
 #define DMA_DMAMUX_BASEADDR DMAMUX
 /* Definition of peripheral ID */
 #define I2S0_PERIPHERAL I2S0
-/* Master clock source frequency used for counting the master clock divider in the Tx SetFormat type functions, not available on all devices. */
-#define I2S0_TX_MCLK_SOURCE_CLOCK_HZ 120000000UL
-/* Bit clock source frequency used for counting the bit clock divider in the Tx SetFormat type functions. */
+/* Master clock source frequency used for calculating the master clock divider, not available on all devices. */
+#define I2S0_MCLK_SOURCE_CLOCK_HZ 120000000UL
+/* Master clock value set by the user to the Master clock frequency item. */
+#define I2S0_USER_MCLK_HZ 6144000UL
+/* Bit clock source frequency used for calculating the bit clock divider in the TxSetBitClockRate function. */
 #define I2S0_TX_BCLK_SOURCE_CLOCK_HZ 6144000UL
+/* Sample rate used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_SAMPLE_RATE 8000UL
+/* Word width used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_WORD_WIDTH 16U
+/* Number of words within frame used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_WORDS_PER_FRAME 1U
 /* I2S0 eDMA source request. */
 #define I2S0_TX_DMA_REQUEST kDmaRequestMux0I2S0Tx
 /* Selected eDMA channel number. */
@@ -42,21 +51,28 @@ extern "C" {
 #define I2S0_TX_DMAMUX_BASEADDR DMAMUX
 /* Used DMA device. */
 #define I2S0_TX_DMA_BASEADDR DMA0
+/* BOARD_InitPeripherals defines for I2C0 */
+/* Definition of peripheral ID */
+#define I2C0_PERIPHERAL I2C0
+/* Definition of the clock source */
+#define I2C0_CLOCK_SOURCE I2C0_CLK_SRC
+/* Definition of the clock source frequency */
+#define I2C0_CLK_FREQ CLOCK_GetFreq(I2C0_CLOCK_SOURCE)
 
 /***********************************************************************************************************************
  * Global variables
  **********************************************************************************************************************/
 extern const edma_config_t DMA_config;
-extern const sai_config_t I2S0_tx_config;
-extern sai_transfer_format_t I2S0_tx_format;
+extern sai_transceiver_t I2S0_Tx_config;
 extern edma_handle_t I2S0_TX_Handle;
 extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;
+extern const i2c_master_config_t I2C0_config;
 
 /***********************************************************************************************************************
  * Callback functions
  **********************************************************************************************************************/
 /* SAI transfer Tx callback function for the I2S0 component (init. function BOARD_InitPeripherals)*/
-extern void finish_TX_DMA_SAI_callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
+extern void finish_I2S0_Transmit(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
 
 /***********************************************************************************************************************
  * Initialization functions

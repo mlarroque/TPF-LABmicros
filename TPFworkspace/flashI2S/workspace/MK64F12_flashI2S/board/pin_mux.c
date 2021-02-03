@@ -20,12 +20,12 @@ pin_labels:
 - {pin_num: '35', pin_signal: PTA1/UART0_RX/FTM0_CH6/JTAG_TDI/EZP_DI, label: 'J1[8]'}
 - {pin_num: '69', pin_signal: PTB23/SPI2_SIN/SPI0_PCS5/FB_AD28, label: 'J1[10]'}
 - {pin_num: '36', pin_signal: PTA2/UART0_TX/FTM0_CH7/JTAG_TDO/TRACE_SWO/EZP_DO, label: 'J1[12]/J9[6]/TRACE_SWO'}
-- {pin_num: '72', pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS, label: 'J1[14]'}
+- {pin_num: '72', pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS, label: 'J1[14]', identifier: fs}
 - {pin_num: '73', pin_signal: CMP1_IN1/PTC3/LLWU_P7/SPI0_PCS1/UART1_RX/FTM0_CH2/CLKOUT/I2S0_TX_BCLK, label: 'J1[16]'}
-- {pin_num: '64', pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA, label: 'J1[1]'}
+- {pin_num: '64', pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA, label: 'J1[1]', identifier: bclk}
 - {pin_num: '65', pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB, label: 'J1[3]'}
-- {pin_num: '71', pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0, label: 'J1[5]'}
-- {pin_num: '80', pin_signal: ADC1_SE4b/CMP0_IN2/PTC8/FTM3_CH4/I2S0_MCLK/FB_AD7, label: 'J1[7]'}
+- {pin_num: '71', pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0, label: 'J1[5]', identifier: data}
+- {pin_num: '80', pin_signal: ADC1_SE4b/CMP0_IN2/PTC8/FTM3_CH4/I2S0_MCLK/FB_AD7, label: 'J1[7]', identifier: mclk}
 - {pin_num: '81', pin_signal: ADC1_SE5b/CMP0_IN3/PTC9/FTM3_CH5/I2S0_RX_BCLK/FB_AD6/FTM2_FLT0, label: 'J1[9]'}
 - {pin_num: '77', pin_signal: PTC5/LLWU_P9/SPI0_SCK/LPTMR0_ALT2/I2S0_RXD0/FB_AD10/CMP0_OUT/FTM0_CH2, label: 'J1[15]'}
 - {pin_num: '79', pin_signal: CMP0_IN1/PTC7/SPI0_SIN/USB_SOF_OUT/I2S0_RX_FS/FB_AD8, label: 'J1[13]', identifier: CMP0_IN1}
@@ -121,6 +121,7 @@ pin_labels:
 #include "fsl_common.h"
 #include "fsl_port.h"
 #include "fsl_gpio.h"
+#include "fsl_dmamux.h"
 #include "pin_mux.h"
 
 /* FUNCTION ************************************************************************************************************
@@ -143,9 +144,10 @@ BOARD_InitPins:
 - pin_list:
   - {pin_num: '36', peripheral: TPIU, signal: SWO, pin_signal: PTA2/UART0_TX/FTM0_CH7/JTAG_TDO/TRACE_SWO/EZP_DO, drive_strength: low, pull_select: down, pull_enable: disable}
   - {pin_num: '71', peripheral: I2S0, signal: TXD0, pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0}
-  - {pin_num: '7', peripheral: I2S0, signal: MCLK, pin_signal: PTE6/SPI1_PCS3/UART3_CTS_b/I2S0_MCLK/FTM3_CH1/USB_SOF_OUT, identifier: ''}
-  - {pin_num: '65', peripheral: I2S0, signal: TX_FS, pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB}
-  - {pin_num: '64', peripheral: I2S0, signal: TX_BCLK, pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA}
+  - {pin_num: '64', peripheral: I2S0, signal: TX_BCLK, pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA, direction: OUTPUT}
+  - {pin_num: '80', peripheral: I2S0, signal: MCLK, pin_signal: ADC1_SE4b/CMP0_IN2/PTC8/FTM3_CH4/I2S0_MCLK/FB_AD7, direction: OUTPUT}
+  - {pin_num: '72', peripheral: I2S0, signal: TX_FS, pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS, direction: OUTPUT}
+  - {peripheral: DMA, signal: 'CH, 0', pin_signal: I2S0_Transmit_Request}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -158,14 +160,16 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
+    /* DMA Mux Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_Dmamux0);
     /* Port A Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortA);
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
     /* Port C Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortC);
-    /* Port E Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortE);
+    /* DMA Channel Source (Slot) 0: I2S0 Transmit */
+    DMAMUX_SetSource(DMAMUX, 0U, (uint8_t)kDmaRequestMux0I2S0Tx);
 
     /* PORTA2 (pin 36) is configured as TRACE_SWO */
     PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt7);
@@ -186,16 +190,16 @@ void BOARD_InitPins(void)
                      | PORT_PCR_DSE(kPORT_LowDriveStrength));
 
     /* PORTB18 (pin 64) is configured as I2S0_TX_BCLK */
-    PORT_SetPinMux(PORTB, 18U, kPORT_MuxAlt4);
-
-    /* PORTB19 (pin 65) is configured as I2S0_TX_FS */
-    PORT_SetPinMux(PORTB, 19U, kPORT_MuxAlt4);
+    PORT_SetPinMux(BOARD_bclk_PORT, BOARD_bclk_PIN, kPORT_MuxAlt4);
 
     /* PORTC1 (pin 71) is configured as I2S0_TXD0 */
-    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt6);
+    PORT_SetPinMux(BOARD_data_PORT, BOARD_data_PIN, kPORT_MuxAlt6);
 
-    /* PORTE6 (pin 7) is configured as I2S0_MCLK */
-    PORT_SetPinMux(PORTE, 6U, kPORT_MuxAlt4);
+    /* PORTC2 (pin 72) is configured as I2S0_TX_FS */
+    PORT_SetPinMux(BOARD_fs_PORT, BOARD_fs_PIN, kPORT_MuxAlt6);
+
+    /* PORTC8 (pin 80) is configured as I2S0_MCLK */
+    PORT_SetPinMux(BOARD_mclk_PORT, BOARD_mclk_PIN, kPORT_MuxAlt4);
 }
 
 /* clang-format off */
@@ -209,6 +213,8 @@ BOARD_InitButtonsPins:
     passive_filter: disable}
   - {pin_num: '38', peripheral: GPIOA, signal: 'GPIO, 4', pin_signal: PTA4/LLWU_P3/FTM0_CH1/NMI_b/EZP_CS_b, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge,
     slew_rate: fast, open_drain: disable, drive_strength: low, pull_select: down, pull_enable: disable, passive_filter: disable}
+  - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b, identifier: ''}
+  - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN, identifier: ''}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -225,6 +231,8 @@ void BOARD_InitButtonsPins(void)
     CLOCK_EnableClock(kCLOCK_PortA);
     /* Port C Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortC);
+    /* Port E Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortE);
 
     gpio_pin_config_t SW3_config = {
         .pinDirection = kGPIO_DigitalInput,
@@ -279,6 +287,12 @@ void BOARD_InitButtonsPins(void)
 
     /* Interrupt configuration on PORTC6 (pin 78): Interrupt on falling edge */
     PORT_SetPinInterruptConfig(BOARD_SW2_PORT, BOARD_SW2_PIN, kPORT_InterruptFallingEdge);
+
+    /* PORTE24 (pin 31) is configured as I2C0_SCL */
+    PORT_SetPinMux(PORTE, 24U, kPORT_MuxAlt5);
+
+    /* PORTE25 (pin 32) is configured as I2C0_SDA */
+    PORT_SetPinMux(PORTE, 25U, kPORT_MuxAlt5);
 }
 
 /* clang-format off */
