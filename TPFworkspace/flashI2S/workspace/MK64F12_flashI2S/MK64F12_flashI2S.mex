@@ -46,8 +46,8 @@
                <pin_label pin_num="95" pin_signal="PTD2/LLWU_P13/SPI0_SOUT/UART2_RX/FTM3_CH2/FB_AD4/I2C0_SCL" label="J2[8]" identifier="UART2_RX"/>
                <pin_label pin_num="96" pin_signal="PTD3/SPI0_SIN/UART2_TX/FTM3_CH3/FB_AD3/I2C0_SDA" label="J2[10]" identifier="UART2_TX"/>
                <pin_label pin_num="94" pin_signal="ADC0_SE5b/PTD1/SPI0_SCK/UART2_CTS_b/FTM3_CH1/FB_CS0_b" label="J2[12]"/>
-               <pin_label pin_num="32" pin_signal="ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN" label="J2[18]/U8[6]/I2C0_SDA" identifier="ACCEL_SDA"/>
-               <pin_label pin_num="31" pin_signal="ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b" label="J2[20]/U8[4]/I2C0_SCL" identifier="ACCEL_SCL"/>
+               <pin_label pin_num="32" pin_signal="ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN" label="J2[18]/U8[6]/I2C0_SDA" identifier="ACCEL_SDA;i2c_sda"/>
+               <pin_label pin_num="31" pin_signal="ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b" label="J2[20]/U8[4]/I2C0_SCL" identifier="ACCEL_SCL;i2c_scl"/>
                <pin_label pin_num="26" pin_signal="VREF_OUT/CMP1_IN5/CMP0_IN5/ADC1_SE18" label="J2[17]"/>
                <pin_label pin_num="21" pin_signal="ADC1_DM0/ADC0_DM3" label="J2[13]"/>
                <pin_label pin_num="18" pin_signal="ADC0_DP0/ADC1_DP3" label="J2[5]"/>
@@ -151,6 +151,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="I2C0" description="Peripheral I2C0 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -192,6 +197,8 @@
                      </pin_features>
                   </pin>
                   <pin peripheral="DMA" signal="CH, 0" pin_num="" pin_signal="I2S0_Transmit_Request"/>
+                  <pin peripheral="I2C0" signal="SCL" pin_num="31" pin_signal="ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b"/>
+                  <pin peripheral="I2C0" signal="SDA" pin_num="32" pin_signal="ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN"/>
                </pins>
             </function>
             <function name="BOARD_InitButtonsPins">
@@ -261,12 +268,12 @@
                   </pin>
                   <pin peripheral="I2C0" signal="SCL" pin_num="31" pin_signal="ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b">
                      <pin_features>
-                        <pin_feature name="identifier" value=""/>
+                        <pin_feature name="identifier" value="i2c_scl"/>
                      </pin_features>
                   </pin>
                   <pin peripheral="I2C0" signal="SDA" pin_num="32" pin_signal="ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN">
                      <pin_features>
-                        <pin_feature name="identifier" value=""/>
+                        <pin_feature name="identifier" value="i2c_sda"/>
                      </pin_features>
                   </pin>
                </pins>
@@ -460,6 +467,7 @@
                <pins>
                   <pin peripheral="I2C0" signal="SDA" pin_num="32" pin_signal="ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN">
                      <pin_features>
+                        <pin_feature name="identifier" value="ACCEL_SDA"/>
                         <pin_feature name="slew_rate" value="fast"/>
                         <pin_feature name="open_drain" value="enable"/>
                         <pin_feature name="drive_strength" value="low"/>
@@ -470,6 +478,7 @@
                   </pin>
                   <pin peripheral="I2C0" signal="SCL" pin_num="31" pin_signal="ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b">
                      <pin_features>
+                        <pin_feature name="identifier" value="ACCEL_SCL"/>
                         <pin_feature name="slew_rate" value="fast"/>
                         <pin_feature name="open_drain" value="enable"/>
                         <pin_feature name="drive_strength" value="low"/>

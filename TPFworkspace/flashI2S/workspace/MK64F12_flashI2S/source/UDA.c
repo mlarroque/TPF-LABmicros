@@ -11,6 +11,8 @@
 #include "peripherals.h"
 //#include <stdint.h>
 
+
+#define UDA_ADRESS_RX 0x18
 #define UDA_SOFT_ADRESS 0x07
 #define UDA_REG(a)  a
 
@@ -61,8 +63,16 @@ int init_UDA(void){
 
 status_t i2c_write_UDA(uint8_t tx_adress, uint8_t * tx_content){
 	status_t status;
-	status = I2C_MasterWriteBlocking(I2C0, &tx_adress, 1, kI2C_TransferDefaultFlag);
-	status = I2C_MasterWriteBlocking(I2C0, tx_content, 2, kI2C_TransferDefaultFlag);
+	I2C_EnableDMA(I2C0, 1);
+	status = I2C_MasterStart(I2C0, UDA_ADRESS_RX, kI2C_Write);
+	if (status == kStatus_Success){
+		status = I2C_MasterWriteBlocking(I2C0, &tx_adress, 1, kI2C_TransferNoStopFlag);
+		if (status == kStatus_Success){
+			status = I2C_MasterWriteBlocking(I2C0, tx_content, 2, kI2C_TransferDefaultFlag);
+		}
+	}
+
+
 	return status;
 }
 

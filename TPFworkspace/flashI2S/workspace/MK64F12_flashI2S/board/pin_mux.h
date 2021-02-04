@@ -93,6 +93,24 @@ void BOARD_InitPins(void);
 #define BOARD_SW3_PIN_MASK (1U << 4U)      /*!<@brief PORT pin mask */
                                            /* @} */
 
+/*! @name PORTE24 (number 31), J2[20]/U8[4]/I2C0_SCL
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_i2c_scl_PORT PORTE                /*!<@brief PORT peripheral base pointer */
+#define BOARD_i2c_scl_PIN 24U                   /*!<@brief PORT pin number */
+#define BOARD_i2c_scl_PIN_MASK (1U << 24U)      /*!<@brief PORT pin mask */
+                                                /* @} */
+
+/*! @name PORTE25 (number 32), J2[18]/U8[6]/I2C0_SDA
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_i2c_sda_PORT PORTE                /*!<@brief PORT peripheral base pointer */
+#define BOARD_i2c_sda_PIN 25U                   /*!<@brief PORT pin number */
+#define BOARD_i2c_sda_PIN_MASK (1U << 25U)      /*!<@brief PORT pin mask */
+                                                /* @} */
+
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *
