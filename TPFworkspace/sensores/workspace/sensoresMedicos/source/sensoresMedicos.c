@@ -71,25 +71,32 @@ int main(void) {
     //InitializeOximetry(&ox_init_data);
 
 
-    /* Force the counter to be placed into memory. */
-//volatile static int i = 0 ;
     /* Enter an infinite loop, just incrementing a counter. */
-    int32_t reset_value = 1*fs;
+    int32_t reset_value = 1200;
     int32_t counter = reset_value;
     ecg_sample_t sample = 0;
+    ecg_sample_t samples[1200];
+    int i = 0;
     //int32_t sp02 = 0;
     //uint8_t new_samples = 0;
     //uint16_t unread_ppg_samp = 0;
     //pleth_sample_t samp;
     while(1) {
     	if(IsEvent()){
-			sample =GetEcgSample();
+			sample =PopEvent();
 			AddEcgSample(sample);
-			PRINTF("%d  \n", sample);
+			samples[i] = sample;
+			i++;
+			//PRINTF("%d  \n", sample);
 			if(!(--counter)){
-				counter = 200;
-				CalculateHeartBeat();
+				counter = 1200;
+				i=0;
+				//CalculateHeartBeat();
 				//PRINTF("%d \n", GetHeartBeat());
+				for(int k=0; k<1200; k++){
+					PRINTF("%d  \n", samples[k]);
+				}
+				while(1);
 			}
 		}
         //i++ ;

@@ -12,12 +12,16 @@
 #include "heartware.h"
 #include "fsl_adc16.h"
 #include "MK64F12.h"
+/************************************************
+ * 					DEFINICIONES				*
+ ************************************************/
+#define ADC_CHANNEL 12
 
 /************************************************
  * 				VARIABLES LOCALES
  ************************************************/
 const adc16_channel_config_t current_config = {
-  .channelNumber = kADC16_ChannelMuxA,
+  .channelNumber = ADC_CHANNEL,
   .enableInterruptOnConversionCompleted = false,
   .enableDifferentialConversion = false
 };
@@ -32,6 +36,6 @@ void InitializeEcgHardware(heart_init_t* init_data){
 
 uint16_t GetSensorSample(void){
 	uint16_t sample = (uint16_t) ADC16_GetChannelConversionValue(ADC0, kADC16_ChannelMuxA);
-	ADC16_SetChannelConfig(ADC0, 0, &current_config);
+	ADC16_SetChannelConfig(ADC0, kADC16_ChannelMuxA, &current_config);
 	return sample;
 }
