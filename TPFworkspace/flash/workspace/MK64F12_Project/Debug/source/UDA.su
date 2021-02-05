@@ -1,0 +1,3 @@
+fsl_i2c.h:518:20:I2C_EnableDMA	16	static
+UDA.c:24:5:init_UDA	16	static
+UDA.c:64:10:i2c_write_UDA	24	static

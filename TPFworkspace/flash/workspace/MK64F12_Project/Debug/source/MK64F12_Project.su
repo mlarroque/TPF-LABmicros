@@ -1,0 +1,3 @@
+fsl_edma.h:674:20:EDMA_TriggerChannelStart	16	static
+MK64F12_Project.c:50:5:main	48	static
+MK64F12_Project.c:94:6:major_callback	24	static
