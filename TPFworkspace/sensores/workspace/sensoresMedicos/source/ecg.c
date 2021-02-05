@@ -31,6 +31,8 @@ typedef struct{
 static uint16_t fs;
 static uint16_t heartbeat = 0;
 static ecg_sample_t ecg_signal[ECG_SIZE]; //buffer circular para el ECG
+static ecg_sample_t filtered_signal[ECG_SIZE]; //buffer circular para el ECG filtrado
+
 static uint16_t start = 0;
 static uint16_t curr = ECG_SIZE-1; //indice a la muestra no leida mas vieja.
 static uint16_t unread_samples = 0; //Cantidad de muestras sin leer en el buffer
@@ -50,7 +52,7 @@ void ECG_sample_callback(void){
 	PushEvent(sample);//Aca tendria que pushear el evento
 }
 
-void BanpassSignal(void){
+static void BanpassEcgSignal(void){
 	for(int i=0; i<ECG_SIZE; i++ ){
 
 	}
