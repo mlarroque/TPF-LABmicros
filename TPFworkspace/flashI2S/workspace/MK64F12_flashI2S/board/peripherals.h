@@ -41,11 +41,11 @@ extern "C" {
 /* Bit clock source frequency used for calculating the bit clock divider in the TxSetBitClockRate function. */
 #define I2S0_TX_BCLK_SOURCE_CLOCK_HZ 6144000UL
 /* Sample rate used for calculating the bit clock divider in the TxSetBitClockRate function. */
-#define I2S0_TX_SAMPLE_RATE 44100UL
+#define I2S0_TX_SAMPLE_RATE 16000UL
 /* Word width used for calculating the bit clock divider in the TxSetBitClockRate function. */
 #define I2S0_TX_WORD_WIDTH 16U
 /* Number of words within frame used for calculating the bit clock divider in the TxSetBitClockRate function. */
-#define I2S0_TX_WORDS_PER_FRAME 1U
+#define I2S0_TX_WORDS_PER_FRAME 2U
 /* I2S0 eDMA source request. */
 #define I2S0_TX_DMA_REQUEST kDmaRequestMux0I2S0Tx
 /* Selected eDMA channel number. */

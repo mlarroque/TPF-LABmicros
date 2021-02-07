@@ -52,14 +52,14 @@ void BOARD_InitBootPins(void);
 #define BOARD_mclk_PIN_MASK (1U << 8U)      /*!<@brief PORT pin mask */
                                             /* @} */
 
-/*! @name PORTC2 (number 72), J1[14]
+/*! @name PORTB19 (number 65), J1[3]
   @{ */
 
 /* Symbols to be used with PORT driver */
-#define BOARD_fs_PORT PORTC               /*!<@brief PORT peripheral base pointer */
-#define BOARD_fs_PIN 2U                   /*!<@brief PORT pin number */
-#define BOARD_fs_PIN_MASK (1U << 2U)      /*!<@brief PORT pin mask */
-                                          /* @} */
+#define BOARD_fselect_PORT PORTB                /*!<@brief PORT peripheral base pointer */
+#define BOARD_fselect_PIN 19U                   /*!<@brief PORT pin number */
+#define BOARD_fselect_PIN_MASK (1U << 19U)      /*!<@brief PORT pin mask */
+                                                /* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

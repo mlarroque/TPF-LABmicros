@@ -23,7 +23,7 @@ pin_labels:
 - {pin_num: '72', pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS, label: 'J1[14]', identifier: fs}
 - {pin_num: '73', pin_signal: CMP1_IN1/PTC3/LLWU_P7/SPI0_PCS1/UART1_RX/FTM0_CH2/CLKOUT/I2S0_TX_BCLK, label: 'J1[16]'}
 - {pin_num: '64', pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA, label: 'J1[1]', identifier: bclk}
-- {pin_num: '65', pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB, label: 'J1[3]'}
+- {pin_num: '65', pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB, label: 'J1[3]', identifier: fselect}
 - {pin_num: '71', pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0, label: 'J1[5]', identifier: data}
 - {pin_num: '80', pin_signal: ADC1_SE4b/CMP0_IN2/PTC8/FTM3_CH4/I2S0_MCLK/FB_AD7, label: 'J1[7]', identifier: mclk}
 - {pin_num: '81', pin_signal: ADC1_SE5b/CMP0_IN3/PTC9/FTM3_CH5/I2S0_RX_BCLK/FB_AD6/FTM2_FLT0, label: 'J1[9]'}
@@ -146,12 +146,10 @@ BOARD_InitPins:
   - {pin_num: '71', peripheral: I2S0, signal: TXD0, pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0}
   - {pin_num: '64', peripheral: I2S0, signal: TX_BCLK, pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA, direction: OUTPUT}
   - {pin_num: '80', peripheral: I2S0, signal: MCLK, pin_signal: ADC1_SE4b/CMP0_IN2/PTC8/FTM3_CH4/I2S0_MCLK/FB_AD7, direction: OUTPUT}
-  - {pin_num: '72', peripheral: I2S0, signal: TX_FS, pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS, direction: OUTPUT}
+  - {pin_num: '65', peripheral: I2S0, signal: TX_FS, pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB, direction: OUTPUT}
   - {peripheral: DMA, signal: 'CH, 0', pin_signal: I2S0_Transmit_Request}
   - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b}
   - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN}
-  - {pin_num: '78', peripheral: I2S0, signal: RX_BCLK, pin_signal: CMP0_IN0/PTC6/LLWU_P10/SPI0_SOUT/PDB0_EXTRG/I2S0_RX_BCLK/FB_AD9/I2S0_MCLK}
-  - {pin_num: '46', peripheral: I2S0, signal: RX_FS, pin_signal: PTA16/SPI0_SOUT/UART0_CTS_b/UART0_COL_b/RMII0_TXD0/MII0_TXD0/I2S0_RX_FS/I2S0_RXD1, identifier: ''}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -177,9 +175,6 @@ void BOARD_InitPins(void)
     /* DMA Channel Source (Slot) 0: I2S0 Transmit */
     DMAMUX_SetSource(DMAMUX, 0U, (uint8_t)kDmaRequestMux0I2S0Tx);
 
-    /* PORTA16 (pin 46) is configured as I2S0_RX_FS */
-    PORT_SetPinMux(PORTA, 16U, kPORT_MuxAlt6);
-
     /* PORTA2 (pin 36) is configured as TRACE_SWO */
     PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt7);
 
@@ -201,14 +196,11 @@ void BOARD_InitPins(void)
     /* PORTB18 (pin 64) is configured as I2S0_TX_BCLK */
     PORT_SetPinMux(BOARD_bclk_PORT, BOARD_bclk_PIN, kPORT_MuxAlt4);
 
+    /* PORTB19 (pin 65) is configured as I2S0_TX_FS */
+    PORT_SetPinMux(BOARD_fselect_PORT, BOARD_fselect_PIN, kPORT_MuxAlt4);
+
     /* PORTC1 (pin 71) is configured as I2S0_TXD0 */
     PORT_SetPinMux(BOARD_data_PORT, BOARD_data_PIN, kPORT_MuxAlt6);
-
-    /* PORTC2 (pin 72) is configured as I2S0_TX_FS */
-    PORT_SetPinMux(BOARD_fs_PORT, BOARD_fs_PIN, kPORT_MuxAlt6);
-
-    /* PORTC6 (pin 78) is configured as I2S0_RX_BCLK */
-    PORT_SetPinMux(PORTC, 6U, kPORT_MuxAlt4);
 
     /* PORTC8 (pin 80) is configured as I2S0_MCLK */
     PORT_SetPinMux(BOARD_mclk_PORT, BOARD_mclk_PIN, kPORT_MuxAlt4);

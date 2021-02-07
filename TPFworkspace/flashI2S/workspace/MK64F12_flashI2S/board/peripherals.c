@@ -124,14 +124,14 @@ instance:
             - frameSyncWidthM: '16'
             - frameSyncPolarityM: 'kSAI_PolarityActiveLow'
             - frameSyncEarlyM: 'true'
-          - sampleRate_Hz: 'kSAI_SampleRate44100Hz'
+          - sampleRate_Hz: 'kSAI_SampleRate16KHz'
           - channelMask: 'kSAI_Channel0Mask'
           - serialData:
             - differentFirstWord: 'false'
             - sameDataWordLengthM: 'kSAI_WordWidth16bits'
             - dataOrder: 'kSAI_DataMSB'
             - dataFirstBitShiftedM: '16'
-            - dataWordNumM: '1'
+            - dataWordNumM: '2'
             - dataMasked_config:
               - dataMasked_L:
                 - 0: 'false'
@@ -213,7 +213,7 @@ sai_transceiver_t I2S0_Tx_config = {
     .dataWordLength = (uint8_t)kSAI_WordWidth16bits,
     .dataOrder = kSAI_DataMSB,
     .dataFirstBitShifted = 16U,
-    .dataWordNum = 1U,
+    .dataWordNum = 2U,
     .dataMaskedWord = 0x0U
   },
   .fifo = {

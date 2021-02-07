@@ -43,7 +43,7 @@
  * Definitions
  ******************************************************************************/
 /* The board name */
-#define BOARD_NAME "TWR-K64F120M"
+#define BOARD_NAME "FRDM-K64F"
 
 /* The UART to use for debug messages. */
 #define BOARD_DEBUG_UART_TYPE DEBUG_CONSOLE_DEVICE_TYPE_UART

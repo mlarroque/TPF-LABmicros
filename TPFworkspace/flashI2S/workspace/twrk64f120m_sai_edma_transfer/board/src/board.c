@@ -41,6 +41,7 @@
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
 #if defined BOARD_USE_CODEC
 #include "fsl_sgtl5000.h"
+#include "UDA.h"
 #endif
 /*******************************************************************************
  * Variables
@@ -49,9 +50,12 @@
 codec_config_t boardCodecConfig = {
     .I2C_SendFunc = BOARD_Codec_I2C_Send,
     .I2C_ReceiveFunc = BOARD_Codec_I2C_Receive,
-    .op.Init = SGTL_Init,
-    .op.Deinit = SGTL_Deinit,
-    .op.SetFormat = SGTL_ConfigDataFormat
+//    .op.Init = SGTL_Init,
+//    .op.Deinit = SGTL_Deinit,
+//    .op.SetFormat = SGTL_ConfigDataFormat
+	.op.Init = UDA_init,
+    .op.Deinit = UDA_deinit,
+    .op.SetFormat = UDA_ConfigDataFormat
 };
 #endif
 

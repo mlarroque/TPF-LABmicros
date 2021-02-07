@@ -33,14 +33,16 @@
  */
 
 #include "board.h"
-#include "music.h"
+//#include "music.h"
+#include "GrabacionEmergencia_wavarray.h"
 #if defined(FSL_FEATURE_SOC_DMAMUX_COUNT) && FSL_FEATURE_SOC_DMAMUX_COUNT
 #include "fsl_dmamux.h"
 #endif
 #include "fsl_sai_edma.h"
 #include "fsl_debug_console.h"
 
-#include "fsl_sgtl5000.h"
+//#include "fsl_sgtl5000.h"
+#include "UDA.h"
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "fsl_gpio.h"
@@ -48,6 +50,12 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+/*DEBUG definitions*/
+
+#define DEBUG_SAI_EDMA_TRANSFER_1 1
+#define DEBUG_AUDIO_PLAYER_1 0
+
+
 /* SAI, I2C instance and clock */
 #define DEMO_SAI I2S0
 #define DEMO_I2C I2C0
@@ -59,12 +67,22 @@
 #define EXAMPLE_CHANNEL (0U)
 #define EXAMPLE_SAI_TX_SOURCE kDmaRequestMux0I2S0Tx
 
+/* change from portD (pins 8 and 9) to portE (pins 24 and 25)
 #define I2C_RELEASE_SDA_PORT PORTD
 #define I2C_RELEASE_SCL_PORT PORTD
 #define I2C_RELEASE_SDA_GPIO GPIOD
 #define I2C_RELEASE_SDA_PIN 9U
 #define I2C_RELEASE_SCL_GPIO GPIOD
 #define I2C_RELEASE_SCL_PIN 8U
+*/
+
+#define I2C_RELEASE_SDA_PORT PORTE
+#define I2C_RELEASE_SCL_PORT PORTE
+#define I2C_RELEASE_SDA_GPIO GPIOE
+#define I2C_RELEASE_SDA_PIN 25U
+#define I2C_RELEASE_SCL_GPIO GPIOE
+#define I2C_RELEASE_SCL_PIN 24U
+
 #define I2C_RELEASE_BUS_COUNT 100U
 #define OVER_SAMPLE_RATE (384U)
 #define BUFFER_SIZE (1600U)
@@ -112,6 +130,7 @@ void BOARD_I2C_ReleaseBus(void)
     pin_config.pinDirection = kGPIO_DigitalOutput;
     pin_config.outputLogic = 1U;
     CLOCK_EnableClock(kCLOCK_PortD);
+    CLOCK_EnableClock(kCLOCK_PortE);
     PORT_SetPinConfig(I2C_RELEASE_SCL_PORT, I2C_RELEASE_SCL_PIN, &i2c_pin_config);
     PORT_SetPinConfig(I2C_RELEASE_SCL_PORT, I2C_RELEASE_SDA_PIN, &i2c_pin_config);
 
@@ -159,10 +178,12 @@ static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status,
         finishIndex++;
         emptyBlock++;
         /* Judge whether the music array is completely transfered. */
-        if(MUSIC_LEN/BUFFER_SIZE == finishIndex)
+        if(BUFF_LEN_WAV/BUFFER_SIZE == finishIndex)
         {
             isFinished = true;
         }
+
+//        printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
     }
 }
 
@@ -181,9 +202,12 @@ int main(void)
 
     BOARD_InitPins();
     BOARD_BootClockRUN();
+    BOARD_InitDebugConsole();
+
+
     BOARD_I2C_ReleaseBus();
     BOARD_I2C_ConfigurePins();
-    BOARD_InitDebugConsole();
+
     BOARD_Codec_I2C_Init();
 
     PRINTF("SAI example started!\n\r");
@@ -256,7 +280,7 @@ int main(void)
     EnableIRQ(DEMO_SAI_IRQ);
     SAI_TxEnableInterrupts(DEMO_SAI, kSAI_FIFOErrorInterruptEnable);
 #endif
-
+#define CODEC_CYCLE 10000000U
 #if defined(CODEC_CYCLE)
     delayCycle = CODEC_CYCLE;
 #endif
@@ -274,10 +298,10 @@ int main(void)
     /* Waiting until finished. */
     while(!isFinished)
     {
-        if((emptyBlock > 0U) && (cpy_index < MUSIC_LEN/BUFFER_SIZE))
+        if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
         {
              /* Fill in the buffers. */
-             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&music[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE); 
+             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
              emptyBlock--;
              cpy_index++;
         }
