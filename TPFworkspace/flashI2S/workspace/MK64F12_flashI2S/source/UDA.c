@@ -14,7 +14,7 @@
 
 #define UDA_ADRESS_RX 0x18
 #define UDA_SOFT_ADRESS 0x07
-#define UDA_REG(a)  a
+#define UDA_REG(a)  (a)
 
 
 
@@ -31,32 +31,53 @@ int init_UDA(void){
 	tx_content[0] = 0x0F;
 	tx_content[1] = 0x31;
 	status = i2c_write_UDA(UDA_REG(0x00), tx_content);
-
+	if (status != kStatus_Success){
+		return -1;
+	}
 	tx_content[0] = 0x00;
 	tx_content[1] = 0x00;
 	status = i2c_write_UDA(UDA_REG(0x01), tx_content);
+	if (status != kStatus_Success){
+			return -1;
+		}
 	//turn on headphone!
 	tx_content[0] = 0xA5;
 	tx_content[1] = 0xDF;
 	status = i2c_write_UDA(UDA_REG(0x02), tx_content);
+	if (status != kStatus_Success){
+			return -1;
+		}
 
 	tx_content[0] = 0x00;
 	tx_content[1] = 0x00;
 	status = i2c_write_UDA(UDA_REG(0x03), tx_content);
+	if (status != kStatus_Success){
+			return -1;
+		}
 
 	tx_content[0] = 0x02;
 	tx_content[1] = 0x02;
 	status = i2c_write_UDA(UDA_REG(0x04), tx_content);
+	if (status != kStatus_Success){
+			return -1;
+		}
 	//solo quedan resets...
 	tx_content[0] = 0x00;
 	tx_content[1] = 0x00;
 	status = i2c_write_UDA(UDA_REG(0x10), tx_content);
+	if (status != kStatus_Success){
+			return -1;
+		}
 
 
 	status = i2c_write_UDA(UDA_REG(0x11), tx_content);
+	if (status != kStatus_Success){
+			return -1;
+		}
 
 
 	status = i2c_write_UDA(UDA_REG(0x13), tx_content);
+
 
 	return status;
 }

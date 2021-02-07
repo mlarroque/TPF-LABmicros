@@ -150,6 +150,8 @@ BOARD_InitPins:
   - {peripheral: DMA, signal: 'CH, 0', pin_signal: I2S0_Transmit_Request}
   - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b}
   - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN}
+  - {pin_num: '78', peripheral: I2S0, signal: RX_BCLK, pin_signal: CMP0_IN0/PTC6/LLWU_P10/SPI0_SOUT/PDB0_EXTRG/I2S0_RX_BCLK/FB_AD9/I2S0_MCLK}
+  - {pin_num: '46', peripheral: I2S0, signal: RX_FS, pin_signal: PTA16/SPI0_SOUT/UART0_CTS_b/UART0_COL_b/RMII0_TXD0/MII0_TXD0/I2S0_RX_FS/I2S0_RXD1, identifier: ''}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -174,6 +176,9 @@ void BOARD_InitPins(void)
     CLOCK_EnableClock(kCLOCK_PortE);
     /* DMA Channel Source (Slot) 0: I2S0 Transmit */
     DMAMUX_SetSource(DMAMUX, 0U, (uint8_t)kDmaRequestMux0I2S0Tx);
+
+    /* PORTA16 (pin 46) is configured as I2S0_RX_FS */
+    PORT_SetPinMux(PORTA, 16U, kPORT_MuxAlt6);
 
     /* PORTA2 (pin 36) is configured as TRACE_SWO */
     PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt7);
@@ -201,6 +206,9 @@ void BOARD_InitPins(void)
 
     /* PORTC2 (pin 72) is configured as I2S0_TX_FS */
     PORT_SetPinMux(BOARD_fs_PORT, BOARD_fs_PIN, kPORT_MuxAlt6);
+
+    /* PORTC6 (pin 78) is configured as I2S0_RX_BCLK */
+    PORT_SetPinMux(PORTC, 6U, kPORT_MuxAlt4);
 
     /* PORTC8 (pin 80) is configured as I2S0_MCLK */
     PORT_SetPinMux(BOARD_mclk_PORT, BOARD_mclk_PIN, kPORT_MuxAlt4);

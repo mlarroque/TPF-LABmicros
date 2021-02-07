@@ -46,6 +46,7 @@
 /* TODO: insert other definitions and declarations here. */
 #define DEBUG_FLASH_1 0  //debug flashHal write and read
 #define DEBUG_FLASH_2 0  //debug read data that had been written in DEBUG_FLASH_1
+#define DEBUG_UDA_1 0
 #define DEBUG_AUDIO_PLAYER_1 0  //debug save and read record
 #define DEBUG_AUDIO_PLAYER_2 0  //debug decoding some piece of record
 #define DEBUG_SAI_1 1   //debug i2s and dma
@@ -140,8 +141,17 @@ int main(void) {
     else{
     	printf("INITIALIZING FLASH ERROR\n");
     }
+
+#elif DEBUG_UDA_1
+
+#include "UDA.h"
+
+
+
 #elif DEBUG_AUDIO_PLAYER_1
+
 #include "audioPlayer.h"
+
     char data[] = {2, 4, 6, 8, 10};  //array size: 5
     int k = 0;
 
@@ -175,6 +185,10 @@ int main(void) {
 #include "timer.h"
 #include "audioPlayer.h"
 #include "mp3data.h"
+
+#include "UDA.h"
+
+    init_UDA();
     timerCounter = 0;
     InitializeTimers();
 
@@ -197,12 +211,12 @@ int main(void) {
 #include "GrabacionEmergencia_wavarray.h"
 #include "UDA.h"
 
-    sai_transfer_t xfer;
+    sai_transfer_t xfer[1];
     if (init_UDA() == 0){
-    	xfer.data =  GrabacionEmergencia_wavarray;
+    	xfer[0].data =  (uint8_t * )GrabacionEmergencia_wavarray;
     	//uint8_t correction = BUFF_LEN_WAV % 8;
-    	xfer.dataSize = BUFF_LEN_WAV;
-    	SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, &xfer);
+    	xfer[0].dataSize = BUFF_LEN_WAV;
+    	SAI_TransferSendEDMA(I2S0_PERIPHERAL, &I2S0_SAI_Tx_eDMA_Handle, xfer);
     }
     else{
     	PRINTF("UDA initializing error\n");
@@ -213,12 +227,14 @@ int main(void) {
 
 #include "audioPlayer.h"
 #include "GrabacionEmergencia_array.h"
+#include "UDA.h"
 	audioData_t audioData;
 	audioData.audioTag = ALERTA_0;
 	audioData.p2audioData = GrabacionEmergencia_array;
 	audioData.audioDataLen = BUFF_LEN;
 	audioData.audioFormat = AUDIO_MP3;
 
+	init_UDA();
 	init_audio_player();
 
 	audioResult_t result = save_record(&audioData);
