@@ -21,6 +21,8 @@
  ******************************************************************************/
 #define MAX_HB 120
 #define MIN_HB 60
+#define MAX_TEMP ??
+#define MIN_TEMP ??
 #define MAX_SPO2 ??
 #define MIN_SPO2 ??
 #define INIT_ECG_COUNTER ??
@@ -52,11 +54,12 @@ void App_Init(void){
 	// IO Initialization
 	InitializeECG(&ECG_init);
 	InitializeOximetry(&oxi_init);
+	InitializeThermometer();
 }
 
-dispatchOxEvent(userData.oxUd);
-disptachEcgEvent(userData.ecgUd);
-dispatchTempEvent(userData.tempUd);
+dispatchOxEvent(oxUd_t oxUd);
+disptachEcgEvent(ecgUd_t ecgUd);
+dispatchTempEvent(tempUd_t tempUd);
 
 /* Función que se llama constantemente en un ciclo infinito */
 void App_Run(void){
@@ -110,10 +113,12 @@ disptachEcgEvent(ecgUd_t ecgUd){
 }
 
 dispatchTempEvent(tempUd_t tempUd){
-	//llamar a add ecg sample
-	//reducir counter
-	//si counter es 0 calculo params
-	//si params son alaramantes (con getter) --> entonces llamo a funcion de mati
+	AddTempInputSample();
+	temp = getTemperature();
+	if((temp > MAX_TEMP) || (temp < MIN_TEMP)){
+		start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat); // PONER TAG Y FORMAT!!!
+	}
+	newSampleRequest();
 }
 
 

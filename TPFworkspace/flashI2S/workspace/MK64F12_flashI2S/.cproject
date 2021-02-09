@@ -337,7 +337,7 @@
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.debug.2033190415" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug">
+							<tool id="com.crt.advproject.tool.debug.debug.2033190415" name="MCU Debugger">
 								<option id="com.crt.advproject.linkserver.debug.prevent.debug.1990568233" name="Prevent Debugging" superClass="com.crt.advproject.linkserver.debug.prevent.debug"/>
 								<option id="com.crt.advproject.miscellaneous.end_of_heap.646204843" name="Last used address of the heap" superClass="com.crt.advproject.miscellaneous.end_of_heap"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapStart.852312715" name="First address of the heap" superClass="com.crt.advproject.miscellaneous.pvHeapStart"/>
@@ -345,6 +345,7 @@
 								<option id="com.crt.advproject.debugger.security.nonsecureimageenable.34893641" name="Enable pre-programming of Non-Secure Image" superClass="com.crt.advproject.debugger.security.nonsecureimageenable"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimage.1920630229" name="Non-Secure Project" superClass="com.crt.advproject.debugger.security.nonsecureimage"/>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.debug.9257422" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -684,13 +685,14 @@
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.release.3719089" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release">
+							<tool id="com.crt.advproject.tool.debug.release.3719089" name="MCU Debugger">
 								<option id="com.crt.advproject.miscellaneous.end_of_heap.296587049" name="Last used address of the heap" superClass="com.crt.advproject.miscellaneous.end_of_heap"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapStart.306250793" name="First address of the heap" superClass="com.crt.advproject.miscellaneous.pvHeapStart"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapLimit.1594514660" name="Maximum extent of heap" superClass="com.crt.advproject.miscellaneous.pvHeapLimit"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimageenable.1850779904" name="Enable pre-programming of Non-Secure Image" superClass="com.crt.advproject.debugger.security.nonsecureimageenable"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimage.1069938330" name="Non-Secure Project" superClass="com.crt.advproject.debugger.security.nonsecureimage"/>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.release.1180201672" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>

@@ -12,8 +12,10 @@
 
 typedef enum {MEAS_OX_EV, MEAS_ECG_EV, MEAS_TEMP_EV, NUM_EVENTS}ev_name;
 
-//UserData contiene toda la informacion necesaria que necesita una rutina para manejar
-//un evento que se saco de la cola.
+/* UserData contiene toda la informacion necesaria que necesita una rutina para manejar
+ un evento que se saco de la cola.
+ */
+
 typedef struct{
 	oxUd_t oxUd;
 	tempUd_t tempUd;

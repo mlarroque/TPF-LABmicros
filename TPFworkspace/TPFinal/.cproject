@@ -277,7 +277,7 @@
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.debug.1739417572" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug">
+							<tool id="com.crt.advproject.tool.debug.debug.1739417572" name="MCU Debugger">
 								<option id="com.crt.advproject.linkserver.debug.prevent.debug.1482190409" superClass="com.crt.advproject.linkserver.debug.prevent.debug"/>
 								<option id="com.crt.advproject.miscellaneous.end_of_heap.1771134674" superClass="com.crt.advproject.miscellaneous.end_of_heap"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapStart.1026466656" superClass="com.crt.advproject.miscellaneous.pvHeapStart"/>
@@ -285,6 +285,7 @@
 								<option id="com.crt.advproject.debugger.security.nonsecureimageenable.373511930" superClass="com.crt.advproject.debugger.security.nonsecureimageenable"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimage.378657894" superClass="com.crt.advproject.debugger.security.nonsecureimage"/>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.debug.1659777825" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -573,13 +574,14 @@
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.release.1699585881" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release">
+							<tool id="com.crt.advproject.tool.debug.release.1699585881" name="MCU Debugger">
 								<option id="com.crt.advproject.miscellaneous.end_of_heap.329010187" superClass="com.crt.advproject.miscellaneous.end_of_heap"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapStart.401516726" superClass="com.crt.advproject.miscellaneous.pvHeapStart"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapLimit.1136218020" superClass="com.crt.advproject.miscellaneous.pvHeapLimit"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimageenable.1629812205" superClass="com.crt.advproject.debugger.security.nonsecureimageenable"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimage.1834587298" superClass="com.crt.advproject.debugger.security.nonsecureimage"/>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.release.1139505846" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>

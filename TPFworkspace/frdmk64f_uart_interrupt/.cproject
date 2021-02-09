@@ -133,7 +133,7 @@
 							<tool id="com.crt.advproject.gas.exe.debug.466781666" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
 								<option id="com.crt.advproject.gas.thumb.1900073845" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.gas.arch.986334558" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
-								<option id="gnu.both.asm.option.flags.crt.521299160" superClass="gnu.both.asm.option.flags.crt"/>
+								<option id="gnu.both.asm.option.flags.crt.521299160" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.1145460179" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/board}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/source}&quot;"/>
@@ -269,7 +269,7 @@
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.debug.445362378" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug">
+							<tool id="com.crt.advproject.tool.debug.debug.445362378" name="MCU Debugger">
 								<option id="com.crt.advproject.linkserver.debug.prevent.debug.1211336371" superClass="com.crt.advproject.linkserver.debug.prevent.debug"/>
 								<option id="com.crt.advproject.miscellaneous.end_of_heap.375319595" superClass="com.crt.advproject.miscellaneous.end_of_heap"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapStart.701215618" superClass="com.crt.advproject.miscellaneous.pvHeapStart"/>
@@ -277,6 +277,7 @@
 								<option id="com.crt.advproject.debugger.security.nonsecureimageenable.912376666" superClass="com.crt.advproject.debugger.security.nonsecureimageenable"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimage.1350474329" superClass="com.crt.advproject.debugger.security.nonsecureimage"/>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.debug.983823366" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -421,7 +422,7 @@
 							<tool id="com.crt.advproject.gas.exe.release.1337035603" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.release">
 								<option id="com.crt.advproject.gas.thumb.1990773419" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.gas.arch.1620798202" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
-								<option id="gnu.both.asm.option.flags.crt.1856782544" superClass="gnu.both.asm.option.flags.crt"/>
+								<option id="gnu.both.asm.option.flags.crt.1856782544" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.721876368" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/board}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/source}&quot;"/>
@@ -556,13 +557,14 @@
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.release.320924392" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release">
+							<tool id="com.crt.advproject.tool.debug.release.320924392" name="MCU Debugger">
 								<option id="com.crt.advproject.miscellaneous.end_of_heap.700622848" superClass="com.crt.advproject.miscellaneous.end_of_heap"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapStart.1036719109" superClass="com.crt.advproject.miscellaneous.pvHeapStart"/>
 								<option id="com.crt.advproject.miscellaneous.pvHeapLimit.1108597361" superClass="com.crt.advproject.miscellaneous.pvHeapLimit"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimageenable.1611935979" superClass="com.crt.advproject.debugger.security.nonsecureimageenable"/>
 								<option id="com.crt.advproject.debugger.security.nonsecureimage.959166256" superClass="com.crt.advproject.debugger.security.nonsecureimage"/>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.release.1430219981" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -635,4 +637,5 @@
 &lt;/TargetConfig&gt;</projectStorage>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope"/>
 </cproject>
