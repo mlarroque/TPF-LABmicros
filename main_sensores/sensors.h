@@ -20,6 +20,10 @@
 // int32_t GetRedPlethSample(void);
 // uin16_t GetRedUnreadNum(void);
 
+#include "thermometer.h"
+// uint8_t GetThermoSample(void);
+// uint16_t GetTempUnreadNum(void);
+
 typedef struct{
 	uint16_t sample_red;
 	uint16_t sample_ir;
