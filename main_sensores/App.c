@@ -33,8 +33,7 @@
  ******************************************************************************/
 
 // events
-static UserData_t userData;
-static ev_name nameEvent;
+static eventData_t ev;
 ECG_init_t ECG_init;
 oxi_init_t oxi_init;
 
@@ -63,8 +62,8 @@ dispatchTempEvent(tempUd_t tempUd);
 
 /* Función que se llama constantemente en un ciclo infinito */
 void App_Run(void){
-	if(getEvent(&userData){
-		switch(userData.name){
+	if(getEvent(&ev){
+		switch(ev.name){
 			case MEAS_OX_EV:
 				dispatchOxEvent(userData.oxUd);
 				break;

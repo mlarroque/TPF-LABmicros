@@ -10,10 +10,10 @@
 
 #define MAX_EVENTS 30
 
-#include "userData.h"
+#include "eventData.h"
 
-bool getEvent(UserData_t * ud);
+bool getEvent(eventData_t * ev);
 
-bool pushEvent(UserData_t ud);
+bool pushEvent(eventData_t ev);
 
 #endif /* QUEUE_H_ */

@@ -1,12 +1,12 @@
 /*
- * userData.h
+ * eventData.h
  *
  *  Created on: Sep 6, 2019
  *      Author: Grupo 5
  */
 
-#ifndef USERDATA_H_
-#define USERDATA_H_
+#ifndef EVENTDATA_H_
+#define EVENTDATA_H_
 
 #include "sensors.h"
 
@@ -21,6 +21,6 @@ typedef struct{
 	tempUd_t tempUd;
 	ecgUd_t ecgUd;
 	ev_name name;
-}UserData_t;
+}eventData_t;
 
-#endif /* USERDATA_H_ */
+#endif /* EVENTDATA_H_ */
