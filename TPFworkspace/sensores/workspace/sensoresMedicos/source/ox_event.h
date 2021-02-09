@@ -10,10 +10,12 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "FreeRTOS.h"
+#include "timers.h"
 
 
 bool IsOxEvent(void);
-void PushOxEvent(void);
+void PushOxEvent(TimerHandle_t);
 void PopOxEvent(void);
 
 #endif /* OX_EVENT_H_ */

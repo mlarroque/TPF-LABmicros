@@ -16,7 +16,8 @@ static bool samples_ready = false;
 bool IsOxEvent(void){
 	return samples_ready;
 }
-void PushOxEvent(void){
+
+void PushOxEvent(TimerHandle_t handler){
 	samples_ready = true;
 }
 

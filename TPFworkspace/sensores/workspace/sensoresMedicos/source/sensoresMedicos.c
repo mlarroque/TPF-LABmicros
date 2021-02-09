@@ -43,7 +43,6 @@
 #include "ecg.h"
 #include "ox_event.h"
 #include "oximetry.h"
-#include "timer.h"
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -65,7 +64,6 @@ int main(void) {
     uint16_t fs = 200;
     ECG_init_t init_data = {fs};
     //oxi_init_t ox_init_data = {fs};
-    InitializeTimers();
     InitializeECG(&init_data);
     //InitializeOximetry(&ox_init_data);
 

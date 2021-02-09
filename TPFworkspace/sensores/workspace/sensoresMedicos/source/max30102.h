@@ -11,13 +11,14 @@
 /************************************************************
  * 					HEADERS UTILIZADOS						*
  ************************************************************/
-#include "timer.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 
 /************************************************************
  *						DEFINICIONES						*
  ************************************************************/
 typedef struct{
-	callback_ptr callback;
+	TimerCallbackFunction_t callback;
 	unsigned long int timeout;
 }max_init_t;
 

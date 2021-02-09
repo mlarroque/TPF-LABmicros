@@ -16,7 +16,7 @@ static bool samples_ready = false;
 bool IsTempEvent(void){
 	return samples_ready;
 }
-void PushTempEvent(void){
+void PushTempEvent(TimerHandle_t handler){
 	samples_ready = true;
 }
 

@@ -55,7 +55,6 @@ void SetTempMode(mode_t mode){
 
 void ConfigureMax30205(void){
 	SetTempMode(SHUTDOWN);
-	//SetTempMode(CONTINOUS);
 }
 
 /********************************************************
@@ -64,7 +63,12 @@ void ConfigureMax30205(void){
 
 void InitializeTempHardware(temp_init_t* init_data){
 	ConfigureMax30205();
-	SetTimer(THERMOMETER, init_data->timeout, init_data->callback);
+	TimerHandle_t handler = xTimerCreate("Temperature Timer",
+			pdMS_TO_TICKS(init_data->timeout),
+			pdTRUE,
+			NULL,
+			init_data->callback);
+	xTimerStart(handler, 0);
 #ifdef MAX_DEBUG
 	PrintRegister(TEMP);
 	PrintRegister(CONFIG);
@@ -86,7 +90,6 @@ uint16_t GetTempSample(void){
 				successful = ReadByte(MAX30205_ADDR, TEMP, sample_buff, 2);
 			}
 			else{
-				//sample = 0;
 				PRINTF("SAMPLE NOT READY \n");
 			}
 		}

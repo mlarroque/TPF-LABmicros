@@ -31,7 +31,12 @@ const adc16_channel_config_t current_config = {
 
 void InitializeEcgHardware(heart_init_t* init_data){
 	unsigned long int timeout = 1000 / (init_data->fs);
-	SetTimer(HEART_SAMPLER,timeout, init_data->func);
+	TimerHandle_t handler = xTimerCreate("ECG Timer",
+			pdMS_TO_TICKS(timeout),
+			pdTRUE,
+			NULL,
+			init_data->func);
+	xTimerStart(handler, 0);
 }
 
 uint16_t GetSensorSample(void){

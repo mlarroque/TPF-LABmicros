@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "event_prueba.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 /****************************************************
  * 					DEFINICIONES					*
  ****************************************************/
@@ -47,7 +49,7 @@ static uint8_t list_size = 0;
 /****************************************************
  * 					FUNCIONES LOCALES				*
  ****************************************************/
-void ECG_sample_callback(void){
+void ECG_sample_callback(TimerHandle_t handler){
 	uint16_t sample = GetSensorSample();
 	PushEvent(sample);//Aca tendria que pushear el evento
 }

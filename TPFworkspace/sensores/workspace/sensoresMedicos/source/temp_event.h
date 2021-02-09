@@ -10,11 +10,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "FreeRTOS.h"
+#include "timers.h"
 
 
 bool IsTempEvent(void);
 
-void PushTempEvent(void);
+void PushTempEvent(TimerHandle_t);
 
 void PopTempEvent(void);
 

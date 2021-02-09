@@ -9,7 +9,8 @@
  * 					HEADERS UTILIZADOS
  *******************************************************/
 #include "max30102.h"
-#include "timer.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 #include "i2c.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -189,7 +190,12 @@ void ConfigureMax30102(void){
 void InitializeOxHardware(max_init_t* init_data){
 	GetInterruptStatus();
 	ConfigureMax30102();
-	SetTimer(OXIMETER, init_data->timeout, init_data->callback);
+	TimerHandle_t handler = xTimerCreate("Oximetry Timer",
+			pdMS_TO_TICKS(init_data->timeout),
+			pdTRUE,
+			NULL,
+			init_data->callback);
+	xTimerStart(handler, 0);
 #ifdef MAX_DEBUG
 	PrintRegister(FIFO_CONFIG);
 	PrintRegister(INT_ENABLE1);
