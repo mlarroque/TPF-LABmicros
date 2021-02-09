@@ -15,7 +15,7 @@
 /******************************************************************************************
  *  				TIPOS DE DATOS, CONSTANTES Y VARIABLES GLOBALES
  ******************************************************************************************/
-typedef enum {HEART_SAMPLER, OXIMETER, NUM_TIMERS}timerUd_t; //Timers utilizados
+typedef enum {HEART_SAMPLER, OXIMETER, THERMOMETER, NUM_TIMERS}timerUd_t; //Timers utilizados
 typedef void (*callback_ptr)(void);
 
 
