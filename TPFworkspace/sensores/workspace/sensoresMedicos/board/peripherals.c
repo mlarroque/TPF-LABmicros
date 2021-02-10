@@ -114,7 +114,7 @@ static void ADC0_init(void) {
 instance:
 - name: 'I2C0'
 - type: 'i2c'
-- mode: 'I2C_Polling'
+- mode: 'freertos'
 - custom_name_enabled: 'false'
 - type_id: 'i2c_2566d7363e7e9aaedabb432110e372d7'
 - functional_group: 'BOARD_InitPeripherals'
@@ -124,6 +124,8 @@ instance:
     - i2c_mode: 'kI2C_Master'
     - clockSource: 'BusInterfaceClock'
     - clockSourceFreq: 'GetFreq'
+    - rtos_handle:
+      - enable_custom_name: 'false'
     - i2c_master_config:
       - enableMaster: 'true'
       - enableStopHold: 'false'
@@ -131,6 +133,7 @@ instance:
       - glitchFilterWidth: '0'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
+i2c_rtos_handle_t I2C0_rtosHandle;
 const i2c_master_config_t I2C0_config = {
   .enableMaster = true,
   .enableStopHold = false,
@@ -140,7 +143,7 @@ const i2c_master_config_t I2C0_config = {
 
 static void I2C0_init(void) {
   /* Initialization function */
-  I2C_MasterInit(I2C0_PERIPHERAL, &I2C0_config, I2C0_CLK_FREQ);
+  I2C_RTOS_Init(&I2C0_rtosHandle, I2C0_PERIPHERAL, &I2C0_config, I2C0_CLK_FREQ);
 }
 
 /***********************************************************************************************************************

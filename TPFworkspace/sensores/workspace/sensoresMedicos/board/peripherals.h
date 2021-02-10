@@ -12,6 +12,7 @@
 #include "fsl_common.h"
 #include "fsl_adc16.h"
 #include "fsl_i2c.h"
+#include "fsl_i2c_freertos.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -41,6 +42,7 @@ extern "C" {
 extern const adc16_config_t ADC0_config;
 extern const adc16_channel_mux_mode_t ADC0_muxMode;
 extern const adc16_hardware_average_mode_t ADC0_hardwareAverageMode;
+extern i2c_rtos_handle_t I2C0_rtosHandle;
 extern const i2c_master_config_t I2C0_config;
 
 /***********************************************************************************************************************
