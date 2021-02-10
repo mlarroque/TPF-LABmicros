@@ -60,17 +60,21 @@
  */
 
 void prvSetupHardware(void);
-void mainTask(void);
+void mainTask(void*);
+
+//Parametros de inicializacion
+static oxi_init_t ox_data = {
+		.fs=200
+};
 
 int main(void) {
-
 	/* Perform any hardware setup necessary. */
 	prvSetupHardware();
 
 	/* App Tasks */
 	BaseType_t status = xTaskCreate(mainTask,
 			"mainTask",
-			((unsigned short)400),
+			((unsigned short)800),
 			NULL,
 			1,
 			NULL);
@@ -101,15 +105,24 @@ void prvSetupHardware(void){
 	BOARD_InitDebugConsole();
 	#endif
     PRINTF("Main Starting\n");
-    InitializeThermometer();
+    //InitializeThermometer();
 }
 
-void mainTask(void){
+void mainTask(void* params){
+	uint8_t n_samples = 0;
+	NVIC_SetPriority(I2C0_IRQn, 2);
+	InitializeOximetry(&ox_data);
 	while(1){
+		if(IsOxEvent()){
+			PopOxEvent();
+			n_samples = AddInputSamples();
+		}
+		/*
 	    if(IsTempEvent()){
 	    	PopTempEvent();
 	    	AddTempInputSample();
 	    	newSampleRequest();
 	    }
+	    */
 	}
 }
