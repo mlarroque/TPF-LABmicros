@@ -65,7 +65,7 @@ void mainTask(void);
 int main(void) {
 
 	/* Perform any hardware setup necessary. */
-	//prvSetupHardware();
+	prvSetupHardware();
 
 	/* App Tasks */
 	BaseType_t status = xTaskCreate(mainTask,
@@ -105,7 +105,6 @@ void prvSetupHardware(void){
 }
 
 void mainTask(void){
-	prvSetupHardware();
 	while(1){
 	    if(IsTempEvent()){
 	    	PopTempEvent();
