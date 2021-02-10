@@ -64,7 +64,7 @@ void mainTask(void*);
 
 //Parametros de inicializacion
 static oxi_init_t ox_data = {
-		.fs=200
+		.fs=50
 };
 
 int main(void) {
@@ -110,12 +110,19 @@ void prvSetupHardware(void){
 
 void mainTask(void* params){
 	uint8_t n_samples = 0;
+	int16_t counter = 4*ox_data.fs;
 	NVIC_SetPriority(I2C0_IRQn, 2);
 	InitializeOximetry(&ox_data);
 	while(1){
 		if(IsOxEvent()){
 			PopOxEvent();
 			n_samples = AddInputSamples();
+			counter -= n_samples;
+			if(counter<=0){
+				CalculateSpO2();
+				counter = 4*ox_data.fs;
+				PRINTF("SP02: %d \n", GetSpO2());
+			}
 		}
 		/*
 	    if(IsTempEvent()){

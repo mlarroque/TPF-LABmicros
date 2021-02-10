@@ -18,7 +18,7 @@
 /****************************************************
  * 					DEFINICIONES					*
  ****************************************************/
-#define ECG_SIZE 1200
+#define ECG_SIZE 600
 #define WINDOW_DURATION 0.06 //Ventana de 60 milisegundos alrededor de un lado del pico
 #define PEAK_LIST_SIZE 100
 
