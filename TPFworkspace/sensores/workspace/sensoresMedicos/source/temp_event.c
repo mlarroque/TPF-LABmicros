@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "temp_event.h"
+#include "fsl_debug_console.h"
 
 
 static bool samples_ready = false;
@@ -17,6 +18,7 @@ bool IsTempEvent(void){
 	return samples_ready;
 }
 void PushTempEvent(TimerHandle_t handler){
+	PRINTF("ENTER \n");
 	samples_ready = true;
 }
 

@@ -41,7 +41,7 @@ static uint16_t unread_samples = 0;
  ********************************************************/
 
 void InitializeThermometer(void){
-	unsigned long int timeout = 200; // ms
+	TickType_t timeout = 200; // ms
 	temp_init_t hard_init = {PushTempEvent, timeout};
 	InitializeTempHardware(&hard_init);
 }

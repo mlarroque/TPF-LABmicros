@@ -61,14 +61,28 @@ void ConfigureMax30205(void){
  * 					FUNCIONES DEL HEADER
  ********************************************************/
 
+TimerHandle_t temp_handler = NULL;
+BaseType_t temp_timer_started;
+
 void InitializeTempHardware(temp_init_t* init_data){
 	ConfigureMax30205();
-	TimerHandle_t handler = xTimerCreate("Temperature Timer",
+	temp_handler = xTimerCreate("Temperature Timer",
 			pdMS_TO_TICKS(init_data->timeout),
 			pdTRUE,
 			NULL,
 			init_data->callback);
-	xTimerStart(handler, 0);
+	if(temp_handler != NULL){
+		temp_timer_started = xTimerStart(temp_handler, 0);
+	}
+	else{
+		PRINTF("TIMER NOT CREATED \n");
+	}
+	if(temp_timer_started == pdPASS){
+		PRINTF("TIMER STARTED \n");
+	}
+	else{
+		PRINTF("TIMER NOT STARTED \n");
+	}
 #ifdef MAX_DEBUG
 	PrintRegister(TEMP);
 	PrintRegister(CONFIG);

@@ -19,7 +19,7 @@
  ************************************************************/
 typedef struct{
 	TimerCallbackFunction_t callback;
-	unsigned long int timeout;
+	TickType_t timeout;
 }temp_init_t;
 
 /************************************************************
