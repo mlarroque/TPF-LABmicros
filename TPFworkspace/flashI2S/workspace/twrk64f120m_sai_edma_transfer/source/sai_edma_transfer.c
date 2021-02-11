@@ -31,10 +31,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+/*DEBUG definitions*/
 
+
+
+#include "debug_definitions.h"
 #include "board.h"
 //#include "music.h"
 #include "GrabacionEmergencia_wavarray.h"
+//#include "GrabacionEmergencia_array.h"
 #if defined(FSL_FEATURE_SOC_DMAMUX_COUNT) && FSL_FEATURE_SOC_DMAMUX_COUNT
 #include "fsl_dmamux.h"
 #endif
@@ -47,13 +52,12 @@
 #include "clock_config.h"
 #include "fsl_gpio.h"
 #include "fsl_port.h"
+#include "audioPlayer.h"
+#include "timer.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-/*DEBUG definitions*/
 
-#define DEBUG_SAI_EDMA_TRANSFER_1 1
-#define DEBUG_AUDIO_PLAYER_1 0
 
 
 /* SAI, I2C instance and clock */
@@ -91,11 +95,12 @@
  * Prototypes
  ******************************************************************************/
 void BOARD_I2C_ReleaseBus(void);
-static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
+
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+#if DEBUG_SAI_EDMA_TRANSFER_1
 AT_NONCACHEABLE_SECTION_INIT(sai_edma_handle_t txHandle) = {0};
 edma_handle_t dmaHandle = {0};
 codec_handle_t codecHandle = {0};
@@ -108,67 +113,9 @@ volatile uint32_t emptyBlock = BUFFER_NUM;
  * Code
  ******************************************************************************/
 
-static void i2c_release_bus_delay(void)
-{
-    uint32_t i = 0;
-    for (i = 0; i < I2C_RELEASE_BUS_COUNT; i++)
-    {
-        __NOP();
-    }
-}
 
-void BOARD_I2C_ReleaseBus(void)
-{
-    uint8_t i = 0;
-    gpio_pin_config_t pin_config;
-    port_pin_config_t i2c_pin_config = {0};
-
-    /* Config pin mux as gpio */
-    i2c_pin_config.pullSelect = kPORT_PullUp;
-    i2c_pin_config.mux = kPORT_MuxAsGpio;
-
-    pin_config.pinDirection = kGPIO_DigitalOutput;
-    pin_config.outputLogic = 1U;
-    CLOCK_EnableClock(kCLOCK_PortD);
-    CLOCK_EnableClock(kCLOCK_PortE);
-    PORT_SetPinConfig(I2C_RELEASE_SCL_PORT, I2C_RELEASE_SCL_PIN, &i2c_pin_config);
-    PORT_SetPinConfig(I2C_RELEASE_SCL_PORT, I2C_RELEASE_SDA_PIN, &i2c_pin_config);
-
-    GPIO_PinInit(I2C_RELEASE_SCL_GPIO, I2C_RELEASE_SCL_PIN, &pin_config);
-    GPIO_PinInit(I2C_RELEASE_SDA_GPIO, I2C_RELEASE_SDA_PIN, &pin_config);
-
-    /* Drive SDA low first to simulate a start */
-    GPIO_PinWrite(I2C_RELEASE_SDA_GPIO, I2C_RELEASE_SDA_PIN, 0U);
-    i2c_release_bus_delay();
-
-    /* Send 9 pulses on SCL and keep SDA high */
-    for (i = 0; i < 9; i++)
-    {
-        GPIO_PinWrite(I2C_RELEASE_SCL_GPIO, I2C_RELEASE_SCL_PIN, 0U);
-        i2c_release_bus_delay();
-
-        GPIO_PinWrite(I2C_RELEASE_SDA_GPIO, I2C_RELEASE_SDA_PIN, 1U);
-        i2c_release_bus_delay();
-
-        GPIO_PinWrite(I2C_RELEASE_SCL_GPIO, I2C_RELEASE_SCL_PIN, 1U);
-        i2c_release_bus_delay();
-        i2c_release_bus_delay();
-    }
-
-    /* Send stop */
-    GPIO_PinWrite(I2C_RELEASE_SCL_GPIO, I2C_RELEASE_SCL_PIN, 0U);
-    i2c_release_bus_delay();
-
-    GPIO_PinWrite(I2C_RELEASE_SDA_GPIO, I2C_RELEASE_SDA_PIN, 0U);
-    i2c_release_bus_delay();
-
-    GPIO_PinWrite(I2C_RELEASE_SCL_GPIO, I2C_RELEASE_SCL_PIN, 1U);
-    i2c_release_bus_delay();
-
-    GPIO_PinWrite(I2C_RELEASE_SDA_GPIO, I2C_RELEASE_SDA_PIN, 1U);
-    i2c_release_bus_delay();
-}
-static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData)
+void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
+void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData)
 {
     if(kStatus_SAI_RxError == status)
     {
@@ -186,6 +133,7 @@ static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status,
 //        printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
     }
 }
+#endif
 
 /*!
  * @brief Main function
@@ -205,12 +153,14 @@ int main(void)
     BOARD_InitDebugConsole();
 
 
-    BOARD_I2C_ReleaseBus();
+    audio_player_PreConfig();
     BOARD_I2C_ConfigurePins();
 
     BOARD_Codec_I2C_Init();
 
     PRINTF("SAI example started!\n\r");
+
+#if DEBUG_SAI_EDMA_TRANSFER_1
 
     /* Create EDMA handle */
     /*
@@ -321,11 +271,30 @@ int main(void)
     /* Once transfer finish, disable SAI instance. */
     SAI_TransferAbortSendEDMA(DEMO_SAI, &txHandle);
     SAI_Deinit(DEMO_SAI);
-    PRINTF("\n\r SAI EDMA example finished!\n\r ");
-    while (1)
-    {
-    }
-}
+
+
+
+#elif DEBUG_AUDIO_PLAYER_1
+
+
+	audioData_t audioData;
+	audioData.audioTag = ALERTA_0;
+	audioData.p2audioData = GrabacionEmergencia_array;
+	audioData.audioDataLen = BUFF_LEN;
+	audioData.audioFormat = AUDIO_MP3;
+
+	init_audio_player();
+
+	audioResult_t result = save_record(&audioData);
+	if (result == AUDIO_SUCCES){
+		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+	}
+	else{
+		PRINTF("ERROR SAVING RECORD\n");
+	}
+
+
+
 
 #if defined(SAI_ErrorIRQHandler)
 void SAI_ErrorIRQHandler(void)
@@ -342,3 +311,13 @@ void SAI_ErrorIRQHandler(void)
 #endif
 }
 #endif
+
+
+
+
+
+#endif /*DEBUG_GENERAL*/
+	while (1)
+    {
+    }
+}
