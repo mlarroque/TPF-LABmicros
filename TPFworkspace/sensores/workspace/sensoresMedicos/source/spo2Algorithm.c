@@ -83,7 +83,8 @@ static const uint8_t uch_spo2_table[184]={ 95, 95, 95, 96, 96, 96, 97, 97, 97, 9
  * 						FUNCIONES							*
  ************************************************************/
 void maxim_oxygen_saturation(uint32_t *pun_ir_buffer, uint16_t n_ir_buffer_length, uint32_t *pun_red_buffer,
-							int32_t *pn_spo2, int8_t *pch_spo2_valid, uint16_t start,int32_t* an_x, int32_t* an_y )
+							int32_t *pn_spo2, int8_t *pch_spo2_valid, uint16_t start,int32_t* an_x, int32_t* an_y,
+							int32_t *pn_heart_rate, int8_t *pch_hr_valid  )
 /**
 * \brief        Calculate the heart rate and SpO2 level
 * \par          Details
@@ -152,6 +153,17 @@ void maxim_oxygen_saturation(uint32_t *pun_ir_buffer, uint16_t n_ir_buffer_lengt
   for ( k=0 ; k<15;k++) an_ir_valley_locs[k]=0;
   // since we flipped signal, we use peak detector as valley detector
   maxim_find_peaks( an_ir_valley_locs, &n_npks, ir_aux_buff, n_ir_buffer_length, n_th1, 4, 15 );//peak_height, peak_distance, max_num_peaks
+  n_peak_interval_sum =0;
+  if (n_npks>=2){
+	  for (k=1; k<n_npks; k++) n_peak_interval_sum += (an_ir_valley_locs[k] -an_ir_valley_locs[k -1] ) ;
+	  n_peak_interval_sum =n_peak_interval_sum/(n_npks-1);
+	  *pn_heart_rate =(int32_t)( (FreqS*60)/ n_peak_interval_sum );
+	  *pch_hr_valid  = 1;
+	}
+  else {
+	  *pn_heart_rate = -999; // unable to calculate because # of peaks are too small
+	  *pch_hr_valid  = 0;
+   }
 
   //  load raw value again for SPO2 calculation : RED(=y) and IR(=X)
   aux_index = 0;

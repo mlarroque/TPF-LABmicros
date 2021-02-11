@@ -47,6 +47,9 @@ uint16_t GetUnreadNum(void);
 //Devuelve el valor de SpO2 como numero en el rango 0-100.
 int32_t GetSpO2(void);
 
+//Devuelve el valor del ritmo cardiaco.
+int32_t GetHeartRate(void);
+
 //Almacena nuevas muestras de ambos leds. Devuelve cuantas muestras agrego
 uint8_t AddInputSamples(void);
 

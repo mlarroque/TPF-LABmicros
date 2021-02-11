@@ -27,6 +27,7 @@
  ********************************************************/
 static uint16_t fs;
 static int32_t Sp02 = 0;
+static int32_t HeartRate = 0;
 static ppg_sample_t RedInput[MAX_BUFF_SIZE];	//Buffer circular que guarda inputs del led rojo.
 static ppg_sample_t IrInput[MAX_BUFF_SIZE];	//Buffer circular que guarda inputs del led ir.
 
@@ -54,11 +55,16 @@ void InitializeOximetry(oxi_init_t* init_data){
 
 void CalculateSpO2(void){
 	int32_t result = 0;
+	int32_t hr_aux = 0;
 	int8_t valid = 0;
+	int8_t hr_valid = 0;
 	maxim_oxygen_saturation(IrInput,  MAX_BUFF_SIZE,  RedInput,  &result, &valid,
-							start, IrPleth, RedPleth);
+							start, IrPleth, RedPleth, &hr_aux, &hr_valid);
 	if(valid){
 		Sp02 = result;
+	}
+	if(hr_valid){
+		HeartRate = hr_aux;
 	}
 	unread_samples +=raw_samples_rx;
 	raw_samples_rx = 0;
@@ -78,6 +84,10 @@ pleth_sample_t GetPlethSample(void){
 
 int32_t GetSpO2(void){
 	return Sp02;
+}
+
+int32_t GetHeartRate(void){
+	return HeartRate;
 }
 
 uint16_t GetUnreadNum(void){
