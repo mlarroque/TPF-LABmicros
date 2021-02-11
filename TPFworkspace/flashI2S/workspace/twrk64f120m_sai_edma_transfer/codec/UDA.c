@@ -32,7 +32,6 @@ status_t UDA_init(codec_handle_t *handle, void *config){
 //WSPLL settings
 
     status = UDA_WriteReg(handle, UDA_REG(0x00), 0x0F31);
-    status = UDA_ReadReg(handle, UDA_REG(0x00), &readValCheck);
 
 //01H I2S-bus I/O settings
     status = UDA_WriteReg(handle, UDA_REG(0x01), 0x0000);
@@ -45,16 +44,17 @@ status_t UDA_init(codec_handle_t *handle, void *config){
 
 //04H headphone amplifier settings
     status = UDA_WriteReg(handle, UDA_REG(0x04), 0x0202);
-
 //resets and unmutes
     status = UDA_WriteReg(handle, UDA_REG(0x10), 0x0000);
     status = UDA_WriteReg(handle, UDA_REG(0x11), 0x0000);
     status = UDA_WriteReg(handle, UDA_REG(0x12), 0x0000);
     status = UDA_WriteReg(handle, UDA_REG(0x13), 0x0000);
+    status = UDA_ReadReg(handle, UDA_REG(0x13), &readValCheck);
+
     //status = UDA_WriteReg(handle, UDA_REG(0x14), 0x0000);
     //status = UDA_WriteReg(handle, UDA_REG(0x21), 0x0000);
+    //status = UDA_ReadReg(handle, UDA_REG(0x04), &readValCheck);
 
-    status = UDA_ReadReg(handle, UDA_REG(0x13), &readValCheck);
 	return status;
 }
 

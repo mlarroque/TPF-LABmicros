@@ -54,6 +54,8 @@ processor_version: 2.0.0
 #define PIN4_IDX                         4u   /*!< Pin number for pin 4 in a port */
 #define PIN6_IDX                         6u   /*!< Pin number for pin 6 in a port */
 #define PIN8_IDX                         8u   /*!< Pin number for pin 8 in a port */
+#define PIN10_IDX                         8u   /*!< Pin number for pin 10 in a port */
+#define PIN11_IDX                         8u   /*!< Pin number for pin 11 in a port */
 #define PIN18_IDX                       18u   /*!< Pin number for pin 18 in a port */
 #define PIN19_IDX                       19u   /*!< Pin number for pin 19 in a port */
 #define SOPT5_UART1TXSRC_UART_TX      0x00u   /*!< UART 1 transmit data source select: UART1_TX pin */
@@ -124,6 +126,7 @@ BOARD_I2C_ConfigurePins:
 void BOARD_I2C_ConfigurePins(void) {
   CLOCK_EnableClock(kCLOCK_PortD);                           /* Port D Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortE);                           /* Port D Clock Gate Control: Clock enabled */
+  CLOCK_EnableClock(kCLOCK_PortC);                           /* Port D Clock Gate Control: Clock enabled */
 
   PORT_EnablePinsDigitalFilter(                              /* Configure digital filter */
 //    PORTD,                                                   /* Digital filter is configured on port D */
@@ -132,6 +135,7 @@ void BOARD_I2C_ConfigurePins(void) {
     | PORT_DFER_DFE_9_MASK,                                  /* Digital filter is configured for PORTD1 */
     false                                                    /* Disable digital filter */
   );
+
   const port_pin_config_t portd8_pinC9_config = {
     kPORT_PullUp,                                            /* Internal pull-up resistor is enabled */
     kPORT_FastSlewRate,                                      /* Fast slew rate is configured */
@@ -156,6 +160,7 @@ void BOARD_I2C_ConfigurePins(void) {
   };
 //  PORT_SetPinConfig(PORTD, PIN9_IDX, &portd9_pinB9_config);  /* PORTD9 (pin B9) is configured as I2C0_SDA */
   PORT_SetPinConfig(PORTE, PIN25_IDX, &portd9_pinB9_config);  /* PORTD9 (pin B9) is configured as I2C0_SDA */
+
 }
 
 /*******************************************************************************

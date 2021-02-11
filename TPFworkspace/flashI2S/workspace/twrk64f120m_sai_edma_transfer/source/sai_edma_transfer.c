@@ -33,7 +33,7 @@
  */
 
 #include "board.h"
-//#include "music.h"
+#include "music.h"
 #include "GrabacionEmergencia_wavarray.h"
 #if defined(FSL_FEATURE_SOC_DMAMUX_COUNT) && FSL_FEATURE_SOC_DMAMUX_COUNT
 #include "fsl_dmamux.h"
@@ -82,6 +82,8 @@
 #define I2C_RELEASE_SDA_PIN 25U
 #define I2C_RELEASE_SCL_GPIO GPIOE
 #define I2C_RELEASE_SCL_PIN 24U
+
+
 
 #define I2C_RELEASE_BUS_COUNT 100U
 #define OVER_SAMPLE_RATE (384U)
@@ -175,15 +177,16 @@ static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status,
     }
     else
     {
+
         finishIndex++;
         emptyBlock++;
         /* Judge whether the music array is completely transfered. */
-        if(BUFF_LEN_WAV/BUFFER_SIZE == finishIndex)
+        if(MUSIC_LEN/BUFFER_SIZE == finishIndex)
         {
             isFinished = true;
         }
 
-//        printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
+        printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
     }
 }
 
@@ -202,13 +205,15 @@ int main(void)
 
     BOARD_InitPins();
     BOARD_BootClockRUN();
+    BOARD_I2C_ReleaseBus();
     BOARD_InitDebugConsole();
 
 
-    BOARD_I2C_ReleaseBus();
+
     BOARD_I2C_ConfigurePins();
 
     BOARD_Codec_I2C_Init();
+    BOARD_InitDebugConsole();
 
     PRINTF("SAI example started!\n\r");
 
@@ -298,10 +303,10 @@ int main(void)
     /* Waiting until finished. */
     while(!isFinished)
     {
-        if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
+        if((emptyBlock > 0U) && (cpy_index < MUSIC_LEN/BUFFER_SIZE))
         {
              /* Fill in the buffers. */
-             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
+             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&music[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
              emptyBlock--;
              cpy_index++;
         }
