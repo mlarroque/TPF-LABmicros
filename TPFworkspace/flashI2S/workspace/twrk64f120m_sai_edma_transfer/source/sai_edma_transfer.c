@@ -181,12 +181,12 @@ static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status,
         finishIndex++;
         emptyBlock++;
         /* Judge whether the music array is completely transfered. */
-        if(MUSIC_LEN/BUFFER_SIZE == finishIndex)
+        if(BUFF_LEN_WAV/BUFFER_SIZE == finishIndex)
         {
             isFinished = true;
         }
 
-        printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
+        //printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
     }
 }
 
@@ -303,10 +303,10 @@ int main(void)
     /* Waiting until finished. */
     while(!isFinished)
     {
-        if((emptyBlock > 0U) && (cpy_index < MUSIC_LEN/BUFFER_SIZE))
+        if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
         {
              /* Fill in the buffers. */
-             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&music[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
+             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
              emptyBlock--;
              cpy_index++;
         }
