@@ -32,6 +32,8 @@
  * @file    sensoresMedicos.c
  * @brief   Application entry point.
  */
+
+/* Board/Debug */
 #include <stdio.h>
 #include "board.h"
 #include "peripherals.h"
@@ -39,60 +41,60 @@
 #include "clock_config.h"
 #include "MK64F12.h"
 #include "fsl_debug_console.h"
-#include "event_prueba.h"
-#include "ecg.h"
-#include "ox_event.h"
-#include "oximetry.h"
+
+/* FreeRTOS */
 #include "FreeRTOS.h"
 #include "timers.h"
 #include "task.h"
+#include "queue.h"
 #include "projdefs.h"
 
+/* Peripherals */
 #include "thermometer.h"
-#include "temp_event.h"
-
-/* TODO: insert other include files here. */
-
-/* TODO: insert other definitions and declarations here. */
+#include "ecg.h"
+#include "oximetry.h"
 
 /*
  * @brief   Application entry point.
  */
 
-void prvSetupHardware(void);
-void mainTask(void*);
+#define MAX_HB 120
+#define MIN_HB 60
+#define MAX_TEMP 0//??
+#define MIN_TEMP 0//??
+#define MAX_SPO2 0//??
+#define MIN_SPO2 0//??
+#define INIT_ECG_COUNTER 0//??
+#define INIT_OX_COUNTER 0//??
 
-//Parametros de inicializacion
-static oxi_init_t ox_data = {
-		.fs=50
-};
+
+void prvSetupHardware(void);
+
+void procTask(void);
+void tempTask(void);
+void audioTask(void);
+void transmiterTask(void);
+
 
 int main(void) {
 	/* Perform any hardware setup necessary. */
 	prvSetupHardware();
-
-	/* App Tasks */
-	BaseType_t status = xTaskCreate(mainTask,
-			"mainTask",
-			((unsigned short)800),
-			NULL,
-			1,
-			NULL);
-
-	if(status == pdPASS){
-		PRINTF("Task Created\n");
+	/* Thermometer Task */
+	if(xTaskCreate(tempTask, "Temperature Thread", 500, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Receiver creation failed!.\r\n");
 	}
-	else if(status == pdFAIL){
-		PRINTF("Task Creation Failed\n");
+	/* Audio Task */
+	if(xTaskCreate(audioTask, "Audio Thread", 500, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Receiver creation failed!.\r\n");
 	}
-	else{
-		PRINTF("%d\n", status);
+	/* Transmiter Task */
+	if(xTaskCreate(transmiterTask, "Transmission Thread", 500, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Receiver creation failed!.\r\n");
 	}
-
-	/* Start the created tasks running. */
+	/* Start the scheduler so the created tasks start executing. */
 	vTaskStartScheduler();
 
-    return 0;
+	return 0;
 }
 
 void prvSetupHardware(void){
@@ -104,32 +106,69 @@ void prvSetupHardware(void){
 	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
 	#endif
-    PRINTF("Main Starting\n");
-    //InitializeThermometer();
+    PRINTF("Hardware Setup Finished\n");
 }
 
-void mainTask(void* params){
-	uint8_t n_samples = 0;
-	int16_t counter = 4*ox_data.fs;
-	NVIC_SetPriority(I2C0_IRQn, 2);
-	InitializeOximetry(&ox_data);
+void procTask(void){
+	ECG_init_t ECG_init;
+	oxi_init_t oxi_init;
+	InitializeECG(&ECG_init);
+	InitializeOximetry(&oxi_init);
 	while(1){
-		if(IsOxEvent()){
-			PopOxEvent();
-			n_samples = AddInputSamples();
-			counter -= n_samples;
-			if(counter<=0){
-				CalculateSpO2();
-				counter = 4*ox_data.fs;
-				PRINTF("SP02: %d \n", GetSpO2());
-			}
+//			AddInputSamples(oxUd.sample_red, oxUd.sample_ir);
+//			if(oxCounter == 0){
+//				oxCounter = INIT_OX_COUNTER;
+//				CalculateSpO2();
+//				int32_t spo2 = GetSpO2();
+//				if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
+//					// DESPERTAR THREAD DE AUDIO
+//				}
+//			}
+//			else{
+//				ecgCounter = ecgCounter-1;
+//			}
+//			AddEcgSample(ecgUd.sample);
+//			if(ecgCounter == 0){
+//				ecgCounter = INIT_ECG_COUNTER;
+//				CalculateHeartBeat();
+//				uint16_t hb = GetHeartBeat();
+//				if((hb > MAX_HB) || (hb < MIN_HB)){
+//					// DESPERTAR THREAD DE AUDIO
+//				}
+//			}
+//			else{
+//				ecgCounter = ecgCounter-1;
+//			}
+	}
+}
+
+void tempTask(void){
+	InitializeThermometer();
+	uint16_t temp;
+	while(1){
+		/* Semaforo que se prende en el timer */
+		AddTempInputSample();
+		temp = getTemperature();
+		if((temp > MAX_TEMP) || (temp < MIN_TEMP)){
+			// DESPERTAR THREAD DE AUDIO
 		}
-		/*
-	    if(IsTempEvent()){
-	    	PopTempEvent();
-	    	AddTempInputSample();
-	    	newSampleRequest();
-	    }
-	    */
+		newSampleRequest();
+		/* Volver a bloqear thread hasta nuevo semaforo */
+	}
+}
+
+void audioTask(void)
+{
+	// Init Bluethoot
+	while(1){
+		//terminar
+	}
+}
+
+void transmiterTask(void)
+{
+	// Init Bluethoot
+	while(1){
+		//terminar
 	}
 }
