@@ -36,19 +36,20 @@
 #include "music.h"
 #include "GrabacionEmergencia_wavarray.h"
 #if defined(FSL_FEATURE_SOC_DMAMUX_COUNT) && FSL_FEATURE_SOC_DMAMUX_COUNT
-#include "fsl_dmamux.h"
+//#include "fsl_dmamux.h"
 #endif
-#include "fsl_sai_edma.h"
+//#include "fsl_sai_edma.h"
 #include "fsl_debug_console.h"
 
+//#include "UDA.h"
 //#include "fsl_sgtl5000.h"
-#include "UDA.h"
-#include "pin_mux.h"
-#include "clock_config.h"
-#include "fsl_gpio.h"
-#include "fsl_port.h"
+//#include "UDA.h"
+//#include "pin_mux.h"
+//#include "clock_config.h"
+//#include "fsl_gpio.h"
+//#include "fsl_port.h"
 
-#include "sai_edma_hal.h"
+#include "audioPlayer.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -69,8 +70,7 @@ static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status,
  * Variables
  ******************************************************************************/
 
-codec_handle_t codecHandle = {0};
-extern codec_config_t boardCodecConfig;
+
 AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t buffer[BUFFER_NUM*BUFFER_SIZE], 4);
 volatile bool isFinished = false;
 volatile uint32_t finishIndex = 0U;
@@ -105,29 +105,15 @@ static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status,
 /*!
  * @brief Main function
  */
+
+void wav_test(void);
+
 int main(void)
 {
-    sai_transfer_t xfer;
-
-    uint32_t cpy_index = 0U, tx_index=0U;
-    uint32_t delayCycle = 500000U;
-
-
     BOARD_audio_init();
-    sai_edma_init(callback, NULL);
+    init_audio_player(callback, NULL);
 
-    /* Use default setting to init codec */
-    CODEC_Init(&codecHandle, &boardCodecConfig);  //fsl_codec_common
-    CODEC_SetFormat(&codecHandle, getMasterClockHz(), getSampleRateHz(), getBitWidth());
-#define CODEC_CYCLE 10000000U
-#if defined(CODEC_CYCLE)
-    delayCycle = CODEC_CYCLE;
-#endif
-    while (delayCycle)
-    {
-        __ASM("nop");
-        delayCycle--;
-    }
+
     PRINTF("SAI example started!\n\r");
 
 /* If need to handle audio error, enable sai interrupt */
@@ -136,36 +122,10 @@ int main(void)
     SAI_TxEnableInterrupts(DEMO_SAI, kSAI_FIFOErrorInterruptEnable);
 #endif
 
-
-
-
-
-    /* Waiting until finished. */
-    while(!isFinished)
-    {
-        if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
-        {
-             /* Fill in the buffers. */
-             memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
-             emptyBlock--;
-             cpy_index++;
-        }
-        if(emptyBlock < BUFFER_NUM)
-        {
-            /*  xfer structure */
-            xfer.data = (uint8_t *)&buffer[BUFFER_SIZE*(tx_index%BUFFER_NUM)];
-            xfer.dataSize = BUFFER_SIZE;  
-            /* Wait for available queue. */
-            if(kStatus_Success == sendSAIdata(&xfer))
-            {  
-                tx_index++;
-            }
-        }
-    }
+    wav_test();
     
     /* Once transfer finish, disable SAI instance. */
-    stopSAIsend();
-    sai_deinit();
+    free_audio_player();
     PRINTF("\n\r SAI EDMA example finished!\n\r ");
     while (1)
     {
@@ -187,3 +147,31 @@ void SAI_ErrorIRQHandler(void)
 #endif
 }
 #endif
+
+void wav_test(void){
+	sai_transfer_t xfer;
+
+	uint32_t cpy_index = 0U, tx_index=0U;
+	/* Waiting until finished. */
+	while(!isFinished)
+	{
+	   if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
+	   {
+	      /* Fill in the buffers. */
+	      memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
+	      emptyBlock--;
+	      cpy_index++;
+	   }
+	   if(emptyBlock < BUFFER_NUM)
+	   {
+	     /*  xfer structure */
+	     xfer.data = (uint8_t *)&buffer[BUFFER_SIZE*(tx_index%BUFFER_NUM)];
+	     xfer.dataSize = BUFFER_SIZE;
+	     /* Wait for available queue. */
+	     if(kStatus_Success == sendSAIdata(&xfer))
+	     {
+	    	 tx_index++;
+	     }
+	   }
+	}
+}
