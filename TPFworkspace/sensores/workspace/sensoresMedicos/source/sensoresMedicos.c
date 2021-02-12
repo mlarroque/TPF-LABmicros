@@ -58,37 +58,41 @@
  * @brief   Application entry point.
  */
 
-#define MAX_HB 120
+#define MAX_HB 180
 #define MIN_HB 60
 #define MAX_TEMP 0//??
 #define MIN_TEMP 0//??
 #define MAX_SPO2 0//??
 #define MIN_SPO2 0//??
-#define INIT_ECG_COUNTER 0//??
-#define INIT_OX_COUNTER 0//??
+#define OX_COUNTER_INIT (50*4)	//Cada cuantas muestras se actualiza el SP02
+#define TEMP_UPDATE_TIME 1000 //Cada cuanto se lee la temperatura en ms.
 
 
 void prvSetupHardware(void);
 
-void procTask(void);
-void tempTask(void);
-void audioTask(void);
-void transmiterTask(void);
+void procTask(void*);
+void tempTask(void*);
+void audioTask(void*);
+void transmiterTask(void*);
 
 
 int main(void) {
 	/* Perform any hardware setup necessary. */
 	prvSetupHardware();
 	/* Thermometer Task */
-	if(xTaskCreate(tempTask, "Temperature Thread", 500, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(tempTask, "Temperature Thread", 200, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Receiver creation failed!.\r\n");
+	}
+	/* ECG and Oximetry thread*/
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1500, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Receiver creation failed!.\r\n");
 	}
 	/* Audio Task */
-	if(xTaskCreate(audioTask, "Audio Thread", 500, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(audioTask, "Audio Thread", 100, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Receiver creation failed!.\r\n");
 	}
 	/* Transmiter Task */
-	if(xTaskCreate(transmiterTask, "Transmission Thread", 500, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(transmiterTask, "Transmission Thread", 100, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Receiver creation failed!.\r\n");
 	}
 	/* Start the scheduler so the created tasks start executing. */
@@ -109,55 +113,43 @@ void prvSetupHardware(void){
     PRINTF("Hardware Setup Finished\n");
 }
 
-void procTask(void){
-	ECG_init_t ECG_init;
-	oxi_init_t oxi_init;
+void procTask(void*){
+	ECG_init_t ECG_init = {.fs=200};
+	oxi_init_t oxi_init = {.fs=50};
 	InitializeECG(&ECG_init);
 	InitializeOximetry(&oxi_init);
+
+	int16_t ox_counter = OX_COUNTER_INIT;
+	uint8_t n_samples = 0;
 	while(1){
-//			AddInputSamples(oxUd.sample_red, oxUd.sample_ir);
-//			if(oxCounter == 0){
-//				oxCounter = INIT_OX_COUNTER;
-//				CalculateSpO2();
-//				int32_t spo2 = GetSpO2();
-//				if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
-//					// DESPERTAR THREAD DE AUDIO
-//				}
-//			}
-//			else{
-//				ecgCounter = ecgCounter-1;
-//			}
-//			AddEcgSample(ecgUd.sample);
-//			if(ecgCounter == 0){
-//				ecgCounter = INIT_ECG_COUNTER;
-//				CalculateHeartBeat();
-//				uint16_t hb = GetHeartBeat();
-//				if((hb > MAX_HB) || (hb < MIN_HB)){
-//					// DESPERTAR THREAD DE AUDIO
-//				}
-//			}
-//			else{
-//				ecgCounter = ecgCounter-1;
-//			}
+		n_samples = AddInputSamples();
+		ox_counter -= n_samples;
+		if( ox_counter <= 0 ){
+			ox_counter = OX_COUNTER_INIT;
+			CalculateSpO2();
+			int32_t spo2 = GetSpO2();
+			if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
+				// DESPERTAR THREAD DE AUDIO
+			}
+		}
 	}
 }
 
-void tempTask(void){
+void tempTask(void*){
 	InitializeThermometer();
 	uint16_t temp;
 	while(1){
-		/* Semaforo que se prende en el timer */
+		vTaskDelay( pdMS_TO_TICKS(TEMP_UPDATE_TIME) );/* Bloquea la thread por TEMP_UPDATE_TIME ms*/
 		AddTempInputSample();
 		temp = getTemperature();
 		if((temp > MAX_TEMP) || (temp < MIN_TEMP)){
 			// DESPERTAR THREAD DE AUDIO
 		}
 		newSampleRequest();
-		/* Volver a bloqear thread hasta nuevo semaforo */
 	}
 }
 
-void audioTask(void)
+void audioTask(void*)
 {
 	// Init Bluethoot
 	while(1){
@@ -165,7 +157,7 @@ void audioTask(void)
 	}
 }
 
-void transmiterTask(void)
+void transmiterTask(void*)
 {
 	// Init Bluethoot
 	while(1){

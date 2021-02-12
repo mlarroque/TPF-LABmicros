@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "fsl_debug_console.h"
+//FreeRTOS headers
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /********************************************************
  * 						DEFINCIONES						*
@@ -39,6 +42,8 @@ static uint16_t raw_samples_rx = 0; //Cantidad de muestras sin procesar almacena
 static int32_t RedPleth[MAX_BUFF_SIZE];
 static int32_t IrPleth[MAX_BUFF_SIZE];
 
+static SemaphoreHandle_t ox_mutex;
+
 /********************************************************
  * 					FUNCIONES LOCALES					*
  ********************************************************/
@@ -48,6 +53,7 @@ static int32_t IrPleth[MAX_BUFF_SIZE];
  ********************************************************/
 void InitializeOximetry(oxi_init_t* init_data){
 	fs = init_data->fs;
+	ox_mutex = xSemaphoreCreateMutex();
 	unsigned long int timeout = (SAMPLE_BATCH_SIZE*1000)/fs;
 	max_init_t hard_init = {PushOxEvent,timeout};
 	InitializeOxHardware(&hard_init);
@@ -73,25 +79,45 @@ void CalculateSpO2(void){
 pleth_sample_t GetPlethSample(void){
 	pleth_sample_t sample = {-1,-1};
 	if(unread_samples){
+		xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
 		sample.ir_sample =	 IrPleth[curr];
 		sample.red_sample =  RedPleth[curr];
 		curr = (curr+1)%MAX_BUFF_SIZE;
 		unread_samples--;
+		xSemaphoreGive( ox_mutex );				//Desbloquea recuros compartido
 	}
 	return sample;
 }
 
 
 int32_t GetSpO2(void){
-	return Sp02;
+	int32_t ret = 0;
+
+	xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
+	ret = Sp02;
+	xSemaphoreGive( ox_mutex );				//Desbloquea recuros compartido
+
+	return ret;
 }
 
 int32_t GetHeartRate(void){
-	return HeartRate;
+	int32_t ret = 0;
+
+	xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
+	ret = HeartRate;
+	xSemaphoreGive( ox_mutex );				//Desbloquea recuros compartido
+
+	return ret;
 }
 
 uint16_t GetUnreadNum(void){
-	return unread_samples;
+	uint16_t ret = 0;
+
+	xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
+	ret = unread_samples;
+	xSemaphoreGive( ox_mutex );				//Desbloquea recuros compartido
+
+	return ret;
 }
 
 uint8_t AddInputSamples(void){

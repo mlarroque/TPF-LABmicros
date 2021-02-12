@@ -13,12 +13,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "event_prueba.h"
+//FreeRTOS includes
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "semphr.h"
+
 /****************************************************
  * 					DEFINICIONES					*
  ****************************************************/
-#define ECG_SIZE 600
+#define ECG_SIZE 400
 #define WINDOW_DURATION 0.06 //Ventana de 60 milisegundos alrededor de un lado del pico
 #define PEAK_LIST_SIZE 100
 
@@ -33,7 +36,6 @@ typedef struct{
 static uint16_t fs;
 static uint16_t heartbeat = 0;
 static ecg_sample_t ecg_signal[ECG_SIZE]; //buffer circular para el ECG
-static ecg_sample_t filtered_signal[ECG_SIZE]; //buffer circular para el ECG filtrado
 
 static uint16_t start = 0;
 static uint16_t curr = ECG_SIZE-1; //indice a la muestra no leida mas vieja.
@@ -45,19 +47,12 @@ static uint8_t first_node = 0;
 static uint8_t list_size = 0;
 
 
-
 /****************************************************
  * 					FUNCIONES LOCALES				*
  ****************************************************/
 void ECG_sample_callback(TimerHandle_t handler){
-	uint16_t sample = GetSensorSample();
-	PushEvent(sample);//Aca tendria que pushear el evento
-}
-
-static void BanpassEcgSignal(void){
-	for(int i=0; i<ECG_SIZE; i++ ){
-
-	}
+	ecg_sample_t sample = GetSensorSample();
+	AddEcgSample(sample);
 }
 
 bool AddPeak2List(int curr_area){
@@ -120,26 +115,46 @@ void InitializeECG(ECG_init_t* init_data){
 int32_t GetEcgSample(void){
 	int32_t sample = -1;
 	if(unread_samples){
+
+		taskENTER_CRITICAL();
 		sample = (int32_t) ecg_signal[curr];
-		curr = (curr+1)%ECG_SIZE;	//Actualizo donde esta la ultima muestra no leida
 		unread_samples--;
+		taskEXIT_CRITICAL();
+
+		curr = (curr+1)%ECG_SIZE;	//Actualizo donde esta la ultima muestra no leida
 	}
 	return sample;
 }
 
 uint16_t GetEcgUnreadNum(void){
-	return unread_samples;
+	uint16_t ret = 0;
+
+	taskENTER_CRITICAL();
+	ret = unread_samples;
+	taskEXIT_CRITICAL();
+
+	return ret;
 }
 
 uint16_t GetHeartBeat(void){
-	return heartbeat;
+	uint16_t ret = 0;
+
+	taskENTER_CRITICAL();
+	ret = heartbeat;
+	taskEXIT_CRITICAL();
+
+	return ret;
 }
 
 void AddEcgSample(ecg_sample_t sample){
+
 	start = (start +1)%ECG_SIZE;
-	unread_samples++;
 	uint16_t last_index = (start + ECG_SIZE - 1)%ECG_SIZE;
+
+	taskENTER_CRITICAL();
+	unread_samples++;
 	ecg_signal[last_index] = sample;
+	taskEXIT_CRITICAL();
 }
 
 void CalculateHeartBeat(void){
@@ -150,7 +165,6 @@ void CalculateHeartBeat(void){
 	int delta = 0;
 	float duration = ECG_SIZE/fs;
 	uint16_t current_node = 0;
-	uint16_t r_peaks[PEAK_LIST_SIZE];
 	uint16_t r_index = 0;
 	uint16_t window_size = fs * WINDOW_DURATION; //Numero de vecinos a un lado del maximo.
 	bool successful = true;
@@ -183,7 +197,7 @@ void CalculateHeartBeat(void){
 	current_node = first_node;
 	for(int i=0; (i<list_size)&&(!finished); i++){
 		if( peaks_list[current_node].area > threshold){
-			r_peaks[r_index++] = current_node;
+			r_index++;
 			current_node = peaks_list[current_node].next_node;
 		}
 		else{

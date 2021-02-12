@@ -11,22 +11,16 @@
 /************************************************************
  * 					HEADERS UTILIZADOS						*
  ************************************************************/
-#include "FreeRTOS.h"
-#include "timers.h"
 
 /************************************************************
  *						DEFINICIONES						*
  ************************************************************/
-typedef struct{
-	TimerCallbackFunction_t callback;
-	TickType_t timeout;
-}temp_init_t;
 
 /************************************************************
  * 						FUNCIONES							*
  ************************************************************/
 
-void InitializeTempHardware(temp_init_t*);
+void InitializeTempHardware(void);
 
 // Returns oldest unread sample
 uint16_t GetTempSample(void);

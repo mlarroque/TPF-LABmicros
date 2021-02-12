@@ -12,9 +12,11 @@
 #include "thermometer.h"
 #include "max30205.h"
 #include "fsl_debug_console.h"
-
 #include <stdint.h>
 #include <stdbool.h>
+//FreeRTOS includes
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /********************************************************
  * 						DEFINCIONES						*
@@ -31,6 +33,7 @@ static uint16_t start = 0; // Indice donde se encuentra la muestra mas vieja.
 static uint16_t curr = 0; // Indice con la muestra mas vieja sin leer
 static uint16_t unread_samples = 0;
 
+static SemaphoreHandle_t temp_mutex;
 /********************************************************
  * 					FUNCIONES LOCALES					*
  ********************************************************/
@@ -39,29 +42,33 @@ static uint16_t unread_samples = 0;
  * 					FUNCIONES DEL HEADER				*
  ********************************************************/
 
-void tempCallback(TimerHandle_t handler){
-	PRINTF("ENTER \n");
-	/* Prender semaforo para el thread*/
-}
-
 void InitializeThermometer(void){
-	TickType_t timeout = 200; // ms
-	temp_init_t hard_init = {tempCallback, timeout};
-	InitializeTempHardware(&hard_init);
+	temp_mutex = xSemaphoreCreateMutex();
+	InitializeTempHardware();
 }
 
 uint16_t GetThermoSample(void){
 	uint16_t sample = 0;
+
 	if(unread_samples){
+		xSemaphoreTake( temp_mutex, portMAX_DELAY );
 		sample = tempBuffer[curr];
 		curr = (curr+1)%BUFFER_SIZE;
 		unread_samples--;
+		xSemaphoreGive( temp_mutex );
 	}
+
 	return sample;
 }
 
 uint16_t GetTempUnreadNum(void){
-	return unread_samples;
+	uint16_t ret = 0;
+
+	xSemaphoreTake( temp_mutex, portMAX_DELAY ); //Bloquea recurso compartido
+	ret = unread_samples;
+	xSemaphoreGive( temp_mutex );				//Desbloquea recuros compartido
+
+	return ret;
 }
 
 void AddTempInputSample(void){
@@ -70,8 +77,13 @@ void AddTempInputSample(void){
 	if(sample != 0){
 		// Valid Sample
 		++start;
+
+		xSemaphoreTake( temp_mutex, portMAX_DELAY ); //Bloquea recurso compartido
 		tempBuffer[(start+BUFFER_SIZE-1)%BUFFER_SIZE] = sample;
-		PRINTF("SAMPLE VALUE: %d \n", sample);
+		unread_samples++;
+		xSemaphoreGive( temp_mutex );				//Desbloquea recuros compartido
+
+		//PRINTF("SAMPLE VALUE: %d \n", sample);
 	}
 	else{
 		// Sample Not Ready
@@ -83,5 +95,11 @@ void newSampleRequest(void){
 }
 
 uint16_t getTemperature(void){
-	return tempBuffer[curr];
+	uint16_t ret_value = 0;
+
+	xSemaphoreTake( temp_mutex, portMAX_DELAY ); //Bloquea recurso compartido
+	ret_value = tempBuffer[curr];
+	xSemaphoreGive( temp_mutex );				//Desbloquea recuros compartido
+
+	return ret_value;
 }
