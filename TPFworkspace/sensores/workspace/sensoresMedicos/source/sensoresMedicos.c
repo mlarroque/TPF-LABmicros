@@ -48,6 +48,7 @@
 #include "task.h"
 #include "queue.h"
 #include "projdefs.h"
+#include "semphr.h"
 
 /* Peripherals */
 #include "thermometer.h"
@@ -60,10 +61,10 @@
 
 #define MAX_HB 180
 #define MIN_HB 60
-#define MAX_TEMP 0//??
+#define MAX_TEMP 50//??
 #define MIN_TEMP 0//??
-#define MAX_SPO2 0//??
-#define MIN_SPO2 0//??
+#define MAX_SPO2 110//??
+#define MIN_SPO2 10//??
 #define OX_COUNTER_INIT (50*4)	//Cada cuantas muestras se actualiza el SP02
 #define TEMP_UPDATE_TIME 1000 //Cada cuanto se lee la temperatura en ms.
 
@@ -75,6 +76,7 @@ void tempTask(void*);
 void audioTask(void*);
 void transmiterTask(void*);
 
+static SemaphoreHandle_t Audio_sem;
 
 int main(void) {
 	/* Perform any hardware setup necessary. */
@@ -95,6 +97,7 @@ int main(void) {
 	if(xTaskCreate(transmiterTask, "Transmission Thread", 100, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Receiver creation failed!.\r\n");
 	}
+
 	/* Start the scheduler so the created tasks start executing. */
 	vTaskStartScheduler();
 
@@ -113,7 +116,7 @@ void prvSetupHardware(void){
     PRINTF("Hardware Setup Finished\n");
 }
 
-void procTask(void*){
+void procTask(void* params){
 	ECG_init_t ECG_init = {.fs=200};
 	oxi_init_t oxi_init = {.fs=50};
 	InitializeECG(&ECG_init);
@@ -122,6 +125,7 @@ void procTask(void*){
 	int16_t ox_counter = OX_COUNTER_INIT;
 	uint8_t n_samples = 0;
 	while(1){
+		WaitForSamples();
 		n_samples = AddInputSamples();
 		ox_counter -= n_samples;
 		if( ox_counter <= 0 ){
@@ -129,13 +133,13 @@ void procTask(void*){
 			CalculateSpO2();
 			int32_t spo2 = GetSpO2();
 			if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
-				// DESPERTAR THREAD DE AUDIO
+				xSemaphoreGive( Audio_sem );
 			}
 		}
 	}
 }
 
-void tempTask(void*){
+void tempTask(void* params){
 	InitializeThermometer();
 	uint16_t temp;
 	while(1){
@@ -143,24 +147,31 @@ void tempTask(void*){
 		AddTempInputSample();
 		temp = getTemperature();
 		if((temp > MAX_TEMP) || (temp < MIN_TEMP)){
-			// DESPERTAR THREAD DE AUDIO
+			xSemaphoreGive( Audio_sem );
 		}
 		newSampleRequest();
 	}
 }
 
-void audioTask(void*)
+void audioTask(void* params)
 {
-	// Init Bluethoot
+	Audio_sem = xSemaphoreCreateBinary();
 	while(1){
-		//terminar
+		xSemaphoreTake( Audio_sem, portMAX_DELAY );
+
+		//TERMINAR!!!!!!!
+
+		vTaskDelay( pdMS_TO_TICKS(5000) );// Delay entre reproducciones
 	}
 }
 
-void transmiterTask(void*)
+void transmiterTask(void* params)
 {
-	// Init Bluethoot
+	// Init Bluetooth
 	while(1){
-		//terminar
+		vTaskDelay( pdMS_TO_TICKS(1000) );
+		PRINTF("HR: %d \n",GetHeartRate());
+		PRINTF("SP02: %d \n",GetSpO2());
+		PRINTF("T: %d \n",GetThermoSample());
 	}
 }

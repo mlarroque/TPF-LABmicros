@@ -12,7 +12,6 @@
 #include "heartware.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "event_prueba.h"
 //FreeRTOS includes
 #include "FreeRTOS.h"
 #include "timers.h"

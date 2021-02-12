@@ -11,7 +11,6 @@
 #include "oximetry.h"
 #include "spo2Algorithm.h"
 #include "max30102.h"
-#include "ox_event.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "fsl_debug_console.h"
@@ -42,11 +41,17 @@ static uint16_t raw_samples_rx = 0; //Cantidad de muestras sin procesar almacena
 static int32_t RedPleth[MAX_BUFF_SIZE];
 static int32_t IrPleth[MAX_BUFF_SIZE];
 
-static SemaphoreHandle_t ox_mutex;
+static SemaphoreHandle_t ox_mutex; //Protege recursos compartidos
+static SemaphoreHandle_t ox_sem; //Semaforo binario que indica si llegaron muestras
 
 /********************************************************
  * 					FUNCIONES LOCALES					*
  ********************************************************/
+void OximeterCallback(TimerHandle_t handle){
+	BaseType_t woke_flag = pdFALSE;
+	xSemaphoreGiveFromISR(ox_sem, &woke_flag);
+	portYIELD_FROM_ISR(woke_flag);
+}
 
 /********************************************************
  * 					FUNCIONES DEL HEADER				*
@@ -55,7 +60,7 @@ void InitializeOximetry(oxi_init_t* init_data){
 	fs = init_data->fs;
 	ox_mutex = xSemaphoreCreateMutex();
 	unsigned long int timeout = (SAMPLE_BATCH_SIZE*1000)/fs;
-	max_init_t hard_init = {PushOxEvent,timeout};
+	max_init_t hard_init = {OximeterCallback,timeout};
 	InitializeOxHardware(&hard_init);
 }
 
@@ -64,8 +69,11 @@ void CalculateSpO2(void){
 	int32_t hr_aux = 0;
 	int8_t valid = 0;
 	int8_t hr_valid = 0;
+
+	xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
 	maxim_oxygen_saturation(IrInput,  MAX_BUFF_SIZE,  RedInput,  &result, &valid,
 							start, IrPleth, RedPleth, &hr_aux, &hr_valid);
+
 	if(valid){
 		Sp02 = result;
 	}
@@ -74,6 +82,7 @@ void CalculateSpO2(void){
 	}
 	unread_samples +=raw_samples_rx;
 	raw_samples_rx = 0;
+	xSemaphoreGive( ox_mutex );
 }
 
 pleth_sample_t GetPlethSample(void){
@@ -135,5 +144,9 @@ uint8_t AddInputSamples(void){
 	}
 	return n_samples;
 
+}
+
+void WaitForSamples(void){
+	xSemaphoreTake( ox_sem, portMAX_DELAY );
 }
 

@@ -61,9 +61,6 @@ void ConfigureMax30205(void){
  * 					FUNCIONES DEL HEADER
  ********************************************************/
 
-TimerHandle_t temp_handler = NULL;
-BaseType_t temp_timer_started;
-
 void InitializeTempHardware(void){
 	ConfigureMax30205();
 #ifdef MAX_DEBUG

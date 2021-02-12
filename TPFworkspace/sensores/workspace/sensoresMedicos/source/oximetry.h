@@ -53,4 +53,6 @@ int32_t GetHeartRate(void);
 //Almacena nuevas muestras de ambos leds. Devuelve cuantas muestras agrego
 uint8_t AddInputSamples(void);
 
+void WaitForSamples(void);
+
 #endif /* OXIMETRY_H_ */
