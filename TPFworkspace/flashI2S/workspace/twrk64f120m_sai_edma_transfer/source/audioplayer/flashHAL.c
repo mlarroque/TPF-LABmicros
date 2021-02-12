@@ -11,7 +11,7 @@
 
 
 
-char stream[STREAM_LEN];
+//char stream[STREAM_LEN];
 
 uint32_t pflashBlockBase  = 0;
 uint32_t pflashTotalSize  = 0;
@@ -94,8 +94,8 @@ int flashAlloc(int * data, int dataLen, int tagIndex)
 	{
 		prepareStream((char *)data, dataLen);
 		flashStatus = FLASH_Erase(&flashConfig, (uint32_t) dataStreams[tagIndex].startAdress, STREAM_LEN, kFTFx_ApiEraseKey);
-		flashStatus = FLASH_Program( &flashConfig, (uint32_t) dataStreams[tagIndex].startAdress, (uint8_t *) stream, STREAM_LEN);
-
+//		flashStatus = FLASH_Program( &flashConfig, (uint32_t) dataStreams[tagIndex].startAdress, (uint8_t *) stream, STREAM_LEN);
+		flashStatus = FLASH_Program( &flashConfig, (uint32_t) dataStreams[tagIndex].startAdress, (uint8_t *) data, STREAM_LEN);
 		//refresh metaData
 		dataStreams[tagIndex].isDataEmpty = false;
 		dataStreams[tagIndex].dataLen = dataLen;
@@ -122,8 +122,8 @@ char *  readFlash(int * dataLen, int dataTag)
 	if(dataTag < MAX_STREAMS_ALLOWED)
 	{
 		dataLen[0] = STREAM_LEN;
-		memcpy(stream, dataStreams[dataTag].startAdress, STREAM_LEN);
-		return (volatile char *)stream;
+		//memcpy(stream, dataStreams[dataTag].startAdress, STREAM_LEN);
+		return (volatile char *)dataStreams[dataTag].startAdress;
 		//return (volatile char *)(dataStreams[indexFound].startAdress);
 
 		/*flashStatus = FLASH_ReadResource(&flashConfig, (uint32_t) (dataStreams[indexFound].startAdress), (uint8_t *) stream, (uint32_t) STREAM_LEN, kFTFx_ResourceOptionFlashIfr);
@@ -198,13 +198,13 @@ _Bool dataTagExists(char * dataTag, int dataTagLen, int * indexFound)
 
 void prepareStream(char * p2data, int dataLen)
 {
-	memset(stream, 0, STREAM_LEN);
+	//memset(stream, 0, STREAM_LEN);
 	int i = 0;
 	if (dataLen > STREAM_LEN){
 		dataLen = STREAM_LEN;
 	}
 	for (i= 0; i < dataLen; i++){
-		stream[i] = p2data[i];
+		//stream[i] = p2data[i];
 	}
 }
 
