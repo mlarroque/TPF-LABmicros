@@ -15,7 +15,7 @@
 /******************************************************************************************
  *  				TIPOS DE DATOS, CONSTANTES Y VARIABLES GLOBALES
  ******************************************************************************************/
-typedef enum {AUDIO_PLAYER_TIMER, DEBUG_TIMER, NUM_TIMERS}timerUd_t; //Timers utilizados
+typedef enum {DEBUG_TIMER, AUDIO_PLAYER_TIMER, NUM_TIMERS}timerUd_t; //Timers utilizados
 typedef void (*callback_ptr)(void);
 
 

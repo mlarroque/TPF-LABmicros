@@ -20,15 +20,16 @@ extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;*/
 #include "flashHal.h"
 #include "timer.h"
 #include "UDA.h"
+#include "fsl_debug_console.h"
 
 #define MAIN_CALLBACK_SAI 1
 
-#define WORD_LEN 4   //4bytes
+#define WORD_LEN 2   //2bytes
 #define N_CHUNKS 64
 #define CHUNK_WORD_LEN ((STREAM_LEN/WORD_LEN)/N_CHUNKS)
 #define CHUNK_BYTE_LEN (STREAM/N_CHUNKS)
-#define PP_BUFFER_LEN (CHUNK_WORD_LEN * WORD_LEN * 2 * 2)
-
+//#define PP_BUFFER_LEN (CHUNK_WORD_LEN * WORD_LEN * 2)
+#define PP_BUFFER_LEN 1152 * 2
 #define TIME_OUT_AUDIO 3
 
 #define USE_SIZE_HELIX 0
@@ -40,6 +41,8 @@ int ppBufferRead = 0;
 
 int audioStatus;
 
+int measure_decoding = 1;
+int debug_counter = 0;
 
 int bytesLeft;
 
@@ -55,6 +58,7 @@ extern codec_config_t boardCodecConfig;
 
 sai_transfer_t xfer;
 
+void counterCallback(void);
 int decode_chunk_mp3(short * audio_pp_pointer);
 void continue_playing(void);
 void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
@@ -161,7 +165,13 @@ audioStatus_t get_player_status(void){
 
 
 void continue_playing(void){
+	int aux=0;
 	DisableTimer(AUDIO_PLAYER_TIMER);
+	if (measure_decoding){
+		debug_counter = 0;
+		SetTimer(DEBUG_TIMER, 1, counterCallback);
+	}
+
 	if ((audioStatus == AUDIO_PROCESSING) && (p2mp3record != 0) && (decode_chunk_mp3(audio_pp_buffer + ppBufferWrite) == 0)){
 		//trigger next DMA?? no debería hacer falta...
 
@@ -176,6 +186,11 @@ void continue_playing(void){
 	else{
 		audioStatus = AUDIO_IDLE;
 	}
+	if(measure_decoding){
+		DisableTimer(DEBUG_TIMER);
+		aux =debug_counter;
+	}
+
 }
 
 
@@ -215,7 +230,6 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 
 	return ret;
 }
-int debug_counter = 0;
 
 void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	if(audioStatus != AUDIO_IDLE){
@@ -233,4 +247,7 @@ void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, voi
 	}
 }
 
+void counterCallback(void){
+	debug_counter++;
+}
 
