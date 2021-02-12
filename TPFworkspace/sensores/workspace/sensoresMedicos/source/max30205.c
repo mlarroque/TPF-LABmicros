@@ -80,11 +80,11 @@ uint16_t GetTempSample(void){
 		if(successful){
 			uint8_t sample_ready = ~ (config_status | READY_MASK);
 			if(sample_ready){
-				PRINTF("SAMPLE READY \n");
+				//PRINTF("SAMPLE READY \n");
 				successful = ReadByte(MAX30205_ADDR, TEMP, sample_buff, 2);
 			}
 			else{
-				PRINTF("SAMPLE NOT READY \n");
+				//PRINTF("SAMPLE NOT READY \n");
 			}
 		}
 	}

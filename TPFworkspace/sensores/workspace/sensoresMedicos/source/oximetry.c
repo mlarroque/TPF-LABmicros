@@ -59,6 +59,7 @@ void OximeterCallback(TimerHandle_t handle){
 void InitializeOximetry(oxi_init_t* init_data){
 	fs = init_data->fs;
 	ox_mutex = xSemaphoreCreateMutex();
+	ox_sem = xSemaphoreCreateBinary();
 	unsigned long int timeout = (SAMPLE_BATCH_SIZE*1000)/fs;
 	max_init_t hard_init = {OximeterCallback,timeout};
 	InitializeOxHardware(&hard_init);

@@ -59,8 +59,8 @@
  * @brief   Application entry point.
  */
 
-#define MAX_HB 180
-#define MIN_HB 60
+#define MAX_HB 180 //??
+#define MIN_HB 40	//??
 #define MAX_TEMP 50//??
 #define MIN_TEMP 0//??
 #define MAX_SPO2 110//??
@@ -82,20 +82,20 @@ int main(void) {
 	/* Perform any hardware setup necessary. */
 	prvSetupHardware();
 	/* Thermometer Task */
-	if(xTaskCreate(tempTask, "Temperature Thread", 200, NULL, 1, NULL) != pdPASS){
-		PRINTF("Task Receiver creation failed!.\r\n");
+	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Temp creation failed!.\r\n");
 	}
 	/* ECG and Oximetry thread*/
-	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1500, NULL, 1, NULL) != pdPASS){
-		PRINTF("Task Receiver creation failed!.\r\n");
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Proc creation failed!.\r\n");
 	}
 	/* Audio Task */
 	if(xTaskCreate(audioTask, "Audio Thread", 100, NULL, 1, NULL) != pdPASS){
-		PRINTF("Task Receiver creation failed!.\r\n");
+		PRINTF("Task Audio creation failed!.\r\n");
 	}
 	/* Transmiter Task */
-	if(xTaskCreate(transmiterTask, "Transmission Thread", 100, NULL, 1, NULL) != pdPASS){
-		PRINTF("Task Receiver creation failed!.\r\n");
+	if(xTaskCreate(transmiterTask, "Transmission Thread", 200, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Trans creation failed!.\r\n");
 	}
 
 	/* Start the scheduler so the created tasks start executing. */
@@ -113,6 +113,8 @@ void prvSetupHardware(void){
 	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
 	#endif
+	/* Set interrupt priorities */
+	NVIC_SetPriority(I2C0_IRQn, 2);
     PRINTF("Hardware Setup Finished\n");
 }
 
