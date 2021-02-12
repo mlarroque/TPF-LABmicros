@@ -4,3 +4,7 @@
 *.xml
 *.xml
 *.xml
+TPFworkspace/frdmk64f_uart_interrupt/.cproject
+TPFworkspace/flashI2C/.cproject
+*.xml
+*.mex

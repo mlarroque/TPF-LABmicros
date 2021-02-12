@@ -54,6 +54,7 @@ void App_Init(void){
 	InitializeECG(&ECG_init);
 	InitializeOximetry(&oxi_init);
 	InitializeThermometer();
+	// Create Queue (global)
 }
 
 dispatchOxEvent(oxUd_t oxUd);
@@ -62,7 +63,7 @@ dispatchTempEvent(tempUd_t tempUd);
 
 /* Función que se llama constantemente en un ciclo infinito */
 void App_Run(void){
-	if(getEvent(&ev){
+	if(xQueueRecieve(&ev){ // read from queue
 		switch(ev.name){
 			case MEAS_OX_EV:
 				dispatchOxEvent(userData.oxUd);

@@ -11,7 +11,6 @@
 
 #include "thermometer.h"
 #include "max30205.h"
-#include "temp_event.h"
 #include "fsl_debug_console.h"
 
 #include <stdint.h>
@@ -40,9 +39,14 @@ static uint16_t unread_samples = 0;
  * 					FUNCIONES DEL HEADER				*
  ********************************************************/
 
+void tempCallback(TimerHandle_t handler){
+	PRINTF("ENTER \n");
+	/* Prender semaforo para el thread*/
+}
+
 void InitializeThermometer(void){
 	TickType_t timeout = 200; // ms
-	temp_init_t hard_init = {PushTempEvent, timeout};
+	temp_init_t hard_init = {tempCallback, timeout};
 	InitializeTempHardware(&hard_init);
 }
 
