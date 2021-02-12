@@ -73,7 +73,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
  *
  * @retval  playerStatus_t that indicate if there is some playing pending.
  */
-playerStatus_t get_player_status(void);
+audioStatus_t get_player_status(void);
 
 /*@brief stop_playing:
  * This function force a break in audio playing.

@@ -152,7 +152,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 }
 
 
-playerStatus_t get_player_status(void){
+audioStatus_t get_player_status(void){
 	return audioStatus;
 }
 

@@ -33,30 +33,18 @@
  */
 
 #include "board.h"
-#include "music.h"
+#include "GrabacionEmergencia_array.h"
 #include "GrabacionEmergencia_wavarray.h"
-#if defined(FSL_FEATURE_SOC_DMAMUX_COUNT) && FSL_FEATURE_SOC_DMAMUX_COUNT
-//#include "fsl_dmamux.h"
-#endif
-//#include "fsl_sai_edma.h"
 #include "fsl_debug_console.h"
 
-//#include "UDA.h"
-//#include "fsl_sgtl5000.h"
-//#include "UDA.h"
-//#include "pin_mux.h"
-//#include "clock_config.h"
-//#include "fsl_gpio.h"
-//#include "fsl_port.h"
-
 #include "audioPlayer.h"
+#include "debug_defs.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*DEBUG definitions*/
 
-#define DEBUG_SAI_EDMA_TRANSFER_1 1
-#define DEBUG_AUDIO_PLAYER_1 0
+
 
 #define BUFFER_SIZE (1600U)
 #define BUFFER_NUM (2U)
@@ -110,11 +98,39 @@ void wav_test(void);
 
 int main(void)
 {
+	PRINTF("SAI example started!\n\r");
     BOARD_audio_init();
+
+#if DEBUG_SAI_EDMA_TRANSFER_1
     init_audio_player(callback, NULL);
+    wav_test();
+    free_audio_player();
+#else
+
+    audioData_t audioData;
+    audioData.audioTag = ALERTA_0;
+    audioData.p2audioData = GrabacionEmergencia_array;
+    audioData.audioDataLen = BUFF_LEN;
+    audioData.audioFormat = AUDIO_MP3;
+
+    init_audio_player(NULL, NULL);
+    audioResult_t result = save_record(&audioData);
+    if (result == AUDIO_SUCCES){
+    	start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+    	}
+    else{
+    	PRINTF("ERROR SAVING RECORD\n");
+    }
+
+    while(get_player_status() == AUDIO_PROCESSING){
+
+    }
 
 
-    PRINTF("SAI example started!\n\r");
+#endif
+
+
+
 
 /* If need to handle audio error, enable sai interrupt */
 #if defined(DEMO_SAI_IRQ)
@@ -122,10 +138,9 @@ int main(void)
     SAI_TxEnableInterrupts(DEMO_SAI, kSAI_FIFOErrorInterruptEnable);
 #endif
 
-    wav_test();
     
     /* Once transfer finish, disable SAI instance. */
-    free_audio_player();
+
     PRINTF("\n\r SAI EDMA example finished!\n\r ");
     while (1)
     {
