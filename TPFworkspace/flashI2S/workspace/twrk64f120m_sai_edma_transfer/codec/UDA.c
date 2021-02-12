@@ -29,10 +29,11 @@ status_t UDA_init(codec_handle_t *handle, void *config){
 // Reset
     status = UDA_WriteReg(handle, UDA_SOFT_RESET_ADDRES, 0x0000);
 
+
 //WSPLL settings
 
     status = UDA_WriteReg(handle, UDA_REG(0x00), 0x0F31);
-
+    //status = UDA_ReadReg(handle, UDA_REG(0x00), &readValCheck);
 //01H I2S-bus I/O settings
     status = UDA_WriteReg(handle, UDA_REG(0x01), 0x0000);
 

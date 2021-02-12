@@ -118,7 +118,7 @@ int main(void)
     }
 
     while(get_player_status() == AUDIO_PROCESSING){
-    	PRINTF(". ");
+    	//PRINTF(". ");
     }
 
     free_audio_player();

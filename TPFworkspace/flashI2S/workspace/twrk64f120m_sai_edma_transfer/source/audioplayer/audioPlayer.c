@@ -199,8 +199,8 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 
 	while(MP3GetNextFrameInfo(p2mp3decoder, &mp3FrameInfo, p2mp3record) == ERR_MP3_INVALID_FRAMEHEADER){
 		offset = MP3FindSyncWord(p2mp3record + 1, bytesLeft);
-		bytesLeft -= offset; //refresh bytes left to decode
-		p2mp3record += offset;
+		bytesLeft -= (offset + 1); //refresh bytes left to decode
+		p2mp3record += (offset + 1);
 	}
 
 	//if there is something to decode and the decoding is ok...

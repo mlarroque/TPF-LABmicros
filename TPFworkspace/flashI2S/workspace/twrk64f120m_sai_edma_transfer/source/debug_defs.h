@@ -8,7 +8,7 @@
 #ifndef DEBUG_DEFS_H_
 #define DEBUG_DEFS_H_
 
-#define DEBUG_SAI_EDMA_TRANSFER_1 1
-#define DEBUG_AUDIO_PLAYER_1 0
+#define DEBUG_SAI_EDMA_TRANSFER_1 0
+#define DEBUG_AUDIO_PLAYER_1 1
 
 #endif /* DEBUG_DEFS_H_ */
