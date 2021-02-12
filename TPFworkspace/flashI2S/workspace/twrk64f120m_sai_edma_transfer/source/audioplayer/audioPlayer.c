@@ -27,7 +27,9 @@ extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;*/
 #define N_CHUNKS 64
 #define CHUNK_WORD_LEN ((STREAM_LEN/WORD_LEN)/N_CHUNKS)
 #define CHUNK_BYTE_LEN (STREAM/N_CHUNKS)
-#define PP_BUFFER_LEN (CHUNK_WORD_LEN * WORD_LEN * 2)
+#define PP_BUFFER_LEN (CHUNK_WORD_LEN * WORD_LEN * 2 * 2)
+
+#define TIME_OUT_AUDIO 3
 
 #define USE_SIZE_HELIX 0
 
@@ -54,7 +56,8 @@ extern codec_config_t boardCodecConfig;
 sai_transfer_t xfer;
 
 int decode_chunk_mp3(short * audio_pp_pointer);
-void continue_playing(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
+void continue_playing(void);
+void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
 
 void init_audio_player(sai_edma_callback_t userCallback, void *userData){
 
@@ -64,7 +67,7 @@ void init_audio_player(sai_edma_callback_t userCallback, void *userData){
 		sai_edma_init(userCallback, userData);
 	}
 	else{
-		sai_edma_init(continue_playing, userData);
+		sai_edma_init(callbackSAI, userData);
 	}
 
 	/* Use default setting to init codec */
@@ -132,14 +135,14 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 
 		if (decode_chunk_mp3(audio_pp_buffer) != -1){
 			xfer.data = audio_pp_buffer;
-			xfer.dataSize = mp3FrameInfo.outputSamps / 2;
+			xfer.dataSize = mp3FrameInfo.outputSamps * 2;
 			sendSAIdata(&xfer);
 			audioStatus = AUDIO_PROCESSING;  //Turn on flag
 			//enable DMArequest (FIFO I2S triggers DMA)
 			//assure that first DMA transfer can start at this point!
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);
 
-			SetTimer(AUDIO_PLAYER_TIMER,20, continue_playing);
+			SetTimer(AUDIO_PLAYER_TIMER,TIME_OUT_AUDIO, continue_playing);
 
 		}
 		else{
@@ -157,7 +160,7 @@ audioStatus_t get_player_status(void){
 }
 
 
-void continue_playing(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+void continue_playing(void){
 	DisableTimer(AUDIO_PLAYER_TIMER);
 	if ((audioStatus == AUDIO_PROCESSING) && (p2mp3record != 0) && (decode_chunk_mp3(audio_pp_buffer + ppBufferWrite) == 0)){
 		//trigger next DMA?? no debería hacer falta...
@@ -192,12 +195,19 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 	//obtain next sinc word
 	int offset = MP3FindSyncWord(p2mp3record, bytesLeft);
 	bytesLeft -= offset; //refresh bytes left to decode
-	p2mp3record += mp3dataLen - bytesLeft;
+	p2mp3record += offset;
+
+	while(MP3GetNextFrameInfo(p2mp3decoder, &mp3FrameInfo, p2mp3record) == ERR_MP3_INVALID_FRAMEHEADER){
+		offset = MP3FindSyncWord(p2mp3record + 1, bytesLeft);
+		bytesLeft -= offset; //refresh bytes left to decode
+		p2mp3record += offset;
+	}
+
 	//if there is something to decode and the decoding is ok...
 	//the decoding starts with the sync word and the result is save in a ping pong buffer..
 	//who use this function have to suit the pointer to buffer having into acount ping pong buffer logic..
 	int result_decoding = MP3Decode(p2mp3decoder, &p2mp3record, &bytesLeft, audio_pp_pointer, USE_SIZE_HELIX);
-	if ( (offset != -1) && ( result_decoding == 0) ){
+	if ( (offset != -1) && ( result_decoding == ERR_MP3_NONE) ){
 
 		MP3GetLastFrameInfo(p2mp3decoder, &mp3FrameInfo);
 		ret = 0;
@@ -206,13 +216,13 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 	return ret;
 }
 int debug_counter = 0;
-#if !MAIN_CALLBACK_SAI
-void finish_I2S0_Transmit(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
+
+void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	if(audioStatus != AUDIO_IDLE){
 		xfer.data = audio_pp_buffer + ppBufferRead;
-		xfer.dataSize = mp3FrameInfo.outputSamps / 2;
-		SAI_TransferSendEDMA(base, handle, &xfer);
-		SetTimer(AUDIO_PLAYER_TIMER,20, continue_playing);
+		xfer.dataSize = mp3FrameInfo.outputSamps * 2;
+		sendSAIdata(&xfer);
+		SetTimer(AUDIO_PLAYER_TIMER,TIME_OUT_AUDIO, continue_playing);
 		debug_counter++;
 		if (debug_counter > 3){
 			debug_counter = 0;
@@ -222,5 +232,5 @@ void finish_I2S0_Transmit(I2S_Type *base, sai_edma_handle_t *handle, status_t st
 		stop_playing();
 	}
 }
-#endif
+
 

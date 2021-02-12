@@ -44,8 +44,6 @@
  ******************************************************************************/
 /*DEBUG definitions*/
 
-
-
 #define BUFFER_SIZE (1600U)
 #define BUFFER_NUM (2U)
 /*******************************************************************************
@@ -66,9 +64,6 @@ volatile uint32_t emptyBlock = BUFFER_NUM;
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-
-
 
 static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData)
 {
@@ -123,8 +118,10 @@ int main(void)
     }
 
     while(get_player_status() == AUDIO_PROCESSING){
-
+    	PRINTF(". ");
     }
+
+    free_audio_player();
 
 
 #endif
