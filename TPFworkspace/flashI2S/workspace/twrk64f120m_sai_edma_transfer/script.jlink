@@ -1,0 +1,7 @@
+ExitOnError 1
+r
+h
+loadfile "C:\Users\Matias\Desktop\ITBA\TPF-LABmicros\modulos - datasheets - esquematicos - codigos ejemplo\flashRecords\GrabacionEmergencia.bin" 0x3E800 
+qc
+
+qc
