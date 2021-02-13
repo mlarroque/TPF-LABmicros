@@ -13,6 +13,67 @@
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
 #include "fsl_i2c.h"
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
+
+#if defined BOARD_USE_CODEC
+#include "i2c.h"
+#include "fsl_sgtl5000.h"
+#include "UDA.h"
+#include "pin_mux.h"
+#include "clock_config.h"
+#include "audio_i2c_config.h"
+#endif
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+#if defined BOARD_USE_CODEC
+status_t BOARD_Codec_I2C_Send(uint8_t deviceAddress, uint32_t subAddress, uint8_t subaddressSize, const uint8_t *txBuff, uint8_t txBuffSize);
+status_t BOARD_Codec_I2C_Receive(uint8_t deviceAddress, uint32_t subAddress, uint8_t subaddressSize, uint8_t *rxBuff, uint8_t rxBuffSize);
+
+codec_config_t boardCodecConfig = {
+    .I2C_SendFunc = BOARD_Codec_I2C_Send,
+    .I2C_ReceiveFunc = BOARD_Codec_I2C_Receive,
+	.op.Init = UDA_init,
+    .op.Deinit = UDA_deinit,
+    .op.SetFormat = UDA_ConfigDataFormat
+};
+
+
+status_t BOARD_Codec_I2C_Send(uint8_t deviceAddress,
+                        uint32_t subAddress,
+                        uint8_t subaddressSize,
+                        const uint8_t *txBuff,
+                        uint8_t txBuffSize)
+{
+
+	uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
+
+    return WriteByte(deviceAddress, reg, txBuff, txBuffSize);
+}
+
+status_t BOARD_Codec_I2C_Receive(uint8_t deviceAddress,
+                           uint32_t subAddress,
+                           uint8_t subaddressSize,
+                           uint8_t *rxBuff,
+                           uint8_t rxBuffSize)
+{
+
+
+	uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
+
+	return ReadByte(deviceAddress, reg, rxBuff, rxBuffSize);
+}
+
+void BOARD_audio_init(void){
+	//BOARD_InitPins();   //pin_mux
+	//BOARD_BootClockRUN();  //clock_config
+	BOARD_I2C_ReleaseBus();  //audio_i2c_config
+	//BOARD_I2C_ConfigurePins();  //pin_mux
+	//BOARD_Codec_I2C_Init();  //board
+	//BOARD_InitDebugConsole();
+
+}
+#endif
+
 /* Initialize debug console. */
 void BOARD_InitDebugConsole(void)
 {
