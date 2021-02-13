@@ -54,7 +54,7 @@
 #include "thermometer.h"
 #include "ecg.h"
 #include "oximetry.h"
-
+#include "bluetooth_com.h"
 /*
  * @brief   Application entry point.
  */
@@ -86,7 +86,7 @@ int main(void) {
 		PRINTF("Task Temp creation failed!.\r\n");
 	}
 	/* ECG and Oximetry thread*/
-	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 900, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Proc creation failed!.\r\n");
 	}
 	/* Audio Task */
@@ -115,6 +115,7 @@ void prvSetupHardware(void){
 	#endif
 	/* Set interrupt priorities */
 	NVIC_SetPriority(I2C0_IRQn, 2);
+	NVIC_SetPriority(UART3_RX_TX_IRQn, 2);
     PRINTF("Hardware Setup Finished\n");
 }
 
@@ -172,7 +173,7 @@ void audioTask(void* params)
 
 void transmiterTask(void* params)
 {
-	// Init Bluetooth
+	InitBluetooth()	;// Init Bluetooth
 
 	//Muestras
 	int32_t heartRate = 0;
@@ -183,7 +184,7 @@ void transmiterTask(void* params)
 	//Contadores
 	 uint16_t n_samples = 0;
 	while(1){
-		//vTaskDelay( pdMS_TO_TICKS(1000) );
+		BlueWaitForSamples();
 		heartRate = GetHeartRate();
 		sp02 = GetSpO2();
 		temp = GetThermoSample();
@@ -194,9 +195,15 @@ void transmiterTask(void* params)
 		}
 		//Oximeter
 		n_samples = GetUnreadNum();
+		if(n_samples > 5){
+			n_samples = 5;
+		}
 		for(int i=0; i<n_samples ;i++){
 			ox_samples[i] = GetPlethSample().red_sample;
 		}
+
+		PRINTF("HR: %d", heartRate);
+		sendBTPackage(heartRate, sp02, temp, ecg_samples, ox_samples);
 
 	}
 }
