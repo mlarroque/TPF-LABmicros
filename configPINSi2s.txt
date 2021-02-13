@@ -2,3 +2,5 @@ PTC2 -> FRAME SELECT (left or rigth)
 PTB18-> bitclock
 PTC8-> masterclock
 PTC1 -> TXdata
+
+https://github.com/jmestanza/labo-de-micros-tpf/blob/master/audio/workspace/twrk64f120m_sai_edma_transfer/source/main.c

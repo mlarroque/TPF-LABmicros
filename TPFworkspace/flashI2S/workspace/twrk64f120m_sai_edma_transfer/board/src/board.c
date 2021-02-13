@@ -42,6 +42,9 @@
 #if defined BOARD_USE_CODEC
 #include "fsl_sgtl5000.h"
 #include "UDA.h"
+#include "pin_mux.h"
+#include "clock_config.h"
+#include "audio_i2c_config.h"
 #endif
 /*******************************************************************************
  * Variables
@@ -154,5 +157,15 @@ status_t BOARD_Codec_I2C_Receive(
 {
     return BOARD_I2C_Receive(BOARD_CODEC_I2C_BASEADDR, deviceAddress, subAddress, subAddressSize, rxBuff,
                                rxBuffSize);
+}
+
+void BOARD_audio_init(void){
+	BOARD_InitPins();   //pin_mux
+	    BOARD_BootClockRUN();  //clock_config
+	    BOARD_I2C_ReleaseBus();  //audio_i2c_config
+	    BOARD_I2C_ConfigurePins();  //pin_mux
+	    BOARD_Codec_I2C_Init();  //board
+	    BOARD_InitDebugConsole();
+
 }
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
