@@ -146,7 +146,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 			//assure that first DMA transfer can start at this point!
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);
 
-			SetTimer(AUDIO_PLAYER_TIMER,TIME_OUT_AUDIO, continue_playing);
+			//SetTimer(AUDIO_PLAYER_TIMER,TIME_OUT_AUDIO, continue_playing);
 
 		}
 		else{
@@ -166,10 +166,10 @@ audioStatus_t get_player_status(void){
 
 void continue_playing(void){
 	int aux=0;
-	DisableTimer(AUDIO_PLAYER_TIMER);
+	//DisableTimer(AUDIO_PLAYER_TIMER);
 	if (measure_decoding){
 		debug_counter = 0;
-		SetTimer(DEBUG_TIMER, 1, counterCallback);
+		//SetTimer(DEBUG_TIMER, 1, counterCallback);
 	}
 
 	if ((audioStatus == AUDIO_PROCESSING) && (p2mp3record != 0) && (decode_chunk_mp3(audio_pp_buffer + ppBufferWrite) == 0)){
@@ -187,7 +187,7 @@ void continue_playing(void){
 		audioStatus = AUDIO_IDLE;
 	}
 	if(measure_decoding){
-		DisableTimer(DEBUG_TIMER);
+		//DisableTimer(DEBUG_TIMER);
 		aux =debug_counter;
 	}
 
@@ -236,7 +236,8 @@ void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, voi
 		xfer.data = audio_pp_buffer + ppBufferRead;
 		xfer.dataSize = mp3FrameInfo.outputSamps * 2;
 		sendSAIdata(&xfer);
-		SetTimer(AUDIO_PLAYER_TIMER,TIME_OUT_AUDIO, continue_playing);
+		//SetTimer(AUDIO_PLAYER_TIMER,TIME_OUT_AUDIO, continue_playing);
+		continue_playing();
 		debug_counter++;
 		if (debug_counter > 3){
 			debug_counter = 0;
