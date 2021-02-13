@@ -86,7 +86,7 @@ int main(void) {
 		PRINTF("Task Temp creation failed!.\r\n");
 	}
 	/* ECG and Oximetry thread*/
-	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 900, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 400, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Proc creation failed!.\r\n");
 	}
 	/* Audio Task */
@@ -176,8 +176,6 @@ void transmiterTask(void* params)
 	InitBluetooth()	;// Init Bluetooth
 	data_BT_t pkg;
 
-	//Contadores
-	 uint16_t n_samples = 0;
 	while(1){
 		BlueWaitForSamples();
 		pkg.heartRate = GetHeartRate();
@@ -185,20 +183,21 @@ void transmiterTask(void* params)
 		pkg.temp = GetThermoSample();
 		//ECG
 		pkg.n_samples_ecg = GetEcgUnreadNum();
-		for(int i=0; i<n_samples ;i++){
+		if( pkg.n_samples_ecg > 20){
+			pkg.n_samples_ecg = 20;
+		}
+		for(int i=0; i<pkg.n_samples_ecg ;i++){
 			pkg.ecg_samples[i] = GetEcgSample();
 		}
 		//Oximeter
-		n_samples = GetUnreadNum();
-		if(n_samples > 5){
+		pkg.n_samples_ppg  = GetUnreadNum();
+		if(pkg.n_samples_ppg > 5){
 			pkg.n_samples_ppg = 5;
 		}
-		for(int i=0; i<n_samples ;i++){
+		for(int i=0; i<pkg.n_samples_ppg ;i++){
 			pkg.ox_samples[i] = GetPlethSample().red_sample;
 		}
-
-		PRINTF("HR: %d", heartRate);
-		sendBTPackage(heartRate, sp02, temp, ecg_samples, ox_samples);
+		sendBTPackage(pkg);
 
 	}
 }

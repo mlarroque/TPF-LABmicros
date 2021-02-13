@@ -19,7 +19,7 @@
 static SemaphoreHandle_t bluetooth_sem; //Semaforo binario que indica si llegaron muestra
 
 void sendHeartRatePacket(int32_t heartRate);
-
+void sendPPGPacket(int32_t* samples, uint8_t n);
 /*!
  * @brief Main function
  */
@@ -56,7 +56,7 @@ void sendBTPackage(data_BT_t pkg)
 	sendSpO2Packet(pkg.sp02);
 	sendTempPacket(pkg.temp);
 	sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
-	sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
+	//sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
 
 }
 
@@ -84,21 +84,23 @@ void sendECGPacket(int32_t* samples, uint8_t n){
 }
 
 void sendPPGPacket(int32_t* samples, uint8_t n){
-	uint8_t size = 1+1+1+1+2*n;
-	uint16_t samples16 = (uint16_t) samples;
-	char packetPPG[20];
-	packetPPG[0] = 'P';
-	packetPPG[1] = n;
-	for(int i=2; i<n+2; i++){
-		uint8_t parte_alta = samples[i]>>8;
-		uint8_t parte_baja = (uint8_t) samples[i];
-		packetPPG[i] = parte_alta;
-		packetPPG[i+1] = parte_baja;
-	}
-	packetPPG[size-2] = size;	//checksum
-	packetPPG[size-1] = '\r';	//terminador
+	if(n>0){
+		uint8_t size = 1+1+1+1+2*n;
+		uint8_t packetPPG[20];
+		packetPPG[0] = 'P';
+		packetPPG[1] = n;
+		for(int i=0; i<n; i++){
+			uint8_t parte_alta = samples[i]>>8;
+			uint8_t parte_baja = (uint8_t) samples[i];
+			packetPPG[2+2*i] = parte_alta;
+			packetPPG[2+2*i+1] = parte_baja;
+		}
+		packetPPG[size-2] = size;	//checksum
+		packetPPG[size-1] = '\r';	//terminador
 
-	uartWriteMsg(packetPPG, size);
+		uartWriteMsg(packetPPG, size);
+	}
+
 }
 
 
