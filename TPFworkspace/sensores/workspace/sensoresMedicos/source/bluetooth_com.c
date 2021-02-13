@@ -25,7 +25,7 @@ void InitBluetooth(void){
 				pdMS_TO_TICKS(BLUETOOTH_TIMEOUT),
 				pdTRUE,
 				NULL,
-				init_data->callback);
+				BluetoothCallback);
 	xTimerStart(handler, 0);
 
 }
