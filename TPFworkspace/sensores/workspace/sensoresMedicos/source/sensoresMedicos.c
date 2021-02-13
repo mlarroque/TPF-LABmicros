@@ -55,6 +55,8 @@
 #include "ecg.h"
 #include "oximetry.h"
 
+#include "audioPlayer.h"
+
 /*
  * @brief   Application entry point.
  */
@@ -115,6 +117,7 @@ void prvSetupHardware(void){
 	#endif
 	/* Set interrupt priorities */
 	NVIC_SetPriority(I2C0_IRQn, 2);
+	NVIC_SetPriority(DMA0_IRQn, 2);
     PRINTF("Hardware Setup Finished\n");
 }
 
@@ -161,6 +164,8 @@ void tempTask(void* params){
 void audioTask(void* params)
 {
 	Audio_sem = xSemaphoreCreateBinary();
+	//BOARD_audio_init(); //esta funcion esta en board.h del proyecto de audioPlayer. Falta Mergear.
+	init_audio_player(NULL, NULL);
 	while(1){
 		xSemaphoreTake( Audio_sem, portMAX_DELAY );
 
