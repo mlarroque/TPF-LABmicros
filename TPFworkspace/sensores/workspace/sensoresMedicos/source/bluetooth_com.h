@@ -10,9 +10,20 @@
 
 #include <stdint.h>
 
+typedef struct{
+	int32_t heartRate;
+	int32_t sp02;
+	uint16_t temp;
+	int32_t ecg_samples[20];
+	uint8_t n_samples_ecg;
+	int32_t ox_samples[5];
+	uint8_t n_samples_ppg;
+}data_BT_t;
+
+
 void InitBluetooth(void);
 
-void sendBTPackage(int32_t heartRate, int32_t sp02, uint16_t temp, int32_t ecg_samples[], int32_t ox_samples[]);
+void sendBTPackage(data_BT_t pkg);
 
 void BlueWaitForSamples(void);
 

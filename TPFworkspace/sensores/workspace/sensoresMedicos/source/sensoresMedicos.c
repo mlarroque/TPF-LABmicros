@@ -174,32 +174,27 @@ void audioTask(void* params)
 void transmiterTask(void* params)
 {
 	InitBluetooth()	;// Init Bluetooth
+	data_BT_t pkg;
 
-	//Muestras
-	int32_t heartRate = 0;
-	int32_t sp02 = 0;
-	uint16_t temp = 0;
-	int32_t ecg_samples[20];
-	int32_t ox_samples[5];
 	//Contadores
 	 uint16_t n_samples = 0;
 	while(1){
 		BlueWaitForSamples();
-		heartRate = GetHeartRate();
-		sp02 = GetSpO2();
-		temp = GetThermoSample();
+		pkg.heartRate = GetHeartRate();
+		pkg.sp02 = GetSpO2();
+		pkg.temp = GetThermoSample();
 		//ECG
-		n_samples = GetEcgUnreadNum();
+		pkg.n_samples_ecg = GetEcgUnreadNum();
 		for(int i=0; i<n_samples ;i++){
-			ecg_samples[i] = GetEcgSample();
+			pkg.ecg_samples[i] = GetEcgSample();
 		}
 		//Oximeter
 		n_samples = GetUnreadNum();
 		if(n_samples > 5){
-			n_samples = 5;
+			pkg.n_samples_ppg = 5;
 		}
 		for(int i=0; i<n_samples ;i++){
-			ox_samples[i] = GetPlethSample().red_sample;
+			pkg.ox_samples[i] = GetPlethSample().red_sample;
 		}
 
 		PRINTF("HR: %d", heartRate);

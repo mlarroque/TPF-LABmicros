@@ -50,13 +50,13 @@ void BlueWaitForSamples(void){
 	xSemaphoreTake( bluetooth_sem, portMAX_DELAY );
 }
 
-void sendBTPackage(int32_t heartRate, int32_t sp02, uint16_t temp, int32_t* ecg_samples, int32_t* ox_samples)
+void sendBTPackage(data_BT_t pkg)
 {
-	sendHeartRatePacket(heartRate);
-	sendSpO2Packet();
-	sendTempPacket();
-	sendECGPacket();
-	sendPPGPacket();
+	sendHeartRatePacket(pkg.heartRate);
+	sendSpO2Packet(pkg.sp02);
+	sendTempPacket(pkg.temp);
+	sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
+	sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
 
 }
 
@@ -71,20 +71,34 @@ void sendHeartRatePacket(int32_t heartRate){
 	uartWriteMsg(packetH, 5);
 }
 
-void sendSpO2Packet(){
+void sendSpO2Packet(int32_t spo2){
 
 }
 
-void sendTempPacket(){
+void sendTempPacket(int16_t temp){
 
 }
 
-void sendECGPacket(){
+void sendECGPacket(int32_t* samples, uint8_t n){
 
 }
 
-void sendPPGPacket(){
+void sendPPGPacket(int32_t* samples, uint8_t n){
+	uint8_t size = 1+1+1+1+2*n;
+	uint16_t samples16 = (uint16_t) samples;
+	char packetPPG[20];
+	packetPPG[0] = 'P';
+	packetPPG[1] = n;
+	for(int i=2; i<n+2; i++){
+		uint8_t parte_alta = samples[i]>>8;
+		uint8_t parte_baja = (uint8_t) samples[i];
+		packetPPG[i] = parte_alta;
+		packetPPG[i+1] = parte_baja;
+	}
+	packetPPG[size-2] = size;	//checksum
+	packetPPG[size-1] = '\r';	//terminador
 
+	uartWriteMsg(packetPPG, size);
 }
 
 
