@@ -32,20 +32,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "board.h"
+/*#include "board.h"
 #include "GrabacionEmergencia_array.h"
 #include "GrabacionEmergencia_wavarray.h"
 #include "fsl_debug_console.h"
 
 #include "audioPlayer.h"
-#include "debug_defs.h"
+#include "debug_defs.h"*/
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*DEBUG definitions*/
 
-#define BUFFER_SIZE (1600U)
-#define BUFFER_NUM (2U)
+/*#define BUFFER_SIZE (1600U)
+#define BUFFER_NUM (2U)*/
 
 ///*******************************************************************************
 // * Prototypes

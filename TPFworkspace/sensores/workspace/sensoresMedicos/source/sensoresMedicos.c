@@ -56,6 +56,7 @@
 #include "oximetry.h"
 
 #include "audioPlayer.h"
+#include "GrabacionEmergencia_array.h"
 
 /*
  * @brief   Application entry point.
@@ -92,7 +93,7 @@ int main(void) {
 //		PRINTF("Task Proc creation failed!.\r\n");
 //	}
 	/* Audio Task */
-	if(xTaskCreate(audioTask, "Audio Thread", 100, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(audioTask, "Audio Thread", 1000, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Audio creation failed!.\r\n");
 	}
 //	/* Transmiter Task */
@@ -100,6 +101,7 @@ int main(void) {
 //		PRINTF("Task Trans creation failed!.\r\n");
 //	}
 
+	Audio_sem = xSemaphoreCreateBinary();
 	/* Start the scheduler so the created tasks start executing. */
 	vTaskStartScheduler();
 
@@ -157,22 +159,43 @@ void tempTask(void* params){
 //		newSampleRequest();
 //	}
 	while(1){
-		xSemaphoreGive( Audio_sem );
+		PRINTF("Semaphore Give\n");
+		xSemaphoreGive(Audio_sem);
+		vTaskDelay(pdMS_TO_TICKS(8000));// Delay entre reproducciones
 	}
 }
 
 void audioTask(void* params)
 {
-	Audio_sem = xSemaphoreCreateBinary();
-	//BOARD_audio_init(); //esta funcion esta en board.h del proyecto de audioPlayer. Falta Mergear.
-	init_audio_player(NULL, NULL);
-	while(1){
-		xSemaphoreTake( Audio_sem, portMAX_DELAY );
+	BOARD_audio_init(); //esta funcion esta en board.h del proyecto de audioPlayer. Falta Mergear.
+	audioData_t audioData;
+	audioData.audioTag = ALERTA_0;
+	audioData.p2audioData = GrabacionEmergencia_array;
+	audioData.audioDataLen = BUFF_LEN;
+	audioData.audioFormat = AUDIO_MP3;
 
-		//TERMINAR!!!!!!!
+	init_audio_player(NULL, NULL);
+	audioResult_t result = save_record(&audioData);
+	while(1){
+		xSemaphoreTake(Audio_sem, portMAX_DELAY);
+
+		if (result == AUDIO_SUCCES){
+		   start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+		}
+		else{
+		   PRINTF("ERROR SAVING RECORD\n");
+		}
+
+		while(get_player_status() == AUDIO_PROCESSING){
+		    	PRINTF(". ");
+		}
+
+
+
 
 		vTaskDelay( pdMS_TO_TICKS(5000) );// Delay entre reproducciones
 	}
+	free_audio_player();
 }
 
 //void transmiterTask(void* params)

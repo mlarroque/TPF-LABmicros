@@ -45,8 +45,8 @@ status_t BOARD_Codec_I2C_Send(uint8_t deviceAddress,
                         uint8_t txBuffSize)
 {
 
-	uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
-
+	//uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
+	uint8_t reg = subAddress;
     return WriteByte(deviceAddress, reg, txBuff, txBuffSize);
 }
 
@@ -58,8 +58,8 @@ status_t BOARD_Codec_I2C_Receive(uint8_t deviceAddress,
 {
 
 
-	uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
-
+	//uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
+	uint8_t reg = subAddress;
 	return ReadByte(deviceAddress, reg, rxBuff, rxBuffSize);
 }
 
