@@ -147,6 +147,49 @@ static void I2C0_init(void) {
 }
 
 /***********************************************************************************************************************
+ * UART3 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'UART3'
+- type: 'uart'
+- mode: 'freertos'
+- custom_name_enabled: 'false'
+- type_id: 'uart_88ab1eca0cddb7ee407685775de016d5'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'UART3'
+- config_sets:
+  - fsl_uart_freertos:
+    - uart_rtos_configuration:
+      - clockSource: 'BusInterfaceClock'
+      - clockSourceFreq: 'GetFreq'
+      - baudrate: '38400'
+      - parity: 'kUART_ParityDisabled'
+      - stopbits: 'kUART_OneStopBit'
+      - buffer_size: '1'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+uart_rtos_handle_t UART3_rtos_handle;
+uart_handle_t UART3_uart_handle;
+uint8_t UART3_background_buffer[UART3_BACKGROUND_BUFFER_SIZE];
+uart_rtos_config_t UART3_rtos_config = {
+  .base = UART3_PERIPHERAL,
+  .baudrate = 38400UL,
+  .parity = kUART_ParityDisabled,
+  .stopbits = kUART_OneStopBit,
+  .buffer = UART3_background_buffer,
+  .buffer_size = UART3_BACKGROUND_BUFFER_SIZE
+};
+
+static void UART3_init(void) {
+  /* UART clock source initialization */
+  UART3_rtos_config.srcclk = UART3_CLOCK_SOURCE;
+  /* UART rtos initialization */
+  UART_RTOS_Init(&UART3_rtos_handle, &UART3_uart_handle, &UART3_rtos_config);
+}
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 void BOARD_InitPeripherals(void)
@@ -154,6 +197,7 @@ void BOARD_InitPeripherals(void)
   /* Initialize components */
   ADC0_init();
   I2C0_init();
+  UART3_init();
 }
 
 /***********************************************************************************************************************

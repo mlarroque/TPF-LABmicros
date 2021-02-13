@@ -145,6 +145,8 @@ BOARD_InitPins:
   - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b, identifier: ''}
   - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN, identifier: ''}
   - {pin_num: '55', peripheral: ADC0, signal: 'SE, 12', pin_signal: ADC0_SE12/PTB2/I2C0_SCL/UART0_RTS_b/ENET0_1588_TMR0/FTM0_FLT3}
+  - {pin_num: '90', peripheral: UART3, signal: RX, pin_signal: PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b}
+  - {pin_num: '91', peripheral: UART3, signal: TX, pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -161,6 +163,8 @@ void BOARD_InitPins(void)
     CLOCK_EnableClock(kCLOCK_PortA);
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
+    /* Port C Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortC);
     /* Port E Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortE);
 
@@ -184,6 +188,12 @@ void BOARD_InitPins(void)
 
     /* PORTB2 (pin 55) is configured as ADC0_SE12 */
     PORT_SetPinMux(BOARD_ADC0_SE12_PORT, BOARD_ADC0_SE12_PIN, kPORT_PinDisabledOrAnalog);
+
+    /* PORTC16 (pin 90) is configured as UART3_RX */
+    PORT_SetPinMux(BOARD_TMR_1588_0_PORT, BOARD_TMR_1588_0_PIN, kPORT_MuxAlt3);
+
+    /* PORTC17 (pin 91) is configured as UART3_TX */
+    PORT_SetPinMux(BOARD_TMR_1588_1_PORT, BOARD_TMR_1588_1_PIN, kPORT_MuxAlt3);
 
     /* PORTE24 (pin 31) is configured as I2C0_SCL */
     PORT_SetPinMux(PORTE, 24U, kPORT_MuxAlt5);

@@ -13,6 +13,9 @@
 #include "fsl_adc16.h"
 #include "fsl_i2c.h"
 #include "fsl_i2c_freertos.h"
+#include "fsl_uart.h"
+#include "fsl_uart_freertos.h"
+#include "fsl_clock.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -35,6 +38,12 @@ extern "C" {
 #define I2C0_CLOCK_SOURCE I2C0_CLK_SRC
 /* Definition of the clock source frequency */
 #define I2C0_CLK_FREQ CLOCK_GetFreq(I2C0_CLOCK_SOURCE)
+/* Definition of peripheral ID */
+#define UART3_PERIPHERAL UART3
+/* Definition of the clock source frequency */
+#define UART3_CLOCK_SOURCE CLOCK_GetFreq(UART3_CLK_SRC)
+/* Definition of the backround buffer size */
+#define UART3_BACKGROUND_BUFFER_SIZE 1
 
 /***********************************************************************************************************************
  * Global variables
@@ -44,6 +53,9 @@ extern const adc16_channel_mux_mode_t ADC0_muxMode;
 extern const adc16_hardware_average_mode_t ADC0_hardwareAverageMode;
 extern i2c_rtos_handle_t I2C0_rtosHandle;
 extern const i2c_master_config_t I2C0_config;
+extern uart_rtos_handle_t UART3_rtos_handle;
+extern uart_handle_t UART3_uart_handle;
+extern uart_rtos_config_t UART3_rtos_config;
 
 /***********************************************************************************************************************
  * Initialization functions
