@@ -57,11 +57,11 @@ void BlueWaitForSamples(void){
 
 void sendBTPackage(data_BT_t pkg)
 {
-	sendHeartRatePacket(pkg.heartRate);
+	//sendHeartRatePacket(pkg.heartRate);
 	//sendSpO2Packet(pkg.sp02);
 	//sendTempPacket(pkg.temp);
 	//sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
-	//sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
+	sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
 
 }
 
@@ -77,7 +77,14 @@ void sendHeartRatePacket(int32_t heartRate){
 }
 
 void sendSpO2Packet(int32_t spo2){
+	uint8_t packetO[5];
+	packetO[0] = 'O';
+	packetO[1] = (uint8_t) 0x00;
+	packetO[2] = (uint8_t)spo2;
+	packetO[3] = 4;	//checksum
+	packetO[4] = '\r';	//terminador
 
+	uartWriteMsg(packetO, 5);
 }
 
 void sendTempPacket(int16_t temp){
@@ -85,6 +92,22 @@ void sendTempPacket(int16_t temp){
 }
 
 void sendECGPacket(int32_t* samples, uint8_t n){
+	if(n>0){
+		uint8_t size = 1+1+1+1+2*n;
+		uint8_t packetPPG[20];
+		packetPPG[0] = 'E';
+		packetPPG[1] = n;
+		for(int i=0; i<n; i++){
+			uint8_t parte_alta = samples[i]>>8;
+			uint8_t parte_baja = (uint8_t) samples[i];
+			packetPPG[2+2*i] = parte_alta;
+			packetPPG[2+2*i+1] = parte_baja;
+		}
+		packetPPG[size-2] = size-1;	//checksum
+		packetPPG[size-1] = '\r';	//terminador
+
+		uartWriteMsg(packetPPG, size);
+	}
 
 }
 
@@ -100,7 +123,7 @@ void sendPPGPacket(int32_t* samples, uint8_t n){
 			packetPPG[2+2*i] = parte_alta;
 			packetPPG[2+2*i+1] = parte_baja;
 		}
-		packetPPG[size-2] = size;	//checksum
+		packetPPG[size-2] = size-1;	//checksum
 		packetPPG[size-1] = '\r';	//terminador
 
 		uartWriteMsg(packetPPG, size);

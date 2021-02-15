@@ -16,7 +16,7 @@ typedef struct{
 	uint16_t temp;
 	int32_t ecg_samples[20];
 	uint16_t n_samples_ecg;
-	int32_t ox_samples[5];
+	int32_t ox_samples[2];
 	uint16_t n_samples_ppg;
 }data_BT_t;
 

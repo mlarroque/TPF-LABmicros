@@ -182,22 +182,22 @@ void transmiterTask(void* params)
 		pkg.temp = GetThermoSample();
 		//ECG
 		pkg.n_samples_ecg = GetEcgUnreadNum();
-		if( pkg.n_samples_ecg > 20){
-			pkg.n_samples_ecg = 20;
+		if( pkg.n_samples_ecg > 4){
+			pkg.n_samples_ecg = 4;
 		}
 		for(int i=0; i<pkg.n_samples_ecg ;i++){
 			pkg.ecg_samples[i] = GetEcgSample();
 		}
 		//Oximeter
 		pkg.n_samples_ppg  = GetUnreadNum();
-		if(pkg.n_samples_ppg > 5){
-			pkg.n_samples_ppg = 5;
+		if(pkg.n_samples_ppg > 1){
+			pkg.n_samples_ppg = 1;
 		}
 		for(int i=0; i<pkg.n_samples_ppg ;i++){
 			pkg.ox_samples[i] = GetPlethSample().red_sample;
 		}
-		PRINTF("%d \n", pkg.heartRate);
-		sendBTPackage(pkg);
+		PRINTF("%d \n", pkg.ox_samples[0]);
+		//sendBTPackage(pkg);
 
 	}
 }
