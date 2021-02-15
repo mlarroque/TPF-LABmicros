@@ -447,107 +447,46 @@ static void I2S0_init(void) {
 }
 
 /***********************************************************************************************************************
- * GPIOA initialization code
+ * UART3 initialization code
  **********************************************************************************************************************/
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 instance:
-- name: 'GPIOA'
-- type: 'gpio'
-- mode: 'GPIO'
-- custom_name_enabled: 'false'
-- type_id: 'gpio_5920c5e026e8e974e6dc54fbd5e22ad7'
-- functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'GPIOA'
-- config_sets:
-  - fsl_gpio:
-    - enable_irq: 'false'
-    - port_interrupt:
-      - IRQn: 'PORTA_IRQn'
-      - enable_interrrupt: 'enabled'
-      - enable_priority: 'false'
-      - priority: '0'
-      - enable_custom_name: 'false'
-    - quick_selection: 'QS_GPIO_1'
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
-/* clang-format on */
-
-static void GPIOA_init(void) {
-  /* Make sure, the clock gate for port A is enabled (e. g. in pin_mux.c) */
-}
-
-/***********************************************************************************************************************
- * GPIOC initialization code
- **********************************************************************************************************************/
-/* clang-format off */
-/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-instance:
-- name: 'GPIOC'
-- type: 'gpio'
-- mode: 'GPIO'
-- custom_name_enabled: 'false'
-- type_id: 'gpio_5920c5e026e8e974e6dc54fbd5e22ad7'
-- functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'GPIOC'
-- config_sets:
-  - fsl_gpio:
-    - enable_irq: 'false'
-    - port_interrupt:
-      - IRQn: 'PORTC_IRQn'
-      - enable_interrrupt: 'enabled'
-      - enable_priority: 'false'
-      - priority: '0'
-      - enable_custom_name: 'false'
-    - quick_selection: 'QS_GPIO_1'
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
-/* clang-format on */
-
-static void GPIOC_init(void) {
-  /* Make sure, the clock gate for port C is enabled (e. g. in pin_mux.c) */
-}
-
-/***********************************************************************************************************************
- * UART0 initialization code
- **********************************************************************************************************************/
-/* clang-format off */
-/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-instance:
-- name: 'UART0'
+- name: 'UART3'
 - type: 'uart'
-- mode: 'polling'
+- mode: 'freertos'
 - custom_name_enabled: 'false'
 - type_id: 'uart_88ab1eca0cddb7ee407685775de016d5'
 - functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'UART0'
+- peripheral: 'UART3'
 - config_sets:
-  - uartConfig_t:
-    - uartConfig:
+  - fsl_uart_freertos:
+    - uart_rtos_configuration:
       - clockSource: 'BusInterfaceClock'
       - clockSourceFreq: 'GetFreq'
-      - baudRate_Bps: '115200'
-      - parityMode: 'kUART_ParityDisabled'
-      - stopBitCount: 'kUART_OneStopBit'
-      - txFifoWatermark: '0'
-      - rxFifoWatermark: '1'
-      - idleType: 'kUART_IdleTypeStartBit'
-      - enableTx: 'true'
-      - enableRx: 'true'
-    - quick_selection: 'QuickSelection1'
+      - baudrate: '38400'
+      - parity: 'kUART_ParityDisabled'
+      - stopbits: 'kUART_OneStopBit'
+      - buffer_size: '1'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
-const uart_config_t UART0_config = {
-  .baudRate_Bps = 115200UL,
-  .parityMode = kUART_ParityDisabled,
-  .stopBitCount = kUART_OneStopBit,
-  .txFifoWatermark = 0U,
-  .rxFifoWatermark = 1U,
-  .idleType = kUART_IdleTypeStartBit,
-  .enableTx = true,
-  .enableRx = true
+uart_rtos_handle_t UART3_rtos_handle;
+uart_handle_t UART3_uart_handle;
+uint8_t UART3_background_buffer[UART3_BACKGROUND_BUFFER_SIZE];
+uart_rtos_config_t UART3_rtos_config = {
+  .base = UART3_PERIPHERAL,
+  .baudrate = 38400UL,
+  .parity = kUART_ParityDisabled,
+  .stopbits = kUART_OneStopBit,
+  .buffer = UART3_background_buffer,
+  .buffer_size = UART3_BACKGROUND_BUFFER_SIZE
 };
 
-static void UART0_init(void) {
-  UART_Init(UART0_PERIPHERAL, &UART0_config, UART0_CLOCK_SOURCE);
+static void UART3_init(void) {
+  /* UART clock source initialization */
+  UART3_rtos_config.srcclk = UART3_CLOCK_SOURCE;
+  /* UART rtos initialization */
+  UART_RTOS_Init(&UART3_rtos_handle, &UART3_uart_handle, &UART3_rtos_config);
 }
 
 /***********************************************************************************************************************
@@ -563,9 +502,7 @@ void BOARD_InitPeripherals(void)
   ADC0_init();
   I2C0_init();
 //  I2S0_init();
-//  GPIOA_init();
-//  GPIOC_init();
-//  UART0_init();
+  UART3_init();
 }
 
 /***********************************************************************************************************************

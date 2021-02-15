@@ -331,6 +331,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="UART3" description="Peripheral UART3 is not initialized" problem_level="1" source="Pins:BOARD_InitDEBUG_UARTPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitDEBUG_UARTPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -364,6 +369,8 @@
                         <pin_feature name="passive_filter" value="disable"/>
                      </pin_features>
                   </pin>
+                  <pin peripheral="UART3" signal="TX" pin_num="91" pin_signal="PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b"/>
+                  <pin peripheral="UART3" signal="RX" pin_num="90" pin_signal="PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b"/>
                </pins>
             </function>
             <function name="BOARD_InitOSCPins">
@@ -924,16 +931,6 @@
                   <data type="Version">2.3.1</data>
                </feature>
             </dependency>
-            <dependency resourceType="SWComponent" resourceId="platform.drivers.gpio" description="GPIO Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
-               <feature name="enabled" evaluation="equal">
-                  <data type="Boolean">true</data>
-               </feature>
-            </dependency>
-            <dependency resourceType="SWComponent" resourceId="platform.drivers.gpio" description="Unsupported version of the GPIO Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
-               <feature name="version" evaluation="greaterOrEqual">
-                  <data type="Version">2.4.0</data>
-               </feature>
-            </dependency>
             <dependency resourceType="SWComponent" resourceId="platform.drivers.uart" description="UART Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
                <feature name="enabled" evaluation="equal">
                   <data type="Boolean">true</data>
@@ -1022,19 +1019,29 @@
                         <data type="Frequency" unit="Hz">0</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="ClockOutput" resourceId="System_clock" description="System clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART3.uart_tx" description="Signal TX of the peripheral UART3 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART3.uart_rx" description="Signal RX of the peripheral UART3 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.uart_freertos" description="The fsl_uart_freertos driver is missing in the project (required for the FreeRTOS mode)." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="enabled" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.uart_freertos" description="The compatible version of the fsl_uart_freertos driver is not available in the project (required for the FreeRTOS mode)." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="version" evaluation="compatible">
+                        <data type="Version">2.2.0</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="ClockOutput" resourceId="Bus_clock" description="Bus clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="frequency" evaluation="greaterThan">
                         <data type="Frequency" unit="Hz">0</data>
-                     </feature>
-                  </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART0.uart_tx" description="Signal TX of the peripheral UART0 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
-                     <feature name="routed" evaluation="equal">
-                        <data type="Boolean">true</data>
-                     </feature>
-                  </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART0.uart_rx" description="Signal RX of the peripheral UART0 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
-                     <feature name="routed" evaluation="equal">
-                        <data type="Boolean">true</data>
                      </feature>
                   </dependency>
                </dependencies>
@@ -1298,43 +1305,15 @@
                         </struct>
                      </config_set>
                   </instance>
-                  <instance name="GPIOA" uuid="8dcd9780-d915-4f81-8b7b-5d9639fb29fc" type="gpio" type_id="gpio_5920c5e026e8e974e6dc54fbd5e22ad7" mode="GPIO" peripheral="GPIOA" enabled="true" comment="" custom_name_enabled="false">
-                     <config_set name="fsl_gpio" quick_selection="QS_GPIO_1">
-                        <setting name="enable_irq" value="false"/>
-                        <struct name="port_interrupt">
-                           <setting name="IRQn" value="PORTA_IRQn"/>
-                           <setting name="enable_interrrupt" value="enabled"/>
-                           <setting name="enable_priority" value="false"/>
-                           <setting name="priority" value="0"/>
-                           <setting name="enable_custom_name" value="false"/>
-                        </struct>
-                     </config_set>
-                  </instance>
-                  <instance name="GPIOC" uuid="ec2d1b54-d637-4c5b-b717-d400d707a1ae" type="gpio" type_id="gpio_5920c5e026e8e974e6dc54fbd5e22ad7" mode="GPIO" peripheral="GPIOC" enabled="true" comment="" custom_name_enabled="false">
-                     <config_set name="fsl_gpio" quick_selection="QS_GPIO_1">
-                        <setting name="enable_irq" value="false"/>
-                        <struct name="port_interrupt">
-                           <setting name="IRQn" value="PORTC_IRQn"/>
-                           <setting name="enable_interrrupt" value="enabled"/>
-                           <setting name="enable_priority" value="false"/>
-                           <setting name="priority" value="0"/>
-                           <setting name="enable_custom_name" value="false"/>
-                        </struct>
-                     </config_set>
-                  </instance>
-                  <instance name="UART0" uuid="3e617dc8-90ae-4cc3-8eb5-7c7d417c3460" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="polling" peripheral="UART0" enabled="true" comment="" custom_name_enabled="false">
-                     <config_set name="uartConfig_t" quick_selection="QuickSelection1">
-                        <struct name="uartConfig">
+                  <instance name="UART3" uuid="63e03e3e-7ec1-4841-8c3c-c88aa1564fd2" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="freertos" peripheral="UART3" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="fsl_uart_freertos">
+                        <struct name="uart_rtos_configuration">
                            <setting name="clockSource" value="BusInterfaceClock"/>
                            <setting name="clockSourceFreq" value="GetFreq"/>
-                           <setting name="baudRate_Bps" value="115200"/>
-                           <setting name="parityMode" value="kUART_ParityDisabled"/>
-                           <setting name="stopBitCount" value="kUART_OneStopBit"/>
-                           <setting name="txFifoWatermark" value="0"/>
-                           <setting name="rxFifoWatermark" value="1"/>
-                           <setting name="idleType" value="kUART_IdleTypeStartBit"/>
-                           <setting name="enableTx" value="true"/>
-                           <setting name="enableRx" value="true"/>
+                           <setting name="baudrate" value="38400"/>
+                           <setting name="parity" value="kUART_ParityDisabled"/>
+                           <setting name="stopbits" value="kUART_OneStopBit"/>
+                           <setting name="buffer_size" value="1"/>
                         </struct>
                      </config_set>
                   </instance>

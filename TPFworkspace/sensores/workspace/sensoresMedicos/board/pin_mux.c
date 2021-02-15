@@ -405,6 +405,8 @@ BOARD_InitDEBUG_UARTPins:
     drive_strength: low, pull_select: down, pull_enable: disable, passive_filter: disable}
   - {pin_num: '62', peripheral: UART0, signal: RX, pin_signal: PTB16/SPI1_SOUT/UART0_RX/FTM_CLKIN0/FB_AD17/EWM_IN, slew_rate: fast, open_drain: disable, drive_strength: low,
     pull_select: down, pull_enable: disable, passive_filter: disable}
+  - {pin_num: '91', peripheral: UART3, signal: TX, pin_signal: PTC17/UART3_TX/ENET0_1588_TMR1/FB_CS4_b/FB_TSIZ0/FB_BE31_24_BLS7_0_b}
+  - {pin_num: '90', peripheral: UART3, signal: RX, pin_signal: PTC16/UART3_RX/ENET0_1588_TMR0/FB_CS5_b/FB_TSIZ1/FB_BE23_16_BLS15_8_b}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -419,6 +421,8 @@ void BOARD_InitDEBUG_UARTPins(void)
 {
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
+    /* Port C Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortC);
 
     const port_pin_config_t DEBUG_UART_RX = {/* Internal pull-up/down resistor is disabled */
                                              kPORT_PullDisable,
@@ -453,6 +457,12 @@ void BOARD_InitDEBUG_UARTPins(void)
                                              kPORT_UnlockRegister};
     /* PORTB17 (pin 63) is configured as UART0_TX */
     PORT_SetPinConfig(BOARD_DEBUG_UART_TX_PORT, BOARD_DEBUG_UART_TX_PIN, &DEBUG_UART_TX);
+
+    /* PORTC16 (pin 90) is configured as UART3_RX */
+    PORT_SetPinMux(BOARD_TMR_1588_0_PORT, BOARD_TMR_1588_0_PIN, kPORT_MuxAlt3);
+
+    /* PORTC17 (pin 91) is configured as UART3_TX */
+    PORT_SetPinMux(BOARD_TMR_1588_1_PORT, BOARD_TMR_1588_1_PIN, kPORT_MuxAlt3);
 
     SIM->SOPT5 = ((SIM->SOPT5 &
                    /* Mask bits to zero which are setting */

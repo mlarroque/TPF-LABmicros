@@ -54,6 +54,7 @@
 #include "thermometer.h"
 #include "ecg.h"
 #include "oximetry.h"
+#include "bluetooth_com.h"
 
 #include "audioPlayer.h"
 #include "debug_defs.h"
@@ -80,10 +81,10 @@
 
 void prvSetupHardware(void);
 
-//void procTask(void*);
+void procTask(void*);
 void tempTask(void*);
 void audioTask(void*);
-//void transmiterTask(void*);
+void transmiterTask(void*);
 
 static SemaphoreHandle_t Audio_sem;
 
@@ -221,8 +222,7 @@ void tempTask(void* params){
 		newSampleRequest();
 	}
 	while(1){
-		xSemaphoreGive(Audio_sem);
-		vTaskDelay(pdMS_TO_TICKS(8000));// Delay entre reproducciones
+		xSemaphoreGive( Audio_sem );
 	}
 }
 
@@ -241,11 +241,30 @@ void audioTask(void* params)
 
 void transmiterTask(void* params)
 {
-	// Init Bluetooth
+	InitBluetooth()	; // Init Bluetooth
+	data_BT_t pkg;
 	while(1){
-		vTaskDelay( pdMS_TO_TICKS(1000) );
-		PRINTF("HR: %d \n",GetHeartRate());
-		PRINTF("SP02: %d \n",GetSpO2());
-		PRINTF("T: %d \n",GetThermoSample());
+		BlueWaitForSamples();
+		pkg.heartRate = GetHeartRate();
+		pkg.sp02 = GetSpO2();
+		pkg.temp = getTemperature();
+		//ECG
+		pkg.n_samples_ecg = GetEcgUnreadNum();
+		if( pkg.n_samples_ecg > 4){
+			pkg.n_samples_ecg = 4;
+		}
+		for(int i=0; i<pkg.n_samples_ecg ;i++){
+			pkg.ecg_samples[i] = GetEcgSample();
+		}
+		// Oximeter
+		pkg.n_samples_ppg  = GetUnreadNum();
+		if(pkg.n_samples_ppg > 1){
+			pkg.n_samples_ppg = 1;
+		}
+		for(int i=0; i<pkg.n_samples_ppg ;i++){
+			pkg.ox_samples[i] = GetPlethSample().red_sample;
+		}
+		sendBTPackage(pkg);
+
 	}
 }
