@@ -175,8 +175,10 @@ void prvSetupHardware(void){
 #else
 	init_audio_player(NULL, NULL);
 #endif
-	audioResult_t result = save_record(&audioData);
-	PRINTF("%d \n", result);
+
+	flashINIT();
+	//audioResult_t result = save_record(&audioData);
+	//PRINTF("%d \n", result);
     PRINTF("Hardware Setup Finished\n");
 }
 \
