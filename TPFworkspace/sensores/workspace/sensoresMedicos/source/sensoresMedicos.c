@@ -184,7 +184,7 @@ void prvSetupHardware(void){
 
     PRINTF("Hardware Setup Finished\n");
 }
-\
+
 //void procTask(void* params){
 //	ECG_init_t ECG_init = {.fs=200};
 //	oxi_init_t oxi_init = {.fs=50};
