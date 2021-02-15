@@ -88,6 +88,8 @@ void transmiterTask(void*);
 
 static SemaphoreHandle_t Audio_sem;
 
+static uint8_t ECG_flag_alarm = 0;
+
 #if DEBUG_SAI_EDMA_TRANSFER_1
 #include "GrabacionEmergencia_wavarray.h"
 #define BUFFER_SIZE (1600U)
@@ -206,6 +208,12 @@ void procTask(void* params){
 			if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
 				xSemaphoreGive( Audio_sem );
 			}
+			int32_t hb = GetHeartRate();
+			if((hb > MAX_HB) || (hb < MIN_HB)){
+				ECG_flag_alarm = 1;
+				xSemaphoreGive( Audio_sem );
+			}
+
 		}
 	}
 }
@@ -229,8 +237,14 @@ void audioTask(void* params)
 	init_audio_RTOS();
 	while(1){
 		xSemaphoreTake(Audio_sem, portMAX_DELAY);
+		if(ECG_flag_alarm){
+			start_playing(ALERTA_1, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+			ECG_flag_alarm = 0;
+		}
+		else{
+			start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+		}
 
-		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
 
 		vTaskDelay(pdMS_TO_TICKS(5000));// Delay entre reproducciones
 	}
