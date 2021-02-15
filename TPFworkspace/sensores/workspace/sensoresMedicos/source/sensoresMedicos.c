@@ -56,6 +56,7 @@
 #include "oximetry.h"
 
 #include "audioPlayer.h"
+#include "debug_defs.h"
 #include "GrabacionEmergencia_array.h"
 
 /*
@@ -71,6 +72,8 @@
 #define OX_COUNTER_INIT (50*4)	//Cada cuantas muestras se actualiza el SP02
 #define TEMP_UPDATE_TIME 10000 //Cada cuanto se lee la temperatura en ms.
 
+#define BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL 0
+
 
 void prvSetupHardware(void);
 
@@ -81,19 +84,57 @@ void audioTask(void*);
 
 static SemaphoreHandle_t Audio_sem;
 
+#if DEBUG_SAI_EDMA_TRANSFER_1
+#include "GrabacionEmergencia_wavarray.h"
+#define BUFFER_SIZE (1600U)
+#define BUFFER_NUM (2U)
+
+AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t buffer[BUFFER_NUM*BUFFER_SIZE], 4);
+volatile bool isFinished = false;
+volatile uint32_t finishIndex = 0U;
+volatile uint32_t emptyBlock = BUFFER_NUM;
+
+void wav_test(void);
+
+static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
+
+static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData)
+{
+	//printf("entro callback\n");
+    if(kStatus_SAI_RxError == status)
+    {
+    }
+    else
+    {
+
+        finishIndex++;
+        emptyBlock++;
+        /* Judge whether the music array is completely transfered. */
+        if(BUFF_LEN_WAV/BUFFER_SIZE == finishIndex)
+        {
+            isFinished = true;
+        }
+
+        //printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
+    }
+}
+
+#endif
+
 int main(void) {
 	/* Perform any hardware setup necessary. */
 	prvSetupHardware();
-	/* Thermometer Task */
-	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
-		PRINTF("Task Temp creation failed!.\r\n");
-	}
+
+//	/* Thermometer Task */
+//	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
+//		PRINTF("Task Temp creation failed!.\r\n");
+//	}
 //	/* ECG and Oximetry thread*/
 //	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
 //		PRINTF("Task Proc creation failed!.\r\n");
 //	}
 	/* Audio Task */
-	if(xTaskCreate(audioTask, "Audio Thread", 1000, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(audioTask, "Audio Thread", 400, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Audio creation failed!.\r\n");
 	}
 //	/* Transmiter Task */
@@ -120,6 +161,23 @@ void prvSetupHardware(void){
 	/* Set interrupt priorities */
 	NVIC_SetPriority(I2C0_IRQn, 2);
 	NVIC_SetPriority(DMA0_IRQn, 2);
+	NVIC_SetPriority(I2S0_Tx_IRQn, 2);
+
+	//BOARD_audio_init(); //esta funcion esta en board.h del proyecto de audioPlayer. Falta Mergear.
+	audioData_t audioData = {
+			.audioTag = ALERTA_0,
+			.p2audioData = GrabacionEmergencia_array,
+			.audioDataLen = BUFF_LEN,
+	        .audioFormat = AUDIO_MP3
+	};
+#if DEBUG_SAI_EDMA_TRANSFER_1
+	init_audio_player(callback, NULL);
+#else
+	init_audio_player(NULL, NULL);
+#endif
+	audioResult_t result = save_record(&audioData);
+	printf("%d \n", result);
+
     PRINTF("Hardware Setup Finished\n");
 }
 
@@ -159,7 +217,6 @@ void tempTask(void* params){
 //		newSampleRequest();
 //	}
 	while(1){
-		PRINTF("Semaphore Give\n");
 		xSemaphoreGive(Audio_sem);
 		vTaskDelay(pdMS_TO_TICKS(8000));// Delay entre reproducciones
 	}
@@ -167,31 +224,16 @@ void tempTask(void* params){
 
 void audioTask(void* params)
 {
-	BOARD_audio_init(); //esta funcion esta en board.h del proyecto de audioPlayer. Falta Mergear.
-	audioData_t audioData;
-	audioData.audioTag = ALERTA_0;
-	audioData.p2audioData = GrabacionEmergencia_array;
-	audioData.audioDataLen = BUFF_LEN;
-	audioData.audioFormat = AUDIO_MP3;
-
-	init_audio_player(NULL, NULL);
-	audioResult_t result = save_record(&audioData);
+	init_audio_RTOS();
 	while(1){
-		xSemaphoreTake(Audio_sem, portMAX_DELAY);
+//		xSemaphoreTake(Audio_sem, portMAX_DELAY);
 
-		if (result == AUDIO_SUCCES){
-		   start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
-		}
-		else{
-		   PRINTF("ERROR SAVING RECORD\n");
-		}
+#if DEBUG_SAI_EDMA_TRANSFER_1
+		wav_test();
+#else
 
-		while(get_player_status() == AUDIO_PROCESSING){
-		    	PRINTF(". ");
-		}
-
-
-
+		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+#endif
 
 		vTaskDelay( pdMS_TO_TICKS(5000) );// Delay entre reproducciones
 	}
@@ -208,3 +250,34 @@ void audioTask(void* params)
 //		PRINTF("T: %d \n",GetThermoSample());
 //	}
 //}
+
+#if DEBUG_SAI_EDMA_TRANSFER_1
+
+void wav_test(void){
+	sai_transfer_t xfer;
+
+	uint32_t cpy_index = 0U, tx_index=0U;
+	/* Waiting until finished. */
+	while(!isFinished)
+	{
+	   if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
+	   {
+	      /* Fill in the buffers. */
+	      memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
+	      emptyBlock--;
+	      cpy_index++;
+	   }
+	   if(emptyBlock < BUFFER_NUM)
+	   {
+	     /*  xfer structure */
+	     xfer.data = (uint8_t *)&buffer[BUFFER_SIZE*(tx_index%BUFFER_NUM)];
+	     xfer.dataSize = BUFFER_SIZE;
+	     /* Wait for available queue. */
+	     if(kStatus_Success == sendSAIdata(&xfer))
+	     {
+	    	 tx_index++;
+	     }
+	   }
+	}
+}
+#endif

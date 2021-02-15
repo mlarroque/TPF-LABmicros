@@ -151,6 +151,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="I2S0" description="Peripheral I2S0 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -181,6 +186,10 @@
                      </pin_features>
                   </pin>
                   <pin peripheral="ADC0" signal="SE, 12" pin_num="55" pin_signal="ADC0_SE12/PTB2/I2C0_SCL/UART0_RTS_b/ENET0_1588_TMR0/FTM0_FLT3"/>
+                  <pin peripheral="I2S0" signal="TXD0" pin_num="71" pin_signal="ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0"/>
+                  <pin peripheral="I2S0" signal="TX_BCLK" pin_num="64" pin_signal="PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA"/>
+                  <pin peripheral="I2S0" signal="TX_FS" pin_num="65" pin_signal="PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB"/>
+                  <pin peripheral="I2S0" signal="RXD0" pin_num="77" pin_signal="PTC5/LLWU_P9/SPI0_SCK/LPTMR0_ALT2/I2S0_RXD0/FB_AD10/CMP0_OUT/FTM0_CH2"/>
                </pins>
             </function>
             <function name="BOARD_InitButtonsPins">
@@ -895,6 +904,46 @@
                   <data type="Version">2.0.5</data>
                </feature>
             </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.edma" description="EDMA Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.edma" description="Unsupported version of the EDMA Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="greaterOrEqual">
+                  <data type="Version">2.3.0</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.sai" description="SAI Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.sai" description="Unsupported version of the SAI Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="equivalent">
+                  <data type="Version">2.3.1</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.gpio" description="GPIO Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.gpio" description="Unsupported version of the GPIO Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="greaterOrEqual">
+                  <data type="Version">2.4.0</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.uart" description="UART Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.uart" description="Unsupported version of the UART Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="greaterOrEqual">
+                  <data type="Version">2.2.0</data>
+               </feature>
+            </dependency>
          </dependencies>
          <generated_project_files>
             <file path="board/peripherals.c" update_enabled="true"/>
@@ -936,6 +985,56 @@
                   <dependency resourceType="ClockOutput" resourceId="Bus_clock" description="Bus clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="frequency" evaluation="greaterThan">
                         <data type="Frequency" unit="Hz">0</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.dmamux" description="The fsl_dmamux driver is missing in the project (required for the eDMA)." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="enabled" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.dmamux" description="The compatible version of the fsl_dmamux driver is not available in the project (required for the eDMA)." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="version" evaluation="compatible">
+                        <data type="Version">2.0.2</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="I2S0.i2s_txd0" description="I2S0.TX DATA (0) pin needs to be routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="I2S0.i2s_tclk" description="I2S0.TX BCLK pin needs to be routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="I2S0.i2s_tfs" description="I2S0.TX SYNC pin needs to be routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="I2S0.i2s_rxd0" description="I2S0.RX DATA (0) pin needs to be routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="ClockOutput" resourceId="System_clock" description="System clock is inactive." problem_level="2" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="frequency" evaluation="greaterThan">
+                        <data type="Frequency" unit="Hz">0</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="ClockOutput" resourceId="System_clock" description="System clock is inactive." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="frequency" evaluation="greaterThan">
+                        <data type="Frequency" unit="Hz">0</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART0.uart_tx" description="Signal TX of the peripheral UART0 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="UART0.uart_rx" description="Signal RX of the peripheral UART0 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
                      </feature>
                   </dependency>
                </dependencies>
@@ -985,6 +1084,257 @@
                            <setting name="enableStopHold" value="false"/>
                            <setting name="baudRate_Bps" value="100000"/>
                            <setting name="glitchFilterWidth" value="0"/>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="DMA" uuid="1e15201e-63ef-4a17-9923-b09e903d9ec6" type="edma" type_id="edma_6d0dd4e17e2f179c7d42d98767129ede" mode="basic" peripheral="DMA" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="fsl_edma" quick_selection="default">
+                        <struct name="common_settings">
+                           <setting name="enableContinuousLinkMode" value="false"/>
+                           <setting name="enableHaltOnError" value="true"/>
+                           <setting name="enableRoundRobinArbitration" value="false"/>
+                           <setting name="enableDebugMode" value="false"/>
+                        </struct>
+                        <array name="dma_table"/>
+                        <array name="edma_channels"/>
+                        <struct name="errInterruptConfig">
+                           <setting name="enableErrInterrupt" value="false"/>
+                           <struct name="errorInterrupt">
+                              <setting name="IRQn" value="DMA_Error_IRQn"/>
+                              <setting name="enable_interrrupt" value="enabled"/>
+                              <setting name="enable_priority" value="false"/>
+                              <setting name="priority" value="0"/>
+                              <setting name="enable_custom_name" value="false"/>
+                           </struct>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="I2S0" uuid="09875435-fd19-4062-8d01-aed4c46afc79" type="sai" type_id="sai_37a0d4b4ecc2db8ea149dbe2026c6550" mode="interrupts" peripheral="I2S0" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="fsl_sai" quick_selection="sai_classic_i2s">
+                        <struct name="mclk_config">
+                           <setting name="masterClockSource" value="kSAI_MclkSourceSysclk"/>
+                           <setting name="masterClockSourceFreq" value="BOARD_BootClockRUN"/>
+                           <setting name="masterClockFrequency" value="6.144 MHz"/>
+                           <setting name="init_mclk_config" value="true"/>
+                        </struct>
+                        <struct name="sai_master_clock"/>
+                        <setting name="usage" value="record_playback"/>
+                        <array name="signal_config">
+                           <struct name="0">
+                              <setting name="sourceTx" value="Tx"/>
+                              <setting name="sourceRx" value="Tx"/>
+                           </struct>
+                           <struct name="1">
+                              <setting name="sourceTx" value="Tx"/>
+                              <setting name="sourceRx" value="Tx"/>
+                           </struct>
+                        </array>
+                        <struct name="syncSwapI"/>
+                        <struct name="bclkTxSetting"/>
+                        <struct name="bclkRxSetting"/>
+                        <struct name="syncTxSetting"/>
+                        <struct name="syncRxSetting"/>
+                        <struct name="whole">
+                           <struct name="tx_group">
+                              <struct name="sai_transceiver">
+                                 <struct name="bitClock">
+                                    <setting name="modeM" value="master"/>
+                                    <setting name="bitClockSource" value="kSAI_BclkSourceMclkDiv"/>
+                                    <setting name="bclkPolarityM" value="kSAI_PolarityActiveLow"/>
+                                    <setting name="bclkInputDelayM" value="false"/>
+                                 </struct>
+                                 <struct name="frameSync">
+                                    <setting name="modeM" value="master"/>
+                                    <setting name="frameSyncWidthM" value="16"/>
+                                    <setting name="frameSyncPolarityM" value="kSAI_PolarityActiveLow"/>
+                                    <setting name="frameSyncEarlyM" value="true"/>
+                                 </struct>
+                                 <setting name="sampleRate_Hz" value="kSAI_SampleRate16KHz"/>
+                                 <set name="channelMask">
+                                    <selected>
+                                       <id>kSAI_Channel0Mask</id>
+                                    </selected>
+                                 </set>
+                                 <struct name="serialData">
+                                    <setting name="differentFirstWord" value="false"/>
+                                    <setting name="sameDataWordLengthM" value="kSAI_WordWidth16bits"/>
+                                    <setting name="dataOrder" value="kSAI_DataMSB"/>
+                                    <setting name="dataFirstBitShiftedM" value="16"/>
+                                    <setting name="dataWordNumM" value="2"/>
+                                    <struct name="dataMasked_config">
+                                       <array name="dataMasked_L">
+                                          <setting name="0" value="false"/>
+                                          <setting name="1" value="false"/>
+                                          <setting name="2" value="false"/>
+                                          <setting name="3" value="false"/>
+                                          <setting name="4" value="false"/>
+                                          <setting name="5" value="false"/>
+                                          <setting name="6" value="false"/>
+                                          <setting name="7" value="false"/>
+                                          <setting name="8" value="false"/>
+                                          <setting name="9" value="false"/>
+                                          <setting name="10" value="false"/>
+                                          <setting name="11" value="false"/>
+                                          <setting name="12" value="false"/>
+                                          <setting name="13" value="false"/>
+                                          <setting name="14" value="false"/>
+                                          <setting name="15" value="false"/>
+                                       </array>
+                                       <array name="dataMasked_H">
+                                          <setting name="0" value="false"/>
+                                          <setting name="1" value="false"/>
+                                          <setting name="2" value="false"/>
+                                          <setting name="3" value="false"/>
+                                          <setting name="4" value="false"/>
+                                          <setting name="5" value="false"/>
+                                          <setting name="6" value="false"/>
+                                          <setting name="7" value="false"/>
+                                          <setting name="8" value="false"/>
+                                          <setting name="9" value="false"/>
+                                          <setting name="10" value="false"/>
+                                          <setting name="11" value="false"/>
+                                          <setting name="12" value="false"/>
+                                          <setting name="13" value="false"/>
+                                          <setting name="14" value="false"/>
+                                          <setting name="15" value="false"/>
+                                       </array>
+                                    </struct>
+                                 </struct>
+                                 <struct name="fifo">
+                                    <setting name="fifoWatermarkM" value="16"/>
+                                 </struct>
+                              </struct>
+                              <set name="interrupt_sel">
+                                 <selected/>
+                              </set>
+                              <struct name="interrupt">
+                                 <setting name="IRQn" value="I2S0_Tx_IRQn"/>
+                                 <setting name="enable_interrrupt" value="enabled"/>
+                                 <setting name="enable_priority" value="false"/>
+                                 <setting name="priority" value="0"/>
+                                 <setting name="enable_custom_name" value="false"/>
+                              </struct>
+                           </struct>
+                           <struct name="rx_group">
+                              <struct name="sai_transceiver">
+                                 <struct name="bitClock">
+                                    <setting name="modeM" value="master"/>
+                                    <setting name="bitClockSource" value="kSAI_BclkSourceMclkDiv"/>
+                                    <setting name="bclkPolarityM" value="kSAI_PolarityActiveLow"/>
+                                    <setting name="bclkInputDelayM" value="false"/>
+                                 </struct>
+                                 <struct name="frameSync">
+                                    <setting name="modeM" value="master"/>
+                                    <setting name="frameSyncWidthM" value="16"/>
+                                    <setting name="frameSyncPolarityM" value="kSAI_PolarityActiveLow"/>
+                                    <setting name="frameSyncEarlyM" value="true"/>
+                                 </struct>
+                                 <setting name="sampleRate_Hz" value="kSAI_SampleRate16KHz"/>
+                                 <set name="channelMask">
+                                    <selected>
+                                       <id>kSAI_Channel0Mask</id>
+                                    </selected>
+                                 </set>
+                                 <struct name="serialData">
+                                    <setting name="differentFirstWord" value="false"/>
+                                    <setting name="sameDataWordLengthM" value="kSAI_WordWidth16bits"/>
+                                    <setting name="dataOrder" value="kSAI_DataMSB"/>
+                                    <setting name="dataFirstBitShiftedM" value="16"/>
+                                    <setting name="dataWordNumM" value="2"/>
+                                    <struct name="dataMasked_config">
+                                       <array name="dataMasked_L">
+                                          <setting name="0" value="false"/>
+                                          <setting name="1" value="false"/>
+                                          <setting name="2" value="false"/>
+                                          <setting name="3" value="false"/>
+                                          <setting name="4" value="false"/>
+                                          <setting name="5" value="false"/>
+                                          <setting name="6" value="false"/>
+                                          <setting name="7" value="false"/>
+                                          <setting name="8" value="false"/>
+                                          <setting name="9" value="false"/>
+                                          <setting name="10" value="false"/>
+                                          <setting name="11" value="false"/>
+                                          <setting name="12" value="false"/>
+                                          <setting name="13" value="false"/>
+                                          <setting name="14" value="false"/>
+                                          <setting name="15" value="false"/>
+                                       </array>
+                                       <array name="dataMasked_H">
+                                          <setting name="0" value="false"/>
+                                          <setting name="1" value="false"/>
+                                          <setting name="2" value="false"/>
+                                          <setting name="3" value="false"/>
+                                          <setting name="4" value="false"/>
+                                          <setting name="5" value="false"/>
+                                          <setting name="6" value="false"/>
+                                          <setting name="7" value="false"/>
+                                          <setting name="8" value="false"/>
+                                          <setting name="9" value="false"/>
+                                          <setting name="10" value="false"/>
+                                          <setting name="11" value="false"/>
+                                          <setting name="12" value="false"/>
+                                          <setting name="13" value="false"/>
+                                          <setting name="14" value="false"/>
+                                          <setting name="15" value="false"/>
+                                       </array>
+                                    </struct>
+                                 </struct>
+                                 <struct name="fifo">
+                                    <setting name="fifoWatermarkM" value="16"/>
+                                 </struct>
+                              </struct>
+                              <set name="interrupt_sel">
+                                 <selected/>
+                              </set>
+                              <struct name="interrupt">
+                                 <setting name="IRQn" value="I2S0_Rx_IRQn"/>
+                                 <setting name="enable_interrrupt" value="enabled"/>
+                                 <setting name="enable_priority" value="false"/>
+                                 <setting name="priority" value="0"/>
+                                 <setting name="enable_custom_name" value="false"/>
+                              </struct>
+                           </struct>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="GPIOA" uuid="8dcd9780-d915-4f81-8b7b-5d9639fb29fc" type="gpio" type_id="gpio_5920c5e026e8e974e6dc54fbd5e22ad7" mode="GPIO" peripheral="GPIOA" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="fsl_gpio" quick_selection="QS_GPIO_1">
+                        <setting name="enable_irq" value="false"/>
+                        <struct name="port_interrupt">
+                           <setting name="IRQn" value="PORTA_IRQn"/>
+                           <setting name="enable_interrrupt" value="enabled"/>
+                           <setting name="enable_priority" value="false"/>
+                           <setting name="priority" value="0"/>
+                           <setting name="enable_custom_name" value="false"/>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="GPIOC" uuid="ec2d1b54-d637-4c5b-b717-d400d707a1ae" type="gpio" type_id="gpio_5920c5e026e8e974e6dc54fbd5e22ad7" mode="GPIO" peripheral="GPIOC" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="fsl_gpio" quick_selection="QS_GPIO_1">
+                        <setting name="enable_irq" value="false"/>
+                        <struct name="port_interrupt">
+                           <setting name="IRQn" value="PORTC_IRQn"/>
+                           <setting name="enable_interrrupt" value="enabled"/>
+                           <setting name="enable_priority" value="false"/>
+                           <setting name="priority" value="0"/>
+                           <setting name="enable_custom_name" value="false"/>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="UART0" uuid="3e617dc8-90ae-4cc3-8eb5-7c7d417c3460" type="uart" type_id="uart_88ab1eca0cddb7ee407685775de016d5" mode="polling" peripheral="UART0" enabled="true" comment="" custom_name_enabled="false">
+                     <config_set name="uartConfig_t" quick_selection="QuickSelection1">
+                        <struct name="uartConfig">
+                           <setting name="clockSource" value="BusInterfaceClock"/>
+                           <setting name="clockSourceFreq" value="GetFreq"/>
+                           <setting name="baudRate_Bps" value="115200"/>
+                           <setting name="parityMode" value="kUART_ParityDisabled"/>
+                           <setting name="stopBitCount" value="kUART_OneStopBit"/>
+                           <setting name="txFifoWatermark" value="0"/>
+                           <setting name="rxFifoWatermark" value="1"/>
+                           <setting name="idleType" value="kUART_IdleTypeStartBit"/>
+                           <setting name="enableTx" value="true"/>
+                           <setting name="enableRx" value="true"/>
                         </struct>
                      </config_set>
                   </instance>

@@ -38,6 +38,50 @@ component:
  * BOARD_InitPeripherals functional group
  **********************************************************************************************************************/
 /***********************************************************************************************************************
+ * DMA initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'DMA'
+- type: 'edma'
+- mode: 'basic'
+- custom_name_enabled: 'false'
+- type_id: 'edma_6d0dd4e17e2f179c7d42d98767129ede'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'DMA'
+- config_sets:
+  - fsl_edma:
+    - common_settings:
+      - enableContinuousLinkMode: 'false'
+      - enableHaltOnError: 'true'
+      - enableRoundRobinArbitration: 'false'
+      - enableDebugMode: 'false'
+    - dma_table: []
+    - edma_channels: []
+    - errInterruptConfig:
+      - enableErrInterrupt: 'false'
+      - errorInterrupt:
+        - IRQn: 'DMA_Error_IRQn'
+        - enable_interrrupt: 'enabled'
+        - enable_priority: 'false'
+        - priority: '0'
+        - enable_custom_name: 'false'
+    - quick_selection: 'default'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const edma_config_t DMA_config = {
+  .enableContinuousLinkMode = false,
+  .enableHaltOnError = true,
+  .enableRoundRobinArbitration = false,
+  .enableDebugMode = false
+};
+
+/* Empty initialization function (commented out)
+static void DMA_init(void) {
+} */
+
+/***********************************************************************************************************************
  * ADC0 initialization code
  **********************************************************************************************************************/
 /* clang-format off */
@@ -147,13 +191,381 @@ static void I2C0_init(void) {
 }
 
 /***********************************************************************************************************************
+ * I2S0 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'I2S0'
+- type: 'sai'
+- mode: 'interrupts'
+- custom_name_enabled: 'false'
+- type_id: 'sai_37a0d4b4ecc2db8ea149dbe2026c6550'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'I2S0'
+- config_sets:
+  - fsl_sai:
+    - mclk_config:
+      - masterClockSource: 'kSAI_MclkSourceSysclk'
+      - masterClockSourceFreq: 'BOARD_BootClockRUN'
+      - masterClockFrequency: '6.144 MHz'
+      - init_mclk_config: 'true'
+    - sai_master_clock: []
+    - usage: 'record_playback'
+    - signal_config:
+      - 0:
+        - sourceTx: 'Tx'
+        - sourceRx: 'Tx'
+      - 1:
+        - sourceTx: 'Tx'
+        - sourceRx: 'Tx'
+    - syncSwapI: []
+    - bclkTxSetting: []
+    - bclkRxSetting: []
+    - syncTxSetting: []
+    - syncRxSetting: []
+    - whole:
+      - tx_group:
+        - sai_transceiver:
+          - bitClock:
+            - modeM: 'master'
+            - bitClockSource: 'kSAI_BclkSourceMclkDiv'
+            - bclkPolarityM: 'kSAI_PolarityActiveLow'
+            - bclkInputDelayM: 'false'
+          - frameSync:
+            - modeM: 'master'
+            - frameSyncWidthM: '16'
+            - frameSyncPolarityM: 'kSAI_PolarityActiveLow'
+            - frameSyncEarlyM: 'true'
+          - sampleRate_Hz: 'kSAI_SampleRate16KHz'
+          - channelMask: 'kSAI_Channel0Mask'
+          - serialData:
+            - differentFirstWord: 'false'
+            - sameDataWordLengthM: 'kSAI_WordWidth16bits'
+            - dataOrder: 'kSAI_DataMSB'
+            - dataFirstBitShiftedM: '16'
+            - dataWordNumM: '2'
+            - dataMasked_config:
+              - dataMasked_L:
+                - 0: 'false'
+                - 1: 'false'
+                - 2: 'false'
+                - 3: 'false'
+                - 4: 'false'
+                - 5: 'false'
+                - 6: 'false'
+                - 7: 'false'
+                - 8: 'false'
+                - 9: 'false'
+                - 10: 'false'
+                - 11: 'false'
+                - 12: 'false'
+                - 13: 'false'
+                - 14: 'false'
+                - 15: 'false'
+              - dataMasked_H:
+                - 0: 'false'
+                - 1: 'false'
+                - 2: 'false'
+                - 3: 'false'
+                - 4: 'false'
+                - 5: 'false'
+                - 6: 'false'
+                - 7: 'false'
+                - 8: 'false'
+                - 9: 'false'
+                - 10: 'false'
+                - 11: 'false'
+                - 12: 'false'
+                - 13: 'false'
+                - 14: 'false'
+                - 15: 'false'
+          - fifo:
+            - fifoWatermarkM: '16'
+        - interrupt_sel: ''
+        - interrupt:
+          - IRQn: 'I2S0_Tx_IRQn'
+          - enable_interrrupt: 'enabled'
+          - enable_priority: 'false'
+          - priority: '0'
+          - enable_custom_name: 'false'
+      - rx_group:
+        - sai_transceiver:
+          - bitClock:
+            - modeM: 'master'
+            - bitClockSource: 'kSAI_BclkSourceMclkDiv'
+            - bclkPolarityM: 'kSAI_PolarityActiveLow'
+            - bclkInputDelayM: 'false'
+          - frameSync:
+            - modeM: 'master'
+            - frameSyncWidthM: '16'
+            - frameSyncPolarityM: 'kSAI_PolarityActiveLow'
+            - frameSyncEarlyM: 'true'
+          - sampleRate_Hz: 'kSAI_SampleRate16KHz'
+          - channelMask: 'kSAI_Channel0Mask'
+          - serialData:
+            - differentFirstWord: 'false'
+            - sameDataWordLengthM: 'kSAI_WordWidth16bits'
+            - dataOrder: 'kSAI_DataMSB'
+            - dataFirstBitShiftedM: '16'
+            - dataWordNumM: '2'
+            - dataMasked_config:
+              - dataMasked_L:
+                - 0: 'false'
+                - 1: 'false'
+                - 2: 'false'
+                - 3: 'false'
+                - 4: 'false'
+                - 5: 'false'
+                - 6: 'false'
+                - 7: 'false'
+                - 8: 'false'
+                - 9: 'false'
+                - 10: 'false'
+                - 11: 'false'
+                - 12: 'false'
+                - 13: 'false'
+                - 14: 'false'
+                - 15: 'false'
+              - dataMasked_H:
+                - 0: 'false'
+                - 1: 'false'
+                - 2: 'false'
+                - 3: 'false'
+                - 4: 'false'
+                - 5: 'false'
+                - 6: 'false'
+                - 7: 'false'
+                - 8: 'false'
+                - 9: 'false'
+                - 10: 'false'
+                - 11: 'false'
+                - 12: 'false'
+                - 13: 'false'
+                - 14: 'false'
+                - 15: 'false'
+          - fifo:
+            - fifoWatermarkM: '16'
+        - interrupt_sel: ''
+        - interrupt:
+          - IRQn: 'I2S0_Rx_IRQn'
+          - enable_interrrupt: 'enabled'
+          - enable_priority: 'false'
+          - priority: '0'
+          - enable_custom_name: 'false'
+    - quick_selection: 'sai_classic_i2s'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+/* I2S0 Tx configuration */
+sai_transceiver_t I2S0_Tx_config = {
+  .masterSlave = kSAI_Master,
+  .bitClock = {
+    .bclkSrcSwap = false,
+    .bclkSource = kSAI_BclkSourceMclkDiv,
+    .bclkPolarity = kSAI_PolarityActiveLow,
+    .bclkInputDelay = false
+  },
+  .frameSync = {
+    .frameSyncWidth = 16U,
+    .frameSyncPolarity = kSAI_PolarityActiveLow,
+    .frameSyncEarly = true,
+  },
+  .syncMode = kSAI_ModeAsync,
+  .channelMask = kSAI_Channel0Mask,
+  .startChannel = 0U,
+  .endChannel = 0U,
+  .channelNums = 1U,
+  .serialData = {
+    .dataWord0Length = (uint8_t)kSAI_WordWidth16bits,
+    .dataWordNLength = (uint8_t)kSAI_WordWidth16bits,
+    .dataWordLength = (uint8_t)kSAI_WordWidth16bits,
+    .dataOrder = kSAI_DataMSB,
+    .dataFirstBitShifted = 16U,
+    .dataWordNum = 2U,
+    .dataMaskedWord = 0x0U
+  },
+  .fifo = {
+    .fifoWatermark = 16U,
+  }
+};
+/* I2S0 Rx configuration */
+sai_transceiver_t I2S0_Rx_config = {
+  .masterSlave = kSAI_Master,
+  .bitClock = {
+    .bclkSrcSwap = false,
+    .bclkSource = kSAI_BclkSourceMclkDiv,
+    .bclkPolarity = kSAI_PolarityActiveLow,
+    .bclkInputDelay = false
+  },
+  .frameSync = {
+    .frameSyncWidth = 16U,
+    .frameSyncPolarity = kSAI_PolarityActiveLow,
+    .frameSyncEarly = true,
+  },
+  .syncMode = kSAI_ModeSync,
+  .channelMask = kSAI_Channel0Mask,
+  .startChannel = 0U,
+  .endChannel = 0U,
+  .channelNums = 1U,
+  .serialData = {
+    .dataWord0Length = (uint8_t)kSAI_WordWidth16bits,
+    .dataWordNLength = (uint8_t)kSAI_WordWidth16bits,
+    .dataWordLength = (uint8_t)kSAI_WordWidth16bits,
+    .dataOrder = kSAI_DataMSB,
+    .dataFirstBitShifted = 16U,
+    .dataWordNum = 2U,
+    .dataMaskedWord = 0x0U
+  },
+  .fifo = {
+    .fifoWatermark = 16U,
+  }
+};
+sai_master_clock_t I2S0_MCLK_config = {
+  .mclkOutputEnable = true,
+  .mclkSource = kSAI_MclkSourceSysclk,
+  .mclkSourceClkHz = I2S0_MCLK_SOURCE_CLOCK_HZ,
+  .mclkHz = I2S0_USER_MCLK_HZ
+};
+
+static void I2S0_init(void) {
+  /* Initialize SAI clock gate */
+  SAI_Init(I2S0_PERIPHERAL);
+  /* Configures SAI Tx sub-module functionality */
+  SAI_TxSetConfig(I2S0_PERIPHERAL, &I2S0_Tx_config);
+  /* Configures SAI Rx sub-module functionality */
+  SAI_RxSetConfig(I2S0_PERIPHERAL, &I2S0_Rx_config);
+  /* Set up SAI Tx bitclock rate by calculation of divider. */
+  SAI_TxSetBitClockRate(I2S0_PERIPHERAL, I2S0_TX_BCLK_SOURCE_CLOCK_HZ, I2S0_TX_SAMPLE_RATE, I2S0_TX_WORD_WIDTH, I2S0_TX_WORDS_PER_FRAME);
+  /* Set up SAI Rx bitclock rate by calculation of divider. */
+  SAI_RxSetBitClockRate(I2S0_PERIPHERAL, I2S0_RX_BCLK_SOURCE_CLOCK_HZ, I2S0_RX_SAMPLE_RATE, I2S0_RX_WORD_WIDTH, I2S0_RX_WORDS_PER_FRAME);
+  /* Initialize SAI master clock */
+  SAI_SetMasterClockConfig(I2S0_PERIPHERAL, &I2S0_MCLK_config);
+  /* Enable interrupt I2S0_Tx_IRQn request in the NVIC. */
+  EnableIRQ(I2S0_SERIAL_TX_IRQN);
+  /* Enable interrupt I2S0_Rx_IRQn request in the NVIC. */
+  EnableIRQ(I2S0_SERIAL_RX_IRQN);
+}
+
+/***********************************************************************************************************************
+ * GPIOA initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'GPIOA'
+- type: 'gpio'
+- mode: 'GPIO'
+- custom_name_enabled: 'false'
+- type_id: 'gpio_5920c5e026e8e974e6dc54fbd5e22ad7'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'GPIOA'
+- config_sets:
+  - fsl_gpio:
+    - enable_irq: 'false'
+    - port_interrupt:
+      - IRQn: 'PORTA_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - quick_selection: 'QS_GPIO_1'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+static void GPIOA_init(void) {
+  /* Make sure, the clock gate for port A is enabled (e. g. in pin_mux.c) */
+}
+
+/***********************************************************************************************************************
+ * GPIOC initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'GPIOC'
+- type: 'gpio'
+- mode: 'GPIO'
+- custom_name_enabled: 'false'
+- type_id: 'gpio_5920c5e026e8e974e6dc54fbd5e22ad7'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'GPIOC'
+- config_sets:
+  - fsl_gpio:
+    - enable_irq: 'false'
+    - port_interrupt:
+      - IRQn: 'PORTC_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - quick_selection: 'QS_GPIO_1'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+static void GPIOC_init(void) {
+  /* Make sure, the clock gate for port C is enabled (e. g. in pin_mux.c) */
+}
+
+/***********************************************************************************************************************
+ * UART0 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'UART0'
+- type: 'uart'
+- mode: 'polling'
+- custom_name_enabled: 'false'
+- type_id: 'uart_88ab1eca0cddb7ee407685775de016d5'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'UART0'
+- config_sets:
+  - uartConfig_t:
+    - uartConfig:
+      - clockSource: 'BusInterfaceClock'
+      - clockSourceFreq: 'GetFreq'
+      - baudRate_Bps: '115200'
+      - parityMode: 'kUART_ParityDisabled'
+      - stopBitCount: 'kUART_OneStopBit'
+      - txFifoWatermark: '0'
+      - rxFifoWatermark: '1'
+      - idleType: 'kUART_IdleTypeStartBit'
+      - enableTx: 'true'
+      - enableRx: 'true'
+    - quick_selection: 'QuickSelection1'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const uart_config_t UART0_config = {
+  .baudRate_Bps = 115200UL,
+  .parityMode = kUART_ParityDisabled,
+  .stopBitCount = kUART_OneStopBit,
+  .txFifoWatermark = 0U,
+  .rxFifoWatermark = 1U,
+  .idleType = kUART_IdleTypeStartBit,
+  .enableTx = true,
+  .enableRx = true
+};
+
+static void UART0_init(void) {
+  UART_Init(UART0_PERIPHERAL, &UART0_config, UART0_CLOCK_SOURCE);
+}
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 void BOARD_InitPeripherals(void)
 {
+  /* Global initialization */
+//  DMAMUX_Init(DMA_DMAMUX_BASEADDR);
+//  EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
+
   /* Initialize components */
   ADC0_init();
   I2C0_init();
+//  I2S0_init();
+//  GPIOA_init();
+//  GPIOC_init();
+//  UART0_init();
 }
 
 /***********************************************************************************************************************

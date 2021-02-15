@@ -62,15 +62,19 @@ void continue_playing(void);
 void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
 
 void init_audio_player(sai_edma_callback_t userCallback, void *userData){
-
-	uint32_t delayCycle = 500000U;
-
 	if (userCallback != 0){
 		sai_edma_init(userCallback, userData);
 	}
 	else{
 		sai_edma_init(callbackSAI, userData);
 	}
+
+	p2mp3decoder = MP3InitDecoder();
+	audioStatus = AUDIO_IDLE;
+}
+
+void init_audio_RTOS(void){
+	uint32_t delayCycle = 500000U;
 
 	/* Use default setting to init codec */
 	CODEC_Init(&codecHandle, &boardCodecConfig);  //fsl_codec_common
@@ -80,10 +84,6 @@ void init_audio_player(sai_edma_callback_t userCallback, void *userData){
 	  __ASM("nop");
 	  delayCycle--;
 	}
-
-
-	p2mp3decoder = MP3InitDecoder();
-	audioStatus = AUDIO_IDLE;
 }
 
 void free_audio_player(void){
@@ -123,7 +123,7 @@ audioResult_t read_record(audioData_t * audioData){
 }
 
 void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat){
-
+	printf("START PLAYING\n");
 	p2mp3record = 0;
 
 	if( (audioInputFormat == AUDIO_MP3) && (audioOutputFormat == AUDIO_I2S_STEREO_DECODED) && (audioStatus ==AUDIO_IDLE)){
@@ -131,7 +131,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 		p2mp3record = (unsigned char *) readFlash(&mp3dataLen, tag); //obtain mp3 pointer
 
 		bytesLeft = STREAM_LEN;  //It´s important to initialize this global variable.
-
+		ppBufferRead = 0;
 
 		if (decode_chunk_mp3(audio_pp_buffer) != -1){
 			xfer.data = (uint8_t *) audio_pp_buffer;
@@ -141,6 +141,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 			//enable DMArequest (FIFO I2S triggers DMA)
 			//assure that first DMA transfer can start at this point!
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);
+			//continue_playing();
 
 		}
 		else{
@@ -172,6 +173,7 @@ void continue_playing(void){
 	}
 	else{
 		audioStatus = AUDIO_IDLE;
+		stop_playing();
 	}
 }
 
@@ -188,12 +190,13 @@ void stop_playing(void){
 
 int decode_chunk_mp3(short * audio_pp_pointer){
 	int ret = -1;
-	//obtain next sinc word
+	//obtain next sync word
 	int offset = MP3FindSyncWord(p2mp3record, bytesLeft);
 	bytesLeft -= offset; //refresh bytes left to decode
 	p2mp3record += offset;
-
-	while(MP3GetNextFrameInfo(p2mp3decoder, &mp3FrameInfo, p2mp3record) == ERR_MP3_INVALID_FRAMEHEADER){
+	//printf("decoding: bytesLeft: %d\n", bytesLeft);
+	while((MP3GetNextFrameInfo(p2mp3decoder, &mp3FrameInfo, p2mp3record) == ERR_MP3_INVALID_FRAMEHEADER) && (offset != -1)){
+		PRINTF("	ENTRO EN WHILE \n");
 		offset = MP3FindSyncWord(p2mp3record + 1, bytesLeft);
 		bytesLeft -= (offset + 1); //refresh bytes left to decode
 		p2mp3record += (offset + 1);
@@ -214,14 +217,11 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 
 void callbackSAI(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData){
 	if(audioStatus != AUDIO_IDLE){
+
 		xfer.data = (uint8_t *)  audio_pp_buffer + ppBufferRead;
 		xfer.dataSize = mp3FrameInfo.outputSamps * 2;
 		sendSAIdata(&xfer);
 		continue_playing();
-		debug_counter++;
-		if (debug_counter > 3){
-			debug_counter = 0;
-		}
 	}
 	else{
 		stop_playing();

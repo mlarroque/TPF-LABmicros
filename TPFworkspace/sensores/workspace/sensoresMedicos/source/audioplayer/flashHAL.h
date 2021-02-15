@@ -9,7 +9,7 @@
 #define FLASHHAL_H_
 
 #define MAX_STREAMS_ALLOWED 2
-#define STREAM_LEN 1024 * 80
+#define STREAM_LEN 1024 * 19
 #define MAX_TAG_LEN 9
 /*@brief Initialize program flash sector according to hardware features
  *

@@ -145,6 +145,10 @@ BOARD_InitPins:
   - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE17/PTE24/UART4_TX/I2C0_SCL/EWM_OUT_b, identifier: ''}
   - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE18/PTE25/UART4_RX/I2C0_SDA/EWM_IN, identifier: ''}
   - {pin_num: '55', peripheral: ADC0, signal: 'SE, 12', pin_signal: ADC0_SE12/PTB2/I2C0_SCL/UART0_RTS_b/ENET0_1588_TMR0/FTM0_FLT3}
+  - {pin_num: '71', peripheral: I2S0, signal: TXD0, pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0}
+  - {pin_num: '64', peripheral: I2S0, signal: TX_BCLK, pin_signal: PTB18/CAN0_TX/FTM2_CH0/I2S0_TX_BCLK/FB_AD15/FTM2_QD_PHA}
+  - {pin_num: '65', peripheral: I2S0, signal: TX_FS, pin_signal: PTB19/CAN0_RX/FTM2_CH1/I2S0_TX_FS/FB_OE_b/FTM2_QD_PHB}
+  - {pin_num: '77', peripheral: I2S0, signal: RXD0, pin_signal: PTC5/LLWU_P9/SPI0_SCK/LPTMR0_ALT2/I2S0_RXD0/FB_AD10/CMP0_OUT/FTM0_CH2}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -161,6 +165,8 @@ void BOARD_InitPins(void)
     CLOCK_EnableClock(kCLOCK_PortA);
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
+    /* Port C Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortC);
     /* Port E Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortE);
 
@@ -182,8 +188,20 @@ void BOARD_InitPins(void)
                       * is configured as a digital output. */
                      | PORT_PCR_DSE(kPORT_LowDriveStrength));
 
+    /* PORTB18 (pin 64) is configured as I2S0_TX_BCLK */
+    PORT_SetPinMux(PORTB, 18U, kPORT_MuxAlt4);
+
+    /* PORTB19 (pin 65) is configured as I2S0_TX_FS */
+    PORT_SetPinMux(PORTB, 19U, kPORT_MuxAlt4);
+
     /* PORTB2 (pin 55) is configured as ADC0_SE12 */
     PORT_SetPinMux(BOARD_ADC0_SE12_PORT, BOARD_ADC0_SE12_PIN, kPORT_PinDisabledOrAnalog);
+
+    /* PORTC1 (pin 71) is configured as I2S0_TXD0 */
+    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt6);
+
+    /* PORTC5 (pin 77) is configured as I2S0_RXD0 */
+    PORT_SetPinMux(PORTC, 5U, kPORT_MuxAlt4);
 
     /* PORTE24 (pin 31) is configured as I2C0_SCL */
     PORT_SetPinMux(PORTE, 24U, kPORT_MuxAlt5);

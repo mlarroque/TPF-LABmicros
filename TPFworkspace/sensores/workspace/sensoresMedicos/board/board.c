@@ -44,10 +44,13 @@ status_t BOARD_Codec_I2C_Send(uint8_t deviceAddress,
                         const uint8_t *txBuff,
                         uint8_t txBuffSize)
 {
-
-	//uint8_t reg = (uint8_t)((subAddress) >> (8U * subaddressSize));
-	uint8_t reg = subAddress;
-    return WriteByte(deviceAddress, reg, txBuff, txBuffSize);
+	uint8_t reg = (uint8_t) subAddress;
+	bool successful = false;
+	while(!successful){
+		successful = WriteByte(deviceAddress, reg, txBuff, txBuffSize);
+	}
+	status_t status = 1;
+    return status;
 }
 
 status_t BOARD_Codec_I2C_Receive(uint8_t deviceAddress,

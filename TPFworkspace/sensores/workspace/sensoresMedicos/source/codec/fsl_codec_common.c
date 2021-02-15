@@ -41,6 +41,7 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
+
 status_t CODEC_I2C_WriteReg(uint8_t i2cAddr,
                             codec_reg_addr_t addrType,
                             uint32_t reg,
@@ -57,7 +58,6 @@ status_t CODEC_I2C_WriteReg(uint8_t i2cAddr,
         data[i] = (uint8_t)value;
         value >>= 8;
     }
-
     return i2cSendFunc(i2cAddr, reg, addrType, data, regWidth);
 }
 

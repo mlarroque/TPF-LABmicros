@@ -9,10 +9,17 @@
 /***********************************************************************************************************************
  * Included files
  **********************************************************************************************************************/
+#include "fsl_edma.h"
+#include "fsl_dmamux.h"
 #include "fsl_common.h"
 #include "fsl_adc16.h"
 #include "fsl_i2c.h"
 #include "fsl_i2c_freertos.h"
+#include "fsl_sai.h"
+#include "fsl_clock.h"
+#include "fsl_gpio.h"
+#include "fsl_port.h"
+#include "fsl_uart.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -22,6 +29,10 @@ extern "C" {
  * Definitions
  **********************************************************************************************************************/
 /* Definitions for BOARD_InitPeripherals functional group */
+/* Used DMA device. */
+#define DMA_DMA_BASEADDR DMA0
+/* Associated DMAMUX device that is used for muxing of requests. */
+#define DMA_DMAMUX_BASEADDR DMAMUX
 /* Alias for ADC0 peripheral */
 #define ADC0_PERIPHERAL ADC0
 /* ADC0 interrupt vector ID (number). */
@@ -35,15 +46,57 @@ extern "C" {
 #define I2C0_CLOCK_SOURCE I2C0_CLK_SRC
 /* Definition of the clock source frequency */
 #define I2C0_CLK_FREQ CLOCK_GetFreq(I2C0_CLOCK_SOURCE)
+/* Definition of peripheral ID */
+#define I2S0_PERIPHERAL I2S0
+/* I2S0 interrupt vector ID (number). */
+#define I2S0_SERIAL_TX_IRQN I2S0_Tx_IRQn
+/* I2S0 interrupt handler identifier. */
+#define I2S0_SERIAL_TX_IRQHANDLER I2S0_Tx_IRQHandler
+/* I2S0 interrupt vector ID (number). */
+#define I2S0_SERIAL_RX_IRQN I2S0_Rx_IRQn
+/* I2S0 interrupt handler identifier. */
+#define I2S0_SERIAL_RX_IRQHANDLER I2S0_Rx_IRQHandler
+/* Master clock source frequency used for calculating the master clock divider, not available on all devices. */
+#define I2S0_MCLK_SOURCE_CLOCK_HZ 120000000UL
+/* Master clock value set by the user to the Master clock frequency item. */
+#define I2S0_USER_MCLK_HZ 6144000UL
+/* Bit clock source frequency used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_BCLK_SOURCE_CLOCK_HZ 6144000UL
+/* Bit clock source frequency used for calculating the bit clock divider in the RxSetBitClockRate function. */
+#define I2S0_RX_BCLK_SOURCE_CLOCK_HZ 6144000UL
+/* Sample rate used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_SAMPLE_RATE 16000UL
+/* Sample rate used for calculating the bit clock divider in the RxSetBitClockRate function. */
+#define I2S0_RX_SAMPLE_RATE 16000UL
+/* Word width used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_WORD_WIDTH 16U
+/* Word width used for calculating the bit clock divider in the RxSetBitClockRate function. */
+#define I2S0_RX_WORD_WIDTH 16U
+/* Number of words within frame used for calculating the bit clock divider in the TxSetBitClockRate function. */
+#define I2S0_TX_WORDS_PER_FRAME 2U
+/* Number of words within frame used for calculating the bit clock divider in the RxSetBitClockRate function. */
+#define I2S0_RX_WORDS_PER_FRAME 2U
+/* Alias for GPIOA peripheral */
+#define GPIOA_GPIO GPIOA
+/* Alias for GPIOC peripheral */
+#define GPIOC_GPIO GPIOC
+/* Definition of peripheral ID */
+#define UART0_PERIPHERAL UART0
+/* Definition of the clock source frequency */
+#define UART0_CLOCK_SOURCE CLOCK_GetFreq(UART0_CLK_SRC)
 
 /***********************************************************************************************************************
  * Global variables
  **********************************************************************************************************************/
+extern const edma_config_t DMA_config;
 extern const adc16_config_t ADC0_config;
 extern const adc16_channel_mux_mode_t ADC0_muxMode;
 extern const adc16_hardware_average_mode_t ADC0_hardwareAverageMode;
 extern i2c_rtos_handle_t I2C0_rtosHandle;
 extern const i2c_master_config_t I2C0_config;
+extern sai_transceiver_t I2S0_Tx_config;
+extern sai_transceiver_t I2S0_Rx_config;
+extern const uart_config_t UART0_config;
 
 /***********************************************************************************************************************
  * Initialization functions

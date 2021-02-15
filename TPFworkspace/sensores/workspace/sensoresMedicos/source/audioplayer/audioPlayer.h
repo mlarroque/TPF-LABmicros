@@ -30,6 +30,8 @@ typedef struct{
  */
 void init_audio_player(sai_edma_callback_t callback, void *userData);
 
+void init_audio_RTOS(void);
+
 /*@brief save_record:
  * This function save an audio record in a non-volatile,
  * and manage the configuration necessary to play the record later.
