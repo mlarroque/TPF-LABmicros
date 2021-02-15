@@ -178,7 +178,7 @@ void SetFIFO(fifo_a_full_t n_max, avg_samples_t n_avg, bool rollover){
 }
 void ConfigureMax30102(void){
 	SetMode(SP02);	//Uso modo Sp02
-	LedInit(i8, i8); //Setteo corriente de ambos leds
+	LedInit(i4, i4); //Setteo corriente de ambos leds
 	SetSp02(i2048, SIXTEEN_BITS, fs_50Hz);
 	SetFIFO(EMPTY_0, NO_AVERAGE, true);
 

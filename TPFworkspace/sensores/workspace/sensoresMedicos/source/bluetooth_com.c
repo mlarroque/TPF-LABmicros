@@ -63,8 +63,8 @@ void sendBTPackage(data_BT_t pkg)
 	//sendHeartRatePacket(pkg.heartRate);
 	//sendSpO2Packet(pkg.sp02);
 	//sendTempPacket(pkg.temp);
-	sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
-	//sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
+	//sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
+	sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
 
 }
 
