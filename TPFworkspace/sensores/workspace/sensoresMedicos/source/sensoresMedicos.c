@@ -86,7 +86,7 @@ int main(void) {
 		PRINTF("Task Temp creation failed!.\r\n");
 	}
 //	/* ECG and Oximetry thread*/
-	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1000, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 900, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Proc creation failed!.\r\n");
 	}
 	/* Audio Task */
@@ -94,7 +94,7 @@ int main(void) {
 		PRINTF("Task Audio creation failed!.\r\n");
 	}
 	/* Transmiter Task */
-	if(xTaskCreate(transmiterTask, "Transmission Thread", 300, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(transmiterTask, "Transmission Thread", 200, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Trans creation failed!.\r\n");
 	}
 
@@ -175,7 +175,6 @@ void transmiterTask(void* params)
 {
 	InitBluetooth()	;// Init Bluetooth
 	data_BT_t pkg;
-	volatile int i = 0;
 	while(1){
 		BlueWaitForSamples();
 		pkg.heartRate = GetHeartRate();
@@ -197,7 +196,7 @@ void transmiterTask(void* params)
 		for(int i=0; i<pkg.n_samples_ppg ;i++){
 			pkg.ox_samples[i] = GetPlethSample().red_sample;
 		}
-		PRINTF("%d \n", i++);
+		PRINTF("%d \n", pkg.heartRate);
 		sendBTPackage(pkg);
 
 	}

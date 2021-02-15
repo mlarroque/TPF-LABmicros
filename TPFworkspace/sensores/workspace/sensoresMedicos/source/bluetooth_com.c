@@ -24,6 +24,7 @@ void sendPPGPacket(int32_t* samples, uint8_t n);
  * @brief Main function
  */
 static void BluetoothCallback(TimerHandle_t handle){
+	//xSemaphoreGive(bluetooth_sem);
 	BaseType_t woke_flag = pdFALSE;
 	xSemaphoreGiveFromISR(bluetooth_sem, &woke_flag);
 	portYIELD_FROM_ISR(woke_flag);
@@ -31,17 +32,21 @@ static void BluetoothCallback(TimerHandle_t handle){
 
 void InitBluetooth(void){
 	bluetooth_sem = xSemaphoreCreateBinary();
+	if( bluetooth_sem == NULL ){
+		PRINTF("Blu semphr is NULL \n");
+	}
+	//xSemaphoreGive(bluetooth_sem);
 	TimerHandle_t handler = xTimerCreate("Bluetooth Timer",
 				pdMS_TO_TICKS(BLUETOOTH_TIMEOUT),
 				pdTRUE,
 				NULL,
 				BluetoothCallback);
 	if( handler == NULL ){
-		PRINTF("Handler is NULL");
+		PRINTF("Handler is NULL \n");
 	}
 	xTimerStart(handler, 0);
 	if( xTimerIsTimerActive(handler) == pdFALSE ){
-		PRINTF("Timer not active");
+		PRINTF("Timer not active \n");
 	}
 
 }
@@ -53,9 +58,9 @@ void BlueWaitForSamples(void){
 void sendBTPackage(data_BT_t pkg)
 {
 	sendHeartRatePacket(pkg.heartRate);
-	sendSpO2Packet(pkg.sp02);
-	sendTempPacket(pkg.temp);
-	sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
+	//sendSpO2Packet(pkg.sp02);
+	//sendTempPacket(pkg.temp);
+	//sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
 	//sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
 
 }
