@@ -124,6 +124,9 @@ audioResult_t read_record(audioData_t * audioData){
 
 void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat){
 	printf("START PLAYING\n");
+
+	sai_edma_reset(callbackSAI, NULL);
+
 	p2mp3record = 0;
 
 	if( (audioInputFormat == AUDIO_MP3) && (audioOutputFormat == AUDIO_I2S_STEREO_DECODED) && (audioStatus ==AUDIO_IDLE)){

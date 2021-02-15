@@ -58,6 +58,19 @@ void sai_edma_init(sai_edma_callback_t callback, void *userData){
 	SAI_TransferTxSetFormatEDMA(DEMO_SAI, &txHandle, &format, mclkSourceClockHz, format.masterClockHz);
 
 }
+
+void sai_edma_reset(sai_edma_callback_t callback, void *userData){
+    /* Enable the channel FIFO */
+    DEMO_SAI->RCR3 |= I2S_RCR3_RCE_MASK;
+
+    /* Enable DMA enable bit */
+    SAI_TxEnableDMA(DEMO_SAI, kSAI_FIFORequestDMAEnable, true);
+
+    /* Enable Tx */
+    SAI_TxEnable(DEMO_SAI, true);
+
+}
+
 void init_sai_format(void){
 	/* Configure the audio format */
 	format.bitWidth = kSAI_WordWidth16bits;

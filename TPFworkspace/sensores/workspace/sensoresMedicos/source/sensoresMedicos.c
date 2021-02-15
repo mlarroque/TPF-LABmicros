@@ -125,10 +125,10 @@ int main(void) {
 	/* Perform any hardware setup necessary. */
 	prvSetupHardware();
 
-//	/* Thermometer Task */
-//	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
-//		PRINTF("Task Temp creation failed!.\r\n");
-//	}
+	/* Thermometer Task */
+	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Temp creation failed!.\r\n");
+	}
 //	/* ECG and Oximetry thread*/
 //	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
 //		PRINTF("Task Proc creation failed!.\r\n");
@@ -226,7 +226,7 @@ void audioTask(void* params)
 {
 	init_audio_RTOS();
 	while(1){
-//		xSemaphoreTake(Audio_sem, portMAX_DELAY);
+		xSemaphoreTake(Audio_sem, portMAX_DELAY);
 
 #if DEBUG_SAI_EDMA_TRANSFER_1
 		wav_test();

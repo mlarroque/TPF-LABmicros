@@ -12,6 +12,8 @@
 
 void sai_edma_init(sai_edma_callback_t callback, void *userData);
 
+void sai_edma_reset(sai_edma_callback_t callback, void *userData);
+
 uint32_t getMasterClockHz(void);
 uint32_t getSampleRateHz(void);
 uint32_t getBitWidth(void);
