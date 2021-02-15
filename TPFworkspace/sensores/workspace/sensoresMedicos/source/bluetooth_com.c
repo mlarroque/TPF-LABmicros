@@ -13,7 +13,7 @@
 #include "timers.h"
 #include "semphr.h"
 
-#define BLUETOOTH_TIMEOUT 20
+#define BLUETOOTH_TIMEOUT 40
 
 
 static SemaphoreHandle_t bluetooth_sem; //Semaforo binario que indica si llegaron muestra

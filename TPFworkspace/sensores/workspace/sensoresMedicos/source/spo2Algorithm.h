@@ -67,9 +67,9 @@
 #include <stdint.h>
 
 
-#define FreqS 50    //sampling frequency
+#define FreqS 25    //sampling frequency
 #define MAX_BUFF_SIZE (FreqS * 4)
-#define MA4_SIZE 8 // DONOT CHANGE
+#define MA4_SIZE 4 // DONOT CHANGE
 #define min(x,y) ((x) < (y) ? (x) : (y))
 
 

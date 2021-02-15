@@ -191,7 +191,7 @@ void prvSetupHardware(void){
 
 void procTask(void* params){
 	ECG_init_t ECG_init = {.fs=200};
-	oxi_init_t oxi_init = {.fs=50};
+	oxi_init_t oxi_init = {.fs=25};
 	InitializeECG(&ECG_init);
 	InitializeOximetry(&oxi_init);
 
