@@ -1,6 +1,0 @@
-fsl_dmamux.h:75:20:DMAMUX_EnableChannel	16	static
-fsl_dmamux.h:105:20:DMAMUX_SetSource	24	static
-peripherals.c:118:13:I2C0_init	8	static
-peripherals.c:271:13:I2S0_init	16	static
-peripherals.c:293:6:BOARD_InitPeripherals	8	static
-peripherals.c:307:6:BOARD_InitBootPeripherals	8	static
