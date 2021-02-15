@@ -136,7 +136,7 @@ uint8_t AddInputSamples(void){
 	if(n_samples>0){
 		for(int i=0; i<n_samples; i++){
 			led_sample = GetLedSamples();
-			++start;
+			start = (start +1)%MAX_BUFF_SIZE;
 			RedInput[(start+MAX_BUFF_SIZE-1)%MAX_BUFF_SIZE] = led_sample.red_sample;
 			IrInput[(start+MAX_BUFF_SIZE-1)%MAX_BUFF_SIZE] = led_sample.ir_sample;
 			//PRINTF("%d \n", led_sample.red_sample);

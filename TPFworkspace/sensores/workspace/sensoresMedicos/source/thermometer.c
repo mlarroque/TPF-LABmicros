@@ -21,17 +21,14 @@
 /********************************************************
  * 						DEFINCIONES						*
  ********************************************************/
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 20
 
 /********************************************************
  * 					VARIABLES GLOBALES					*
  ********************************************************/
 
-static uint16_t tempBuffer[BUFFER_SIZE];	// Buffer circular que guarda inputs
+static uint16_t temperature;	// Buffer circular que guarda inputs
 
-static uint16_t start = 0; // Indice donde se encuentra la muestra mas vieja.
-static uint16_t curr = 0; // Indice con la muestra mas vieja sin leer
-static uint16_t unread_samples = 0;
 
 static SemaphoreHandle_t temp_mutex;
 /********************************************************
@@ -47,43 +44,15 @@ void InitializeThermometer(void){
 	InitializeTempHardware();
 }
 
-uint16_t GetThermoSample(void){
-	uint16_t sample = 0;
-
-	if(unread_samples){
-		xSemaphoreTake( temp_mutex, portMAX_DELAY );
-		sample = tempBuffer[curr];
-		curr = (curr+1)%BUFFER_SIZE;
-		unread_samples--;
-		xSemaphoreGive( temp_mutex );
-	}
-
-	return sample;
-}
-
-uint16_t GetTempUnreadNum(void){
-	uint16_t ret = 0;
-
-	xSemaphoreTake( temp_mutex, portMAX_DELAY ); //Bloquea recurso compartido
-	ret = unread_samples;
-	xSemaphoreGive( temp_mutex );				//Desbloquea recuros compartido
-
-	return ret;
-}
-
 void AddTempInputSample(void){
 	uint16_t sample = 0;
 	sample = GetTempSample();
 	if(sample != 0){
 		// Valid Sample
-		++start;
-
 		xSemaphoreTake( temp_mutex, portMAX_DELAY ); //Bloquea recurso compartido
-		tempBuffer[(start+BUFFER_SIZE-1)%BUFFER_SIZE] = sample;
-		unread_samples++;
+		temperature = sample;
 		xSemaphoreGive( temp_mutex );				//Desbloquea recuros compartido
 
-		//PRINTF("SAMPLE VALUE: %d \n", sample);
 	}
 	else{
 		// Sample Not Ready
@@ -98,7 +67,7 @@ uint16_t getTemperature(void){
 	uint16_t ret_value = 0;
 
 	xSemaphoreTake( temp_mutex, portMAX_DELAY ); //Bloquea recurso compartido
-	ret_value = tempBuffer[curr];
+	ret_value = temperature;
 	xSemaphoreGive( temp_mutex );				//Desbloquea recuros compartido
 
 	return ret_value;
