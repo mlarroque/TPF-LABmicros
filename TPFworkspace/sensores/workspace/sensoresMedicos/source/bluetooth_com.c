@@ -88,25 +88,35 @@ void sendSpO2Packet(int32_t spo2){
 }
 
 void sendTempPacket(int16_t temp){
+	uint8_t packetT[6];
+	packetT[0] = 'T';
+	packetT[1] = (uint8_t) 0x00;
+	uint8_t parte_alta = temp>>8;
+	uint8_t parte_baja = (uint8_t) temp;
+	packetT[2] = parte_alta;
+	packetT[3] = parte_baja;
+	packetT[4] = 5;	//checksum
+	packetT[5] = '\r';	//terminador
 
+	uartWriteMsg(packetT, 6);
 }
 
 void sendECGPacket(int32_t* samples, uint8_t n){
 	if(n>0){
 		uint8_t size = 1+1+1+1+2*n;
-		uint8_t packetPPG[20];
-		packetPPG[0] = 'E';
-		packetPPG[1] = n;
+		uint8_t packetECG[20];
+		packetECG[0] = 'E';
+		packetECG[1] = n;
 		for(int i=0; i<n; i++){
 			uint8_t parte_alta = samples[i]>>8;
 			uint8_t parte_baja = (uint8_t) samples[i];
-			packetPPG[2+2*i] = parte_alta;
-			packetPPG[2+2*i+1] = parte_baja;
+			packetECG[2+2*i] = parte_alta;
+			packetECG[2+2*i+1] = parte_baja;
 		}
-		packetPPG[size-2] = size-1;	//checksum
-		packetPPG[size-1] = '\r';	//terminador
+		packetECG[size-2] = size-1;	//checksum
+		packetECG[size-1] = '\r';	//terminador
 
-		uartWriteMsg(packetPPG, size);
+		uartWriteMsg(packetECG, size);
 	}
 
 }
