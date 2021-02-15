@@ -14,7 +14,7 @@ typedef struct{
 	int32_t heartRate;
 	int32_t sp02;
 	uint16_t temp;
-	int32_t ecg_samples[20];
+	int32_t ecg_samples[10];
 	uint16_t n_samples_ecg;
 	int32_t ox_samples[2];
 	uint16_t n_samples_ppg;
