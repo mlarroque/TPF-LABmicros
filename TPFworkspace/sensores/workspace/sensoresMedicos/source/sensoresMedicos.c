@@ -145,7 +145,7 @@ void prvSetupHardware(void){
 				.audioDataLen = BUFF_LEN_2,
 		        .audioFormat = AUDIO_MP3
 		};
-		audioResult_t result = save_record(&audioData_2);
+		result = save_record(&audioData_2);
 	//PRINTF("%d \n", result);
 #else
 	flashINIT();
