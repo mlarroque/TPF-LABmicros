@@ -132,18 +132,18 @@ int main(void) {
 	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Temp creation failed!.\r\n");
 	}
-//	/* ECG and Oximetry thread*/
-//	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
-//		PRINTF("Task Proc creation failed!.\r\n");
-//	}
+	/* ECG and Oximetry thread*/
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Proc creation failed!.\r\n");
+	}
 	/* Audio Task */
 	if(xTaskCreate(audioTask, "Audio Thread", 400, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Audio creation failed!.\r\n");
 	}
-//	/* Transmiter Task */
-//	if(xTaskCreate(transmiterTask, "Transmission Thread", 200, NULL, 1, NULL) != pdPASS){
-//		PRINTF("Task Trans creation failed!.\r\n");
-//	}
+	/* Transmiter Task */
+	if(xTaskCreate(transmiterTask, "Transmission Thread", 200, NULL, 1, NULL) != pdPASS){
+		PRINTF("Task Trans creation failed!.\r\n");
+	}
 
 	Audio_sem = xSemaphoreCreateBinary();
 	/* Start the scheduler so the created tasks start executing. */
@@ -185,41 +185,41 @@ void prvSetupHardware(void){
     PRINTF("Hardware Setup Finished\n");
 }
 
-//void procTask(void* params){
-//	ECG_init_t ECG_init = {.fs=200};
-//	oxi_init_t oxi_init = {.fs=50};
-//	InitializeECG(&ECG_init);
-//	InitializeOximetry(&oxi_init);
-//
-//	int16_t ox_counter = OX_COUNTER_INIT;
-//	uint8_t n_samples = 0;
-//	while(1){
-//		WaitForSamples();
-//		n_samples = AddInputSamples();
-//		ox_counter -= n_samples;
-//		if( ox_counter <= 0 ){
-//			ox_counter = OX_COUNTER_INIT;
-//			CalculateSpO2();
-//			int32_t spo2 = GetSpO2();
-//			if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
-//				xSemaphoreGive( Audio_sem );
-//			}
-//		}
-//	}
-//}
+void procTask(void* params){
+	ECG_init_t ECG_init = {.fs=200};
+	oxi_init_t oxi_init = {.fs=50};
+	InitializeECG(&ECG_init);
+	InitializeOximetry(&oxi_init);
+
+	int16_t ox_counter = OX_COUNTER_INIT;
+	uint8_t n_samples = 0;
+	while(1){
+		WaitForSamples();
+		n_samples = AddInputSamples();
+		ox_counter -= n_samples;
+		if( ox_counter <= 0 ){
+			ox_counter = OX_COUNTER_INIT;
+			CalculateSpO2();
+			int32_t spo2 = GetSpO2();
+			if((spo2 > MAX_SPO2) || (spo2 < MIN_SPO2)){
+				xSemaphoreGive( Audio_sem );
+			}
+		}
+	}
+}
 
 void tempTask(void* params){
-//	InitializeThermometer();
-//	uint16_t temp;
-//	while(1){
-//		vTaskDelay( pdMS_TO_TICKS(TEMP_UPDATE_TIME) );/* Bloquea la thread por TEMP_UPDATE_TIME ms*/
-//		AddTempInputSample();
-//		temp = getTemperature();
-//		if((temp > MAX_TEMP) || (temp < MIN_TEMP)){
-//			xSemaphoreGive( Audio_sem );
-//		}
-//		newSampleRequest();
-//	}
+	InitializeThermometer();
+	uint16_t temp;
+	while(1){
+		vTaskDelay( pdMS_TO_TICKS(TEMP_UPDATE_TIME) );/* Bloquea la thread por TEMP_UPDATE_TIME ms*/
+		AddTempInputSample();
+		temp = getTemperature();
+		if((temp > MAX_TEMP) || (temp < MIN_TEMP)){
+			xSemaphoreGive( Audio_sem );
+		}
+		newSampleRequest();
+	}
 	while(1){
 		xSemaphoreGive(Audio_sem);
 		vTaskDelay(pdMS_TO_TICKS(8000));// Delay entre reproducciones
@@ -234,18 +234,18 @@ void audioTask(void* params)
 
 		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
 
-		vTaskDelay( pdMS_TO_TICKS(5000) );// Delay entre reproducciones
+		vTaskDelay(pdMS_TO_TICKS(5000));// Delay entre reproducciones
 	}
 	free_audio_player();
 }
 
-//void transmiterTask(void* params)
-//{
-//	// Init Bluetooth
-//	while(1){
-//		vTaskDelay( pdMS_TO_TICKS(1000) );
-//		PRINTF("HR: %d \n",GetHeartRate());
-//		PRINTF("SP02: %d \n",GetSpO2());
-//		PRINTF("T: %d \n",GetThermoSample());
-//	}
-//}
+void transmiterTask(void* params)
+{
+	// Init Bluetooth
+	while(1){
+		vTaskDelay( pdMS_TO_TICKS(1000) );
+		PRINTF("HR: %d \n",GetHeartRate());
+		PRINTF("SP02: %d \n",GetSpO2());
+		PRINTF("T: %d \n",GetThermoSample());
+	}
+}
