@@ -176,10 +176,10 @@ void prvSetupHardware(void){
 	init_audio_player(NULL, NULL);
 #endif
 	audioResult_t result = save_record(&audioData);
-
+	PRINTF("%d \n", result);
     PRINTF("Hardware Setup Finished\n");
 }
-
+\
 //void procTask(void* params){
 //	ECG_init_t ECG_init = {.fs=200};
 //	oxi_init_t oxi_init = {.fs=50};

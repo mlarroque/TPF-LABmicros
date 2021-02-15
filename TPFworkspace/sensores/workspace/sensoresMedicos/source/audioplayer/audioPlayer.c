@@ -123,7 +123,7 @@ audioResult_t read_record(audioData_t * audioData){
 }
 
 void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t audioOutputFormat){
-	printf("START PLAYING\n");
+	//printf("START PLAYING\n");
 
 	sai_edma_reset(callbackSAI, NULL);
 
@@ -133,7 +133,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 
 		p2mp3record = (unsigned char *) readFlash(&mp3dataLen, tag); //obtain mp3 pointer
 
-		bytesLeft = STREAM_LEN;  //It´s important to initialize this global variable.
+		bytesLeft = 18982;  //It´s important to initialize this global variable.
 		ppBufferRead = 0;
 
 		if (decode_chunk_mp3(audio_pp_buffer) != -1){
@@ -144,7 +144,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 			//enable DMArequest (FIFO I2S triggers DMA)
 			//assure that first DMA transfer can start at this point!
 			ppBufferWrite = (int)(PP_BUFFER_LEN/2);
-			//continue_playing();
+			continue_playing();
 
 		}
 		else{
