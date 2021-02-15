@@ -9,10 +9,6 @@
 #include "fsl_ftfx_flash.h"
 #include <stdbool.h>
 
-
-
-//char stream[STREAM_LEN];
-
 uint32_t pflashBlockBase  = 0;
 uint32_t pflashTotalSize  = 0;
 uint32_t pflashSectorSize = 0;

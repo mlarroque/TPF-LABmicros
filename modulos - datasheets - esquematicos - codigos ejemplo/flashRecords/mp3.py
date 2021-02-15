@@ -1,10 +1,10 @@
-filename = "GrabacionEmergencia"
+filename = "advertenciaCardiaca"
 
 data = open(filename + '.mp3', 'rb').read()
 
 print(f"El archivo {filename} tiene {len(data)} bytes")
 
-out_str = "uint8_t "+filename+"_array[BUFF_LEN]={ \n"
+out_str = "uint8_t "+filename+"_array[BUFF_LEN_2]={ \n"
 
 columns = 35
 
@@ -23,7 +23,7 @@ out_str += "};"
 
         
 f = open(filename+"_array.h",'w')
-f.write("#define BUFF_LEN "+str(len(data))+"\n")
+f.write("#define BUFF_LEN_2 "+str(len(data))+"\n")
 f.write(out_str)
 
 f.close()

@@ -32,6 +32,8 @@ extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;*/
 
 #define USE_SIZE_HELIX 0
 
+uint32_t records_size[MAX_STREAMS_ALLOWED] = {18982, 15102};
+
 short audio_pp_buffer[PP_BUFFER_LEN];  //PING PONG BUFFER
 
 int ppBufferWrite = 0;
@@ -133,7 +135,7 @@ void start_playing(audioTag_t tag, audioFormat_t audioInputFormat, audioFormat_t
 
 		p2mp3record = (unsigned char *) readFlash(&mp3dataLen, tag); //obtain mp3 pointer
 
-		bytesLeft = 18982;  //It´s important to initialize this global variable.
+		bytesLeft = records_size[tag];  //It´s important to initialize this global variable.
 		ppBufferRead = 0;
 
 		if (decode_chunk_mp3(audio_pp_buffer) != -1){

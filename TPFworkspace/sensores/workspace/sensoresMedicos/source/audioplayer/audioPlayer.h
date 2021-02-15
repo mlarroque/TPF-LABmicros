@@ -8,8 +8,6 @@
 #ifndef AUDIOPLAYER_H_
 #define AUDIOPLAYER_H_
 
-#define AUDIO_DATA_MAX_LEN (1024 * 8)
-
 #include "sai_edma_hal.h"
 #include "flashHal.h"
 
@@ -18,6 +16,8 @@ typedef enum {AUDIO_SUCCES, AUDIO_ERROR} audioResult_t;
 typedef enum {AUDIO_PENDING, AUDIO_NOT_PENDING, AUDIO_SENDING} playerStatus_t;
 typedef enum {AUDIO_MP3, AUDIO_I2S_STEREO_DECODED} audioFormat_t;
 typedef enum {AUDIO_IDLE, AUDIO_PROCESSING} audioStatus_t;
+
+
 
 typedef struct{
 	char * p2audioData;

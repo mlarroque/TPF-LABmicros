@@ -60,6 +60,7 @@
 
 #if FLASH_SAVE_OPTION
 #include "GrabacionEmergencia_array.h"
+#include "advertenciaCardiaca_array.h"
 #endif
 
 /*
@@ -86,43 +87,6 @@ void audioTask(void*);
 //void transmiterTask(void*);
 
 static SemaphoreHandle_t Audio_sem;
-
-#if DEBUG_SAI_EDMA_TRANSFER_1
-#include "GrabacionEmergencia_wavarray.h"
-#define BUFFER_SIZE (1600U)
-#define BUFFER_NUM (2U)
-
-AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t buffer[BUFFER_NUM*BUFFER_SIZE], 4);
-volatile bool isFinished = false;
-volatile uint32_t finishIndex = 0U;
-volatile uint32_t emptyBlock = BUFFER_NUM;
-
-void wav_test(void);
-
-static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
-
-static void callback(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData)
-{
-	//printf("entro callback\n");
-    if(kStatus_SAI_RxError == status)
-    {
-    }
-    else
-    {
-
-        finishIndex++;
-        emptyBlock++;
-        /* Judge whether the music array is completely transfered. */
-        if(BUFF_LEN_WAV/BUFFER_SIZE == finishIndex)
-        {
-            isFinished = true;
-        }
-
-        //printf("flags: sai: %d, edma: %d\n", handle->state, handle->dmaHandle->flags);
-    }
-}
-
-#endif
 
 int main(void) {
 	/* Perform any hardware setup necessary. */
@@ -175,6 +139,13 @@ void prvSetupHardware(void){
 	        .audioFormat = AUDIO_MP3
 	};
 	audioResult_t result = save_record(&audioData);
+	audioData_t audioData_2 = {
+				.audioTag = ALERTA_1,
+				.p2audioData = advertenciaCardiaca_array,
+				.audioDataLen = BUFF_LEN_2,
+		        .audioFormat = AUDIO_MP3
+		};
+		audioResult_t result = save_record(&audioData_2);
 	//PRINTF("%d \n", result);
 #else
 	flashINIT();
@@ -229,10 +200,18 @@ void tempTask(void* params){
 void audioTask(void* params)
 {
 	init_audio_RTOS();
+	int i = 1;
 	while(1){
 		xSemaphoreTake(Audio_sem, portMAX_DELAY);
+		if (i){
+			start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+			i--;
+		}
+		else{
+			start_playing(ALERTA_1, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
+			i++;
+		}
 
-		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
 
 		vTaskDelay( pdMS_TO_TICKS(5000) );// Delay entre reproducciones
 	}
