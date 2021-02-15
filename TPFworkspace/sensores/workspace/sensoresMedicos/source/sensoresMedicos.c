@@ -57,7 +57,10 @@
 
 #include "audioPlayer.h"
 #include "debug_defs.h"
+
+#if FLASH_SAVE_OPTION
 #include "GrabacionEmergencia_array.h"
+#endif
 
 /*
  * @brief   Application entry point.
@@ -163,22 +166,22 @@ void prvSetupHardware(void){
 	NVIC_SetPriority(DMA0_IRQn, 2);
 	NVIC_SetPriority(I2S0_Tx_IRQn, 2);
 
-	//BOARD_audio_init(); //esta funcion esta en board.h del proyecto de audioPlayer. Falta Mergear.
+
+#if FLASH_SAVE_OPTION
 	audioData_t audioData = {
 			.audioTag = ALERTA_0,
 			.p2audioData = GrabacionEmergencia_array,
 			.audioDataLen = BUFF_LEN,
 	        .audioFormat = AUDIO_MP3
 	};
-#if DEBUG_SAI_EDMA_TRANSFER_1
-	init_audio_player(callback, NULL);
+	audioResult_t result = save_record(&audioData);
+	//PRINTF("%d \n", result);
 #else
-	init_audio_player(NULL, NULL);
+	flashINIT();
 #endif
 
-	flashINIT();
-	//audioResult_t result = save_record(&audioData);
-	//PRINTF("%d \n", result);
+	init_audio_player(NULL, NULL);
+
     PRINTF("Hardware Setup Finished\n");
 }
 \
@@ -229,12 +232,7 @@ void audioTask(void* params)
 	while(1){
 		xSemaphoreTake(Audio_sem, portMAX_DELAY);
 
-#if DEBUG_SAI_EDMA_TRANSFER_1
-		wav_test();
-#else
-
 		start_playing(ALERTA_0, AUDIO_MP3, AUDIO_I2S_STEREO_DECODED);
-#endif
 
 		vTaskDelay( pdMS_TO_TICKS(5000) );// Delay entre reproducciones
 	}
@@ -251,34 +249,3 @@ void audioTask(void* params)
 //		PRINTF("T: %d \n",GetThermoSample());
 //	}
 //}
-
-#if DEBUG_SAI_EDMA_TRANSFER_1
-
-void wav_test(void){
-	sai_transfer_t xfer;
-
-	uint32_t cpy_index = 0U, tx_index=0U;
-	/* Waiting until finished. */
-	while(!isFinished)
-	{
-	   if((emptyBlock > 0U) && (cpy_index < BUFF_LEN_WAV/BUFFER_SIZE))
-	   {
-	      /* Fill in the buffers. */
-	      memcpy((uint8_t *)&buffer[BUFFER_SIZE*(cpy_index%BUFFER_NUM)],(uint8_t *)&GrabacionEmergencia_wavarray[cpy_index*BUFFER_SIZE],sizeof(uint8_t)*BUFFER_SIZE);
-	      emptyBlock--;
-	      cpy_index++;
-	   }
-	   if(emptyBlock < BUFFER_NUM)
-	   {
-	     /*  xfer structure */
-	     xfer.data = (uint8_t *)&buffer[BUFFER_SIZE*(tx_index%BUFFER_NUM)];
-	     xfer.dataSize = BUFFER_SIZE;
-	     /* Wait for available queue. */
-	     if(kStatus_Success == sendSAIdata(&xfer))
-	     {
-	    	 tx_index++;
-	     }
-	   }
-	}
-}
-#endif

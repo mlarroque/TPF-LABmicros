@@ -11,6 +11,7 @@
 #define AUDIO_DATA_MAX_LEN (1024 * 8)
 
 #include "sai_edma_hal.h"
+#include "flashHal.h"
 
 typedef enum {ALERTA_0, ALERTA_1} audioTag_t;
 typedef enum {AUDIO_SUCCES, AUDIO_ERROR} audioResult_t;

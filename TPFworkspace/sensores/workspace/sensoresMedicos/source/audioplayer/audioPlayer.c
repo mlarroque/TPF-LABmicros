@@ -17,7 +17,7 @@ extern sai_edma_handle_t I2S0_SAI_Tx_eDMA_Handle;*/
 
 #include "audioPlayer.h"
 #include "mp3dec.h"
-#include "flashHal.h"
+
 #include "UDA.h"
 #include "fsl_debug_console.h"
 
