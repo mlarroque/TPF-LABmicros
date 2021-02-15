@@ -61,10 +61,10 @@ void sendBTPackage(data_BT_t pkg)
 }
 
 void sendHeartRatePacket(int32_t heartRate){
-	char packetH[5];
+	uint8_t packetH[5];
 	packetH[0] = 'H';
-	packetH[1] = (char) 0x00;
-	packetH[2] = (char) ((uint8_t)heartRate);
+	packetH[1] = (uint8_t) 0x00;
+	packetH[2] = (uint8_t)heartRate;
 	packetH[3] = 4;	//checksum
 	packetH[4] = '\r';	//terminador
 

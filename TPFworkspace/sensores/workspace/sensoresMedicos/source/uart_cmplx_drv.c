@@ -14,8 +14,6 @@
  ******************************************************************************/
 /* UART instance and clock */
 #define UART UART3_PERIPHERAL
-#define TX_BUFFER_LEN 500
-#define TX_MESSAGE_MAX_LEN 8
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -26,12 +24,6 @@
  * Variables
  ******************************************************************************/
 
-_Bool TXCompleteFlag = false;
-
-static uint8_t TXbuffers[TX_BUFFER_LEN];
-static uint8_t lengthTXbuffer = 0;
-static uint8_t outMarkersTXbuffer = 0;
-static uint8_t inMarkersTXbuffer= 0;
 
 
 /*******************************************************************************
