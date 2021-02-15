@@ -176,7 +176,6 @@ void prvSetupHardware(void){
 	init_audio_player(NULL, NULL);
 #endif
 	audioResult_t result = save_record(&audioData);
-	printf("%d \n", result);
 
     PRINTF("Hardware Setup Finished\n");
 }

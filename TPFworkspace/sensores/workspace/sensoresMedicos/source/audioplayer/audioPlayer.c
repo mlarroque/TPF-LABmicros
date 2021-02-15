@@ -199,7 +199,7 @@ int decode_chunk_mp3(short * audio_pp_pointer){
 	p2mp3record += offset;
 	//printf("decoding: bytesLeft: %d\n", bytesLeft);
 	while((MP3GetNextFrameInfo(p2mp3decoder, &mp3FrameInfo, p2mp3record) == ERR_MP3_INVALID_FRAMEHEADER) && (offset != -1)){
-		PRINTF("	ENTRO EN WHILE \n");
+		//PRINTF("	ENTRO EN WHILE \n");
 		offset = MP3FindSyncWord(p2mp3record + 1, bytesLeft);
 		bytesLeft -= (offset + 1); //refresh bytes left to decode
 		p2mp3record += (offset + 1);
