@@ -222,9 +222,6 @@ void tempTask(void* params){
 		}
 		newSampleRequest();
 	}
-	while(1){
-		xSemaphoreGive( Audio_sem );
-	}
 }
 
 void audioTask(void* params)
