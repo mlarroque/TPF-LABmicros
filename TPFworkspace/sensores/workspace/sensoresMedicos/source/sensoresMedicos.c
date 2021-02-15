@@ -66,7 +66,7 @@
 #define MAX_SPO2 110//??
 #define MIN_SPO2 10//??
 #define OX_COUNTER_INIT (50*4)	//Cada cuantas muestras se actualiza el SP02
-#define TEMP_UPDATE_TIME 10000 //Cada cuanto se lee la temperatura en ms.
+#define TEMP_UPDATE_TIME 1000 //Cada cuanto se lee la temperatura en ms.
 
 
 void prvSetupHardware(void);
@@ -179,7 +179,7 @@ void transmiterTask(void* params)
 		BlueWaitForSamples();
 		pkg.heartRate = GetHeartRate();
 		pkg.sp02 = GetSpO2();
-		pkg.temp = GetThermoSample();
+		pkg.temp = getTemperature();
 		//ECG
 		pkg.n_samples_ecg = GetEcgUnreadNum();
 		if( pkg.n_samples_ecg > 4){
@@ -196,8 +196,7 @@ void transmiterTask(void* params)
 		for(int i=0; i<pkg.n_samples_ppg ;i++){
 			pkg.ox_samples[i] = GetPlethSample().red_sample;
 		}
-		PRINTF("%d \n", pkg.ox_samples[0]);
-		//sendBTPackage(pkg);
+		sendBTPackage(pkg);
 
 	}
 }

@@ -19,7 +19,10 @@
 static SemaphoreHandle_t bluetooth_sem; //Semaforo binario que indica si llegaron muestra
 
 void sendHeartRatePacket(int32_t heartRate);
+void sendSpO2Packet(int32_t spo2);
 void sendPPGPacket(int32_t* samples, uint8_t n);
+void sendECGPacket(int32_t* samples, uint8_t n);
+void sendTempPacket(int16_t temp);
 /*!
  * @brief Main function
  */
@@ -57,11 +60,11 @@ void BlueWaitForSamples(void){
 
 void sendBTPackage(data_BT_t pkg)
 {
-	//sendHeartRatePacket(pkg.heartRate);
-	//sendSpO2Packet(pkg.sp02);
-	//sendTempPacket(pkg.temp);
+	sendHeartRatePacket(pkg.heartRate);
+	sendSpO2Packet(pkg.sp02);
+	sendTempPacket(pkg.temp);
 	//sendECGPacket(pkg.ecg_samples, pkg.n_samples_ecg);
-	sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
+	//sendPPGPacket(pkg.ox_samples, pkg.n_samples_ppg);
 
 }
 
