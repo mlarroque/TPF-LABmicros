@@ -130,11 +130,11 @@ int main(void) {
 	prvSetupHardware();
 
 	/* Thermometer Task */
-	if(xTaskCreate(tempTask, "Temperature Thread", 400, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(tempTask, "Temperature Thread", 200, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Temp creation failed!.\r\n");
 	}
 	/* ECG and Oximetry thread*/
-	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 1100, NULL, 1, NULL) != pdPASS){
+	if(xTaskCreate(procTask, "Oximetry and ECG Thread", 900, NULL, 1, NULL) != pdPASS){
 		PRINTF("Task Proc creation failed!.\r\n");
 	}
 	/* Audio Task */
@@ -166,6 +166,7 @@ void prvSetupHardware(void){
 	NVIC_SetPriority(I2C0_IRQn, 2);
 	NVIC_SetPriority(DMA0_IRQn, 2);
 	NVIC_SetPriority(I2S0_Tx_IRQn, 2);
+	NVIC_SetPriority(UART3_RX_TX_IRQn, 2);
 
 
 #if FLASH_SAVE_OPTION
