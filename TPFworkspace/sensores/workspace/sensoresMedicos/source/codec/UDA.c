@@ -76,7 +76,7 @@ status_t UDA_ReadReg(codec_handle_t *handle, uint16_t reg, uint16_t *val)
 {
     status_t retval = 0;
 
-    retval = CODEC_I2C_ReadReg(handle->slaveAddress, kCODEC_RegAddr8Bit, reg, kCODEC_RegWidth16Bit, val,
+   retval = CODEC_I2C_ReadReg(handle->slaveAddress, kCODEC_RegAddr8Bit, reg, kCODEC_RegWidth16Bit, val,
                                handle->I2C_ReceiveFunc);
 
     return retval;

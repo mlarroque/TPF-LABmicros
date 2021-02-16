@@ -150,4 +150,3 @@ uint8_t AddInputSamples(void){
 void WaitForSamples(void){
 	xSemaphoreTake( ox_sem, portMAX_DELAY );
 }
-
