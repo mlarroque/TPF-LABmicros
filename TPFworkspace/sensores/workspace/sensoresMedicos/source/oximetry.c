@@ -30,16 +30,16 @@
 static uint16_t fs;
 static int32_t Sp02 = 0;
 static int32_t HeartRate = 0;
-static ppg_sample_t RedInput[MAX_BUFF_SIZE];	//Buffer circular que guarda inputs del led rojo.
-static ppg_sample_t IrInput[MAX_BUFF_SIZE];	//Buffer circular que guarda inputs del led ir.
+static ppg_sample_t RedInput[BUFFER_SIZE];	//Buffer circular que guarda inputs del led rojo.
+static ppg_sample_t IrInput[BUFFER_SIZE];	//Buffer circular que guarda inputs del led ir.
 
 static uint16_t start = 0; //Indice donde se encuentra la muestra mas vieja.
 static uint16_t curr = 0; //Indice con la muestra mas vieja sin leer del pleth
 static uint16_t unread_samples = 0;
 static uint16_t raw_samples_rx = 0; //Cantidad de muestras sin procesar almacenadas
 
-static int32_t RedPleth[MAX_BUFF_SIZE];
-static int32_t IrPleth[MAX_BUFF_SIZE];
+int32_t RedPleth[BUFFER_SIZE];
+int32_t IrPleth[BUFFER_SIZE];
 
 static SemaphoreHandle_t ox_mutex; //Protege recursos compartidos
 static SemaphoreHandle_t ox_sem; //Semaforo binario que indica si llegaron muestras
@@ -66,17 +66,19 @@ void InitializeOximetry(oxi_init_t* init_data){
 }
 
 void CalculateSpO2(void){
-	int32_t result = 0;
+	float result = 0;
 	int32_t hr_aux = 0;
 	int8_t valid = 0;
 	int8_t hr_valid = 0;
+	float ratio = 0;
+	float correl = 0;
 
 	xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
-	maxim_oxygen_saturation(IrInput,  MAX_BUFF_SIZE,  RedInput,  &result, &valid,
-							start, IrPleth, RedPleth, &hr_aux, &hr_valid);
+	rf_heart_rate_and_oxygen_saturation(IrInput, BUFFER_SIZE, RedInput, &result, &valid,
+			&hr_aux, &hr_valid, &ratio, &correl, RedPleth, IrPleth);
 
 	if(valid){
-		Sp02 = result;
+		Sp02 = (int32_t) result;
 	}
 	if(hr_valid){
 		HeartRate = hr_aux;
@@ -92,7 +94,7 @@ pleth_sample_t GetPlethSample(void){
 		xSemaphoreTake( ox_mutex, portMAX_DELAY ); //Bloquea recurso compartido
 		sample.ir_sample =	 IrPleth[curr];
 		sample.red_sample =  RedPleth[curr];
-		curr = (curr+1)%MAX_BUFF_SIZE;
+		curr = (curr+1)%BUFFER_SIZE;
 		unread_samples--;
 		xSemaphoreGive( ox_mutex );				//Desbloquea recuros compartido
 	}
@@ -136,9 +138,9 @@ uint8_t AddInputSamples(void){
 	if(n_samples>0){
 		for(int i=0; i<n_samples; i++){
 			led_sample = GetLedSamples();
-			start = (start +1)%MAX_BUFF_SIZE;
-			RedInput[(start+MAX_BUFF_SIZE-1)%MAX_BUFF_SIZE] = led_sample.red_sample;
-			IrInput[(start+MAX_BUFF_SIZE-1)%MAX_BUFF_SIZE] = led_sample.ir_sample;
+			start = (start +1)%BUFFER_SIZE;
+			RedInput[(start+BUFFER_SIZE-1)%BUFFER_SIZE] = led_sample.red_sample;
+			IrInput[(start+BUFFER_SIZE-1)%BUFFER_SIZE] = led_sample.ir_sample;
 			//PRINTF("%d \n", led_sample.red_sample);
 		}
 		raw_samples_rx += n_samples;
