@@ -51,9 +51,7 @@ status_t UDA_init(codec_handle_t *handle, void *config){
     status = UDA_WriteReg(handle, UDA_REG(0x11), 0x0000);
     status = UDA_WriteReg(handle, UDA_REG(0x12), 0x0000);
     status = UDA_WriteReg(handle, UDA_REG(0x13), 0x0000);
-    do{
-    	status = UDA_ReadReg(handle, UDA_REG(0x13), &readValCheck);
-    }while(readValCheck != 0);
+    status = UDA_ReadReg(handle, UDA_REG(0x13), &readValCheck);
     //PRINTF("READ VAL CHECK: %d \n", readValCheck);
     //status = UDA_WriteReg(handle, UDA_REG(0x14), 0x0000);
     //status = UDA_WriteReg(handle, UDA_REG(0x21), 0x0000);
